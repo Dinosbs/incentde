@@ -19,9 +19,9 @@
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="assets/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="icon" href="assets/img/favicon.png" type="image/png" sizes="32x32">
+  <link rel="preload" href="assets/fonts/barlow-semi-condensed-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/barlow-semi-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
   <script>document.documentElement.classList.add("js")</script>
   <link rel="stylesheet" href="assets/css/main.css">
   <script defer src="assets/js/main.js"></script>
@@ -86,6 +86,9 @@
     <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9 4.5 4h15L21 9"/><path d="M3 9h18v1.5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13.5V21h14v-7.5"/><path d="M10 21v-4h4v4"/></symbol>
     <symbol id="i-building" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></symbol>
     <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5.5 7.5h13l1 13.5h-15z"/><path d="M9 7.5V6a3 3 0 0 1 6 0v1.5"/><path d="M12 12v4M10 14h4"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></symbol>
     <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
     <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></symbol>
@@ -99,10 +102,8 @@
   <!-- ============ Navigation ============ -->
   <header class="nav" data-nav>
     <div class="nav__inner">
-      <!-- Wortmarke: bei Bedarf durch die offizielle Logo-Datei (SVG) ersetzen -->
-      <a class="brand" href="#top" aria-label="INCENT – zur Startseite">
-        <span class="brand__mark" aria-hidden="true"></span>
-        <span class="brand__word">INCENT</span>
+      <a class="brand" href="#top">
+        <img src="assets/img/incent-logo-white.png" width="446" height="109" alt="INCENT – zur Startseite">
       </a>
 
       <nav class="nav__menu" aria-label="Hauptnavigation" data-menu>
@@ -224,39 +225,54 @@
 
       <!-- Interaktive Produkt-Illustration -->
       <div class="container">
-        <div class="hero__visual" data-tilt data-reveal style="--d:.36s" aria-hidden="true">
+        <div class="hero__visual vp-theme" data-tilt data-reveal style="--d:.36s" data-btn-tone="dark" data-nav-tone="light" aria-hidden="true">
           <div class="stage" data-tilt-stage>
-            <div class="mock">
-              <div class="mock__bar">
-                <span class="mock__dots"><i></i><i></i><i></i></span>
-                <span class="mock__url"><svg class="i i--xs"><use href="#i-globe"/></svg>vorteile.net</span>
-                <span class="mock__bar-end"></span>
-              </div>
-              <div class="mock__app">
-                <aside class="mock__side">
-                  <span class="mock__logo"><i></i>Vorteilsportal</span>
-                  <span class="mock__nav is-on"><svg class="i i--sm"><use href="#i-dashboard"/></svg>Startseite</span>
-                  <span class="mock__nav"><svg class="i i--sm"><use href="#i-tag"/></svg>Markendeals</span>
-                  <span class="mock__nav"><svg class="i i--sm"><use href="#i-ticket"/></svg>Gutscheine</span>
-                  <span class="mock__nav"><svg class="i i--sm"><use href="#i-gift"/></svg>Prämienshop</span>
-                  <span class="mock__nav"><svg class="i i--sm"><use href="#i-star"/></svg>Geschenkanlässe</span>
-                </aside>
-                <div class="mock__main">
-                  <div class="mock__top">
-                    <span class="mock__hello"><small>Willkommen zurück</small><strong>Ihre Vorteile</strong></span>
-                    <span class="mock__search"><svg class="i i--sm"><use href="#i-search"/></svg>Marken, Gutscheine, Prämien …</span>
-                    <span class="mock__avatar">AB</span>
+            <!-- Nachbau des echten Vorteilsportals (incent.vorteile.net) -->
+            <div class="vp-frame">
+              <div class="vp">
+                <div class="vp__bar">
+                  <span class="vp__dots"><i></i><i></i><i></i></span>
+                  <span class="vp__url"><svg class="i"><use href="#i-lock"/></svg>incent.vorteile.net/de/dashboard</span>
+                  <span class="vp__bar-end"></span>
+                </div>
+                <div class="vp__header">
+                  <div class="vp__top">
+                    <span class="vp__logo"><img class="vp__logo-dark" src="assets/img/incent-logo-dark.png" alt=""><img class="vp__logo-light" src="assets/img/incent-logo-white.png" alt=""></span>
+                    <span class="vp__search">Suchen<svg class="i"><use href="#i-search"/></svg></span>
+                    <span class="vp__account"><b>Mitarbeiterportal</b><small>INCENT Corporate Services</small></span>
                   </div>
-                  <div class="mock__banner">
-                    <span><small>Prämienshop</small><strong>Exklusive Markenangebote</strong><em>Jetzt entdecken</em></span>
-                    <span class="mock__banner-art"><i></i><i></i><i></i></span>
+                  <div class="vp__nav">
+                    <span class="vp__cats"><i>Highlights</i><i>NEU</i><i class="is-on">Mobilfunk &amp; Internet</i><i>Mobilität</i><i>Technik</i><i>Health &amp; Beauty</i><i>Home &amp; Living</i><i>Sport</i><i class="is-on">Alle Kategorien +</i></span>
+                    <span class="vp__icons"><svg class="i"><use href="#i-heart"/></svg><svg class="i"><use href="#i-user"/></svg><span class="vp__cart"><svg class="i"><use href="#i-bag"/></svg><b>1</b></span></span>
                   </div>
-                  <div class="mock__chips"><span class="is-on">Alle</span><span>Technik</span><span>Mode</span><span>Reisen</span><span>Wohnen</span><span>Sport</span></div>
-                  <div class="mock__deals">
-                    <span class="deal"><span class="deal__img"><svg class="i"><use href="#i-tag"/></svg></span><span class="deal__badge">−25&nbsp;%</span><small>Technik</small><strong>Markendeal</strong></span>
-                    <span class="deal"><span class="deal__img"><svg class="i"><use href="#i-gift"/></svg></span><span class="deal__badge">Exklusiv</span><small>Wohnen</small><strong>Prämienshop</strong></span>
-                    <span class="deal"><span class="deal__img"><svg class="i"><use href="#i-ticket"/></svg></span><span class="deal__badge">Neu</span><small>Reisen</small><strong>Gutschein</strong></span>
-                    <span class="deal"><span class="deal__img"><svg class="i"><use href="#i-store"/></svg></span><span class="deal__badge">−15&nbsp;%</span><small>Mode</small><strong>Online &amp; Filiale</strong></span>
+                </div>
+                <div class="vp__stage">
+                  <div class="vp__head"><strong>Unsere Partner Highlights</strong><em>Deals, die wir lieben</em></div>
+                  <div class="vp__grid">
+                    <span class="vp-deal">
+                      <img class="vp-deal__img" src="assets/img/portal/deal-solakon.webp" alt="" loading="lazy">
+                      <span class="vp-deal__logo"><img src="assets/img/portal/logo-solakon.webp" alt="" loading="lazy"></span>
+                      <span class="vp-deal__badge"><small>bis<br>zu</small>40%</span>
+                      <span class="vp-deal__info"><b>SOLAKON</b><span>Solarstrom selbst erzeugen &amp; Stromkosten senken</span></span>
+                    </span>
+                    <span class="vp-deal">
+                      <img class="vp-deal__img" src="assets/img/portal/deal-transporo.webp" alt="" loading="lazy">
+                      <span class="vp-deal__logo"><img src="assets/img/portal/logo-transporo.webp" alt="" loading="lazy"></span>
+                      <span class="vp-deal__badge">10%</span>
+                      <span class="vp-deal__info"><b>Transporo</b><span>Jetzt Umzug zum Festpreis buchen</span></span>
+                    </span>
+                    <span class="vp-deal">
+                      <img class="vp-deal__img" src="assets/img/portal/deal-liebscher-bracht.webp" alt="" loading="lazy">
+                      <span class="vp-deal__logo"><img src="assets/img/portal/logo-liebscher-bracht.webp" alt="" loading="lazy"></span>
+                      <span class="vp-deal__badge"><small>über</small>50%</span>
+                      <span class="vp-deal__info"><b>Liebscher und Bracht App</b><span>Schmerzen selbst angehen &amp; ein Jahr unbegrenzt trainieren</span></span>
+                    </span>
+                    <span class="vp-deal">
+                      <img class="vp-deal__img" src="assets/img/portal/deal-posterxxl.webp" alt="" loading="lazy">
+                      <span class="vp-deal__logo"><img src="assets/img/portal/logo-posterxxl.webp" alt="" loading="lazy"></span>
+                      <span class="vp-deal__badge"><small>bis<br>zu</small>60%</span>
+                      <span class="vp-deal__info"><b>posterXXL</b><span>Für wertvolle Erinnerungen</span></span>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -707,8 +723,8 @@
           </li>
         </ol>
 
-        <!-- Live-Vorschau: Corporate Design -->
-        <div class="studio" data-studio data-reveal>
+        <!-- Live-Vorschau: Vorteilsportal im eigenen Corporate Design -->
+        <div class="studio vp-theme" data-studio data-bg="image" data-btn-tone="dark" data-nav-tone="light" data-reveal>
           <div class="studio__controls">
             <p class="eyebrow">Live-Vorschau</p>
             <h3 class="studio__title">Ihr Portal. <span class="grad-text">Ihr Corporate Design.</span></h3>
@@ -716,58 +732,95 @@
 
             <div class="field">
               <label for="studio-name">Unternehmensname</label>
-              <input id="studio-name" type="text" maxlength="28" value="Ihr Unternehmen" autocomplete="organization" data-studio-name>
+              <input id="studio-name" type="text" maxlength="32" value="Ihr Unternehmen" autocomplete="organization" data-studio-name>
             </div>
 
             <fieldset class="field">
-              <legend>Markenfarbe</legend>
-              <div class="swatches" role="radiogroup" aria-label="Markenfarbe">
-                <button type="button" class="swatch is-on" style="--c:#1a6dff" data-color="#1a6dff" role="radio" aria-checked="true" aria-label="Blau"></button>
-                <button type="button" class="swatch" style="--c:#e30613" data-color="#e30613" role="radio" aria-checked="false" aria-label="Rot"></button>
-                <button type="button" class="swatch" style="--c:#00965e" data-color="#00965e" role="radio" aria-checked="false" aria-label="Grün"></button>
-                <button type="button" class="swatch" style="--c:#ff7a00" data-color="#ff7a00" role="radio" aria-checked="false" aria-label="Orange"></button>
-                <button type="button" class="swatch" style="--c:#7b2cbf" data-color="#7b2cbf" role="radio" aria-checked="false" aria-label="Violett"></button>
-                <button type="button" class="swatch" style="--c:#1f2937" data-color="#1f2937" role="radio" aria-checked="false" aria-label="Anthrazit"></button>
-                <label class="swatch swatch--custom" title="Eigene Farbe wählen">
-                  <span class="sr-only">Eigene Farbe wählen</span>
-                  <input type="color" value="#1a6dff" data-studio-color>
-                </label>
+              <legend>Buttonfarbe</legend>
+              <div class="swatches" role="radiogroup" aria-label="Buttonfarbe" data-swatches="btn">
+                  <button type="button" class="swatch is-on" style="--c:#1c87b8" data-color="#1c87b8" role="radio" aria-checked="true" aria-label="Portal-Blau"></button>
+                  <button type="button" class="swatch" style="--c:#e30613" data-color="#e30613" role="radio" aria-checked="false" aria-label="Rot"></button>
+                  <button type="button" class="swatch" style="--c:#00965e" data-color="#00965e" role="radio" aria-checked="false" aria-label="Grün"></button>
+                  <button type="button" class="swatch" style="--c:#ff7a00" data-color="#ff7a00" role="radio" aria-checked="false" aria-label="Orange"></button>
+                  <button type="button" class="swatch" style="--c:#7b2cbf" data-color="#7b2cbf" role="radio" aria-checked="false" aria-label="Violett"></button>
+                  <button type="button" class="swatch" style="--c:#1f2937" data-color="#1f2937" role="radio" aria-checked="false" aria-label="Anthrazit"></button>
+                  <label class="swatch swatch--custom" title="Eigene Buttonfarbe wählen">
+                    <span class="sr-only">Eigene Buttonfarbe wählen</span>
+                    <input type="color" value="#1c87b8" data-custom>
+                  </label>
               </div>
             </fieldset>
-
             <fieldset class="field">
-              <legend>Darstellung</legend>
-              <div class="segmented" role="radiogroup" aria-label="Darstellung">
-                <button type="button" role="radio" aria-checked="true" class="is-on" data-studio-theme="light">Hell</button>
-                <button type="button" role="radio" aria-checked="false" data-studio-theme="dark">Dunkel</button>
+              <legend>Navigationsleiste</legend>
+              <div class="swatches" role="radiogroup" aria-label="Farbe der Navigationsleiste" data-swatches="nav">
+                  <button type="button" class="swatch is-on" style="--c:#ffffff" data-color="#ffffff" role="radio" aria-checked="true" aria-label="Weiß"></button>
+                  <button type="button" class="swatch" style="--c:#eef2f7" data-color="#eef2f7" role="radio" aria-checked="false" aria-label="Hellgrau"></button>
+                  <button type="button" class="swatch" style="--c:#000a1e" data-color="#000a1e" role="radio" aria-checked="false" aria-label="Navy"></button>
+                  <button type="button" class="swatch" style="--c:#1c87b8" data-color="#1c87b8" role="radio" aria-checked="false" aria-label="Portal-Blau"></button>
+                  <button type="button" class="swatch" style="--c:#1f2937" data-color="#1f2937" role="radio" aria-checked="false" aria-label="Anthrazit"></button>
+                  <label class="swatch swatch--custom" title="Eigene Farbe für die Navigationsleiste wählen">
+                    <span class="sr-only">Eigene Farbe für die Navigationsleiste wählen</span>
+                    <input type="color" value="#ffffff" data-custom>
+                  </label>
+              </div>
+            </fieldset>
+            <fieldset class="field">
+              <legend>Hintergrund</legend>
+              <div class="bg-options" role="radiogroup" aria-label="Hintergrund">
+                <button type="button" class="bg-opt is-on" role="radio" aria-checked="true" data-bg-option="image"><span class="bg-opt__thumb bg-opt__thumb--image"></span>Bild</button>
+                <button type="button" class="bg-opt" role="radio" aria-checked="false" data-bg-option="solid"><span class="bg-opt__thumb bg-opt__thumb--solid"></span>Einfarbig</button>
+                <button type="button" class="bg-opt" role="radio" aria-checked="false" data-bg-option="gradient"><span class="bg-opt__thumb bg-opt__thumb--gradient"></span>Verlauf</button>
               </div>
             </fieldset>
           </div>
 
-          <div class="studio__preview" aria-label="Vorschau des Vorteilsportals" role="img">
-            <div class="browser" data-studio-preview>
-              <div class="browser__bar">
-                <span class="mock__dots"><i></i><i></i><i></i></span>
-                <span class="browser__url"><svg class="i i--xs" aria-hidden="true"><use href="#i-globe"/></svg>vorteile.net</span>
-              </div>
-              <div class="portal">
-                <div class="portal__nav">
-                  <span class="portal__logo" data-studio-initials>IU</span>
-                  <span class="portal__brand" data-studio-label>Ihr Unternehmen</span>
-                  <span class="portal__links"><i>Angebote</i><i>Gutscheine</i><i>Prämien</i></span>
+          <div class="studio__preview" role="img" aria-label="Vorschau des Vorteilsportals im gewählten Design">
+            <div class="vp-frame">
+              <div class="vp">
+                <div class="vp__bar">
+                  <span class="vp__dots"><i></i><i></i><i></i></span>
+                  <span class="vp__url"><svg class="i"><use href="#i-lock"/></svg>incent.vorteile.net/de/dashboard</span>
+                  <span class="vp__bar-end"></span>
                 </div>
-                <div class="portal__hero">
-                  <div>
-                    <small>Exklusiv für Mitarbeitende von</small>
-                    <strong data-studio-label>Ihr Unternehmen</strong>
-                    <span class="portal__btn">Vorteile entdecken</span>
+                <div class="vp__header">
+                  <div class="vp__top">
+                    <span class="vp__logo"><img class="vp__logo-dark" src="assets/img/incent-logo-dark.png" alt=""><img class="vp__logo-light" src="assets/img/incent-logo-white.png" alt=""></span>
+                    <span class="vp__search">Suchen<svg class="i"><use href="#i-search"/></svg></span>
+                    <span class="vp__account"><b>Mitarbeiterportal</b><small data-studio-label>Ihr Unternehmen</small></span>
                   </div>
-                  <span class="portal__orb"></span>
+                  <div class="vp__nav">
+                    <span class="vp__cats"><i>Highlights</i><i>NEU</i><i class="is-on">Mobilfunk &amp; Internet</i><i>Mobilität</i><i>Technik</i><i>Health &amp; Beauty</i><i>Home &amp; Living</i><i>Sport</i><i class="is-on">Alle Kategorien +</i></span>
+                    <span class="vp__icons"><svg class="i"><use href="#i-heart"/></svg><svg class="i"><use href="#i-user"/></svg><span class="vp__cart"><svg class="i"><use href="#i-bag"/></svg><b>1</b></span></span>
+                  </div>
                 </div>
-                <div class="portal__grid">
-                  <span class="portal__tile"><i><svg class="i"><use href="#i-tag"/></svg></i><b>Markendeals</b><em>Exklusiv</em></span>
-                  <span class="portal__tile"><i><svg class="i"><use href="#i-ticket"/></svg></i><b>Gutscheine</b><em>Digital</em></span>
-                  <span class="portal__tile"><i><svg class="i"><use href="#i-gift"/></svg></i><b>Prämien</b><em>Neu</em></span>
+                <div class="vp__stage">
+                  <div class="vp__head"><strong>Unsere Partner Highlights</strong><em>Deals, die wir lieben</em></div>
+                  <div class="vp__grid">
+                    <span class="vp-deal">
+                      <img class="vp-deal__img" src="assets/img/portal/deal-solakon.webp" alt="" loading="lazy">
+                      <span class="vp-deal__logo"><img src="assets/img/portal/logo-solakon.webp" alt="" loading="lazy"></span>
+                      <span class="vp-deal__badge"><small>bis<br>zu</small>40%</span>
+                      <span class="vp-deal__info"><b>SOLAKON</b><span>Solarstrom selbst erzeugen &amp; Stromkosten senken</span></span>
+                    </span>
+                    <span class="vp-deal">
+                      <img class="vp-deal__img" src="assets/img/portal/deal-transporo.webp" alt="" loading="lazy">
+                      <span class="vp-deal__logo"><img src="assets/img/portal/logo-transporo.webp" alt="" loading="lazy"></span>
+                      <span class="vp-deal__badge">10%</span>
+                      <span class="vp-deal__info"><b>Transporo</b><span>Jetzt Umzug zum Festpreis buchen</span></span>
+                    </span>
+                    <span class="vp-deal">
+                      <img class="vp-deal__img" src="assets/img/portal/deal-liebscher-bracht.webp" alt="" loading="lazy">
+                      <span class="vp-deal__logo"><img src="assets/img/portal/logo-liebscher-bracht.webp" alt="" loading="lazy"></span>
+                      <span class="vp-deal__badge"><small>über</small>50%</span>
+                      <span class="vp-deal__info"><b>Liebscher und Bracht App</b><span>Schmerzen selbst angehen &amp; ein Jahr unbegrenzt trainieren</span></span>
+                    </span>
+                    <span class="vp-deal">
+                      <img class="vp-deal__img" src="assets/img/portal/deal-posterxxl.webp" alt="" loading="lazy">
+                      <span class="vp-deal__logo"><img src="assets/img/portal/logo-posterxxl.webp" alt="" loading="lazy"></span>
+                      <span class="vp-deal__badge"><small>bis<br>zu</small>60%</span>
+                      <span class="vp-deal__info"><b>posterXXL</b><span>Für wertvolle Erinnerungen</span></span>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -854,9 +907,8 @@
     <div class="container">
       <div class="footer__top">
         <div class="footer__brand">
-          <a class="brand brand--footer" href="#top" aria-label="INCENT – nach oben">
-            <span class="brand__mark" aria-hidden="true"></span>
-            <span class="brand__word">INCENT</span>
+          <a class="brand brand--footer" href="#top">
+            <img src="assets/img/incent-logo-white.png" width="446" height="109" alt="INCENT – nach oben" loading="lazy">
           </a>
           <p>Corporate Benefits Plattform &amp; Prämienshop für Mitarbeiter-Benefits und Kundenbindung. Die Plattform für Unternehmen, Marken und Communities.</p>
           <ul class="socials">
@@ -912,7 +964,7 @@
           <span class="footer__partner-logo"><img src="https://www.incent.de/wp-content/uploads/sites/6/2026/06/csm_Allgaeu_Logo_3D_RGB_0fadfedb8b.jpg" alt="Allgäu GmbH" loading="lazy" data-fallback></span>
         </p>
       </div>
-      <p class="footer__giant" aria-hidden="true">INCENT</p>
+      <img class="footer__giant" src="assets/img/incent-logo-white.png" width="446" height="109" alt="" loading="lazy">
     </div>
   </footer>
 </body>

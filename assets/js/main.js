@@ -483,18 +483,13 @@
     open(features.find((f) => f.classList.contains("is-open")) || features[0]);
   }
 
-  /* ---------- Live-Vorschau: Corporate Design ---------- */
+  /* ---------- Live-Vorschau: Vorteilsportal im eigenen Corporate Design ---------- */
   function initStudio() {
     const root = $("[data-studio]");
     if (!root) return;
-    const preview = $("[data-studio-preview]", root);
     const nameInput = $("[data-studio-name]", root);
     const labels = $$("[data-studio-label]", root);
-    const initials = $("[data-studio-initials]", root);
-    const swatches = $$(".swatch[data-color]", root);
-    const customInput = $("[data-studio-color]", root);
-    const customSwatch = customInput.closest(".swatch");
-    const themeButtons = $$("[data-studio-theme]", root);
+    const bgOptions = $$("[data-bg-option]", root);
 
     const luminance = (hex) => {
       const n = parseInt(hex.slice(1), 16);
@@ -504,75 +499,90 @@
       };
       return 0.2126 * channel((n >> 16) & 255) + 0.7152 * channel((n >> 8) & 255) + 0.0722 * channel(n & 255);
     };
+    // Weiße Schrift, solange sie mindestens 3:1 Kontrast hat (wie im Portal auf #1c87b8)
+    const tone = (hex) => (1.05 / (luminance(hex) + 0.05) >= 3 ? "dark" : "light");
 
-    const applyColor = (hex) => {
-      const L = luminance(hex);
-      const contrastWhite = 1.05 / (L + 0.05);
-      const contrastInk = (L + 0.05) / 0.056;
-      preview.style.setProperty("--brand", hex);
-      preview.style.setProperty("--on-brand", contrastWhite >= contrastInk ? "#ffffff" : "#0b1220");
-      preview.style.setProperty("--brand-on-dark", L < 0.08 ? `color-mix(in srgb, ${hex} 35%, #ffffff)` : hex);
+    const apply = {
+      btn: (hex) => {
+        root.style.setProperty("--btn", hex);
+        root.dataset.btnTone = tone(hex);
+      },
+      nav: (hex) => {
+        root.style.setProperty("--nav", hex);
+        root.dataset.navTone = tone(hex);
+      },
     };
 
-    const markSelected = (selected) => {
-      swatches.forEach((s) => {
-        const on = s === selected;
-        s.classList.toggle("is-on", on);
-        s.setAttribute("aria-checked", String(on));
-        s.tabIndex = on || (selected === customSwatch && s === swatches[0]) ? 0 : -1;
-      });
-      customSwatch.classList.toggle("is-on", selected === customSwatch);
-    };
+    // Farbgruppen (Buttonfarbe, Navigationsleiste): Vorgaben + eigene Farbe
+    $$("[data-swatches]", root).forEach((group) => {
+      const key = group.dataset.swatches;
+      const swatches = $$(".swatch[data-color]", group);
+      const customInput = $("[data-custom]", group);
+      const customSwatch = customInput.closest(".swatch");
 
-    swatches.forEach((s, i) => {
-      s.addEventListener("click", () => {
-        markSelected(s);
-        applyColor(s.dataset.color);
-        customInput.value = s.dataset.color;
+      const select = (selected) => {
+        swatches.forEach((s) => {
+          const on = s === selected;
+          s.classList.toggle("is-on", on);
+          s.setAttribute("aria-checked", String(on));
+          s.tabIndex = on || (selected === customSwatch && s === swatches[0]) ? 0 : -1;
+        });
+        customSwatch.classList.toggle("is-on", selected === customSwatch);
+      };
+
+      swatches.forEach((s, i) => {
+        s.addEventListener("click", () => {
+          select(s);
+          apply[key](s.dataset.color);
+          customInput.value = s.dataset.color;
+        });
+        s.addEventListener("keydown", (e) => {
+          const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+          if (!step) return;
+          e.preventDefault();
+          const next = swatches[(i + step + swatches.length) % swatches.length];
+          next.click();
+          next.focus();
+        });
       });
-      s.addEventListener("keydown", (e) => {
+
+      customInput.addEventListener("input", () => {
+        customSwatch.style.setProperty("--c", customInput.value);
+        select(customSwatch);
+        apply[key](customInput.value);
+      });
+
+      select(swatches[0]);
+      apply[key](swatches[0].dataset.color);
+    });
+
+    // Hintergrund: Bild, einfarbig oder Verlauf
+    bgOptions.forEach((opt, i) => {
+      opt.tabIndex = opt.classList.contains("is-on") ? 0 : -1;
+      opt.addEventListener("click", () => {
+        bgOptions.forEach((o) => {
+          const on = o === opt;
+          o.classList.toggle("is-on", on);
+          o.setAttribute("aria-checked", String(on));
+          o.tabIndex = on ? 0 : -1;
+        });
+        root.dataset.bg = opt.dataset.bgOption;
+      });
+      opt.addEventListener("keydown", (e) => {
         const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
         if (!step) return;
         e.preventDefault();
-        const next = swatches[(i + step + swatches.length) % swatches.length];
+        const next = bgOptions[(i + step + bgOptions.length) % bgOptions.length];
         next.click();
         next.focus();
       });
     });
 
-    customInput.addEventListener("input", () => {
-      customSwatch.style.setProperty("--c", customInput.value);
-      markSelected(customSwatch);
-      applyColor(customInput.value);
-    });
-
     const applyName = () => {
       const name = nameInput.value.trim() || "Ihr Unternehmen";
       labels.forEach((l) => (l.textContent = name));
-      const letters = name
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((w) => w[0])
-        .join("")
-        .toUpperCase();
-      initials.textContent = letters || "IU";
     };
     nameInput.addEventListener("input", applyName);
-
-    themeButtons.forEach((btn) =>
-      btn.addEventListener("click", () => {
-        themeButtons.forEach((b) => {
-          const on = b === btn;
-          b.classList.toggle("is-on", on);
-          b.setAttribute("aria-checked", String(on));
-        });
-        preview.dataset.theme = btn.dataset.studioTheme;
-      })
-    );
-
-    markSelected(swatches[0]);
-    applyColor(swatches[0].dataset.color);
     applyName();
   }
 

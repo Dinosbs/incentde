@@ -9,8 +9,9 @@ Als Markenfarbe dient nur noch der blaue CI-Verlauf.
 index.html              Startseite (alle Inhalte)
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
-assets/fonts/           Selbst gehostete Schriften (SIL OFL, siehe LICENSE.txt)
-assets/img/favicon.svg  Platzhalter-Favicon
+assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
+assets/img/             INCENT-Logo (weiß + dunkel), Favicon
+assets/img/portal/      Bilder für den Portal-Nachbau (aus dem Dashboard, komprimiert)
 ```
 
 Es gibt keinen Build-Schritt. Die Dateien lassen sich so, wie sie sind, auf jeden Webserver legen.
@@ -27,14 +28,14 @@ python3 -m http.server 8000
 | Bereich | Was passiert |
 | --- | --- |
 | Navigation | Glas-Leiste beim Scrollen, Mega-Menü „Lösungen“, Vollbild-Menü auf Mobilgeräten, Scrollspy |
-| Hero | Animierter Verlauf, Lichtkegel folgt dem Cursor, Schreibmaschinen-Headline, 3D-Produktmockup, das sich beim Scrollen aufrichtet |
+| Hero | Animierter Verlauf, Lichtkegel folgt dem Cursor, Schreibmaschinen-Headline, Nachbau des echten Vorteilsportals in 3D, der sich beim Scrollen aufrichtet |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
 | Partner | Endlos-Laufband, pausiert bei Hover |
 | Lösungen | Tabs mit Auto-Play und Fortschrittsbalken, Tastatursteuerung mit Pfeiltasten |
 | Versprechen | Text leuchtet Wort für Wort beim Scrollen auf |
 | Plattform | Netzwerk-Grafik reagiert auf das gewählte Feature im Akkordeon |
 | Leistungen | Bento-Karten mit Lichtkante und animierten Mini-Grafiken |
-| Vorteile | Live-Vorschau: Firmenname, Markenfarbe und Hell/Dunkel ändern das Portal-Mockup in Echtzeit |
+| Vorteile | Kacheln mit weichem Hover. Live-Vorschau des Portals: Unternehmensname, Buttonfarbe, Farbe der Navigationsleiste und Hintergrund (Bild, einfarbig, Verlauf) ändern sich in Echtzeit, auch mit eigenen Farben |
 | Kundenstimmen | Karussell mit Auto-Play, Pause-Taste, Wischgeste und Pfeiltasten |
 
 Bei `prefers-reduced-motion` laufen keine Animationen, und alle Inhalte sind sofort sichtbar.
@@ -44,8 +45,13 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 
 - **CI-Farben**: `--cyan`, `--azure` und `--royal` in `assets/css/main.css` (`:root`). `--grad` ist der CI-Verlauf.
   `--grad-ink` und `--grad-btn` sind dunklere Varianten, damit Schrift ausreichend Kontrast hat.
-- **Logo**: Im Header und Footer steht derzeit eine Wortmarke (`.brand`). Die soll durch die offizielle Logo-Datei
-  (am besten SVG) ersetzt werden. Das gilt auch für `assets/img/favicon.svg`.
+- **Schrift**: Barlow Semi Condensed in den Schnitten 400, 500, 600, 600 kursiv, 700 und 800.
+- **Logo**: `incent-logo-white.png` (Original, für dunkle Flächen) und `incent-logo-dark.png` (daraus abgeleitet,
+  für den hellen Portal-Header). Steht eine SVG-Version bereit, einfach die Pfade tauschen. Das Favicon stammt aus dem Portal.
+- **Portal-Nachbau** (`.vp` in `main.css`): bildet `incent.vorteile.net/de/dashboard` nach. Alle Maße sind virtuelle
+  Pixel einer 1240 px breiten Seite und skalieren über Container-Query-Einheiten, Text bleibt dadurch scharf.
+  Standardfarben stehen in `.vp-theme`. Die vier Deal-Karten sind eine Momentaufnahme aus dem Dashboard und lassen sich
+  in `index.html` austauschen (Bilder unter `assets/img/portal/`).
 - **Partner- und Kundenlogos** werden direkt von `www.incent.de/wp-content/uploads/…` geladen. Schlägt das Laden fehl,
   zeigt die Seite automatisch den Firmennamen als Text an. Für den Livegang die Dateien nach `assets/img/` kopieren
   und die Pfade anpassen.
