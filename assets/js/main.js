@@ -175,15 +175,16 @@
     items.forEach((el) => io.observe(el));
   }
 
-  /* ---------- Hero: wechselnde Begriffe (Einblenden von links nach rechts) ---------- */
+  /* ---------- Hero: wechselnde Begriffe (alle 800 ms, 3D-Einblendung mit Lichtblitz) ---------- */
   function initRotator() {
     const el = $("[data-rotator]");
     if (!el || reducedMotion) return;
     const words = JSON.parse(el.dataset.rotator);
-    const HOLD = 2000; // je Begriff ~1,6 s voll lesbar + 0,4 s Übergang
+    const INTERVAL = 800;
     let index = 0;
     let current = $(".rotator__word", el);
-    let timer;
+    let timer = 0;
+    let visible = true;
 
     const next = () => {
       index = (index + 1) % words.length;
@@ -193,19 +194,30 @@
       const old = current;
       old.classList.remove("is-in");
       old.classList.add("is-out");
-      old.addEventListener("animationend", () => old.remove(), { once: true });
+      old.addEventListener("animationend", (e) => e.animationName === "rotator-out" && old.remove());
+      // Sicherheitsnetz, falls animationend ausbleibt (z. B. Tab im Hintergrund)
+      setTimeout(() => old.isConnected && old.remove(), 600);
       el.append(word);
       current = word;
     };
-    const start = (delay) => {
-      clearTimeout(timer);
-      timer = setTimeout(function loop() {
-        next();
-        timer = setTimeout(loop, HOLD);
-      }, delay);
+    const stop = () => {
+      clearInterval(timer);
+      timer = 0;
     };
-    document.addEventListener("visibilitychange", () => (document.hidden ? clearTimeout(timer) : start(HOLD)));
-    start(HOLD + 600);
+    const start = () => {
+      if (timer || !visible || document.hidden) return;
+      timer = setInterval(next, INTERVAL);
+    };
+
+    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+    if (hasIO) {
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        visible ? start() : stop();
+      }).observe(el);
+    }
+    // erster Begriff steht nach dem Laden kurz länger
+    setTimeout(start, 1400);
   }
 
   /* ---------- Kennzahlen hochzählen ---------- */
@@ -259,19 +271,47 @@
     }
 
     if (finePointer) {
+      // Portal folgt dem Cursor: Neigung, leichte Verschiebung und Lichtreflex,
+      // pro Frame weich nachgeführt (lerp) statt starrer CSS-Transition
+      const target = { x: 0, y: 0, glare: 0 };
+      const current = { x: 0, y: 0, glare: 0 };
+      let frame = 0;
+      const tick = () => {
+        current.x += (target.x - current.x) * 0.09;
+        current.y += (target.y - current.y) * 0.09;
+        current.glare += (target.glare - current.glare) * 0.08;
+        stage.style.setProperty("--ry", `${(current.x * 11).toFixed(2)}deg`);
+        stage.style.setProperty("--rx", `${(-current.y * 7).toFixed(2)}deg`);
+        stage.style.setProperty("--tx", `${(current.x * 22).toFixed(1)}px`);
+        stage.style.setProperty("--ty", `${(current.y * 12).toFixed(1)}px`);
+        stage.style.setProperty("--gx", `${(50 + current.x * 55).toFixed(1)}%`);
+        stage.style.setProperty("--gy", `${(35 + current.y * 55).toFixed(1)}%`);
+        stage.style.setProperty("--glare", current.glare.toFixed(3));
+        const moving =
+          Math.abs(target.x - current.x) > 0.0005 ||
+          Math.abs(target.y - current.y) > 0.0005 ||
+          Math.abs(target.glare - current.glare) > 0.002;
+        frame = moving ? requestAnimationFrame(tick) : 0;
+      };
+      const kick = () => {
+        if (!frame) frame = requestAnimationFrame(tick);
+      };
+
       hero.addEventListener("pointermove", (e) => {
         const r = hero.getBoundingClientRect();
         spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
         spot.style.setProperty("--sy", `${e.clientY - r.top}px`);
-        const v = visual.getBoundingClientRect();
-        const nx = clamp((e.clientX - (v.left + v.width / 2)) / v.width, -0.5, 0.5);
-        const ny = clamp((e.clientY - (v.top + v.height / 2)) / v.height, -0.5, 0.5);
-        stage.style.setProperty("--ry", `${(nx * 7).toFixed(2)}deg`);
-        stage.style.setProperty("--rx", `${(-ny * 5).toFixed(2)}deg`);
+        if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
+        target.x = clamp((e.clientX / window.innerWidth - 0.5) * 2, -1, 1);
+        target.y = clamp((e.clientY / window.innerHeight - 0.5) * 2, -1, 1);
+        target.glare = 1;
+        kick();
       });
       hero.addEventListener("pointerleave", () => {
-        stage.style.setProperty("--ry", "0deg");
-        stage.style.setProperty("--rx", "0deg");
+        target.x = 0;
+        target.y = 0;
+        target.glare = 0;
+        kick();
       });
     }
 
