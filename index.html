@@ -89,6 +89,11 @@
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></symbol>
     <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5.5 7.5h13l1 13.5h-15z"/><path d="M9 7.5V6a3 3 0 0 1 6 0v1.5"/><path d="M12 12v4M10 14h4"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1.2"/><circle cx="17.5" cy="10.5" r="1.2"/><circle cx="8.5" cy="7.5" r="1.2"/><circle cx="6.5" cy="12.5" r="1.2"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.56-2.5 5.56-5.55C21.97 6.01 17.46 2 12 2z"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4z"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 11"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></symbol>
     <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
     <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></symbol>
@@ -161,8 +166,8 @@
             </div>
           </li>
           <li><a class="nav__link" href="#vorteile" data-spy="vorteile">Vorteile</a></li>
-          <li><a class="nav__link" href="https://www.incent.de/ueber-uns">Über uns</a></li>
-          <li><a class="nav__link" href="https://www.incent.de/kontakt">Kontakt</a></li>
+          <li><a class="nav__link" href="#ueber-uns" data-spy="ueber-uns">Über uns</a></li>
+          <li><a class="nav__link" href="#kontakt" data-spy="kontakt">Kontakt</a></li>
         </ul>
         <div class="nav__mobile-extra">
           <a href="tel:+49834193450"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg>08341&nbsp;93450</a>
@@ -173,7 +178,7 @@
       <div class="nav__actions">
         <a class="icon-btn" href="tel:+49834193450" aria-label="Anrufen: 08341 93450" title="08341 93450"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></a>
         <a class="icon-btn" href="https://vorteile.net" aria-label="Zum Vorteilsportal vorteile.net" title="vorteile.net"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg></a>
-        <a class="btn btn--primary btn--sm" href="https://www.incent.de/kontakt" data-magnetic>Demo buchen</a>
+        <a class="btn btn--primary btn--sm" href="#kontakt" data-magnetic>Demo buchen</a>
         <button class="burger" type="button" aria-label="Menü öffnen" aria-expanded="false" data-burger>
           <svg class="i i--open" aria-hidden="true"><use href="#i-menu"/></svg>
           <svg class="i i--close" aria-hidden="true"><use href="#i-x"/></svg>
@@ -195,26 +200,24 @@
 
       <div class="container hero__inner">
         <div class="hero__copy">
-          <p class="pill pill--dark" data-reveal>
-            <span class="pill__dot" aria-hidden="true"></span>
-            Vorteile für Unternehmen, Marken und Communities
-          </p>
-          <h1 class="hero__title" data-reveal style="--d:.08s">
+          <h1 class="hero__title" data-reveal>
             Die All-in-One Corporate&nbsp;Benefits Plattform für
             <span class="sr-only">Mitarbeiterbindung, Brand Awareness, Kundenbindung, Social Communities und steuerfreie Sachbezüge</span>
-            <span class="typer" aria-hidden="true" data-typer='["Mitarbeiterbindung","Brand Awareness","Kundenbindung","Social Communities","Steuerfreie Sachbezüge"]'><span class="typer__text">Mitarbeiterbindung</span><span class="typer__caret"></span></span>
+            <span class="rotator" aria-hidden="true" data-rotator='["Mitarbeiterbindung","Brand Awareness","Kundenbindung","Social Communities","Steuerfreie Sachbezüge"]'><span class="rotator__word">Mitarbeiterbindung</span></span>
           </h1>
-          <p class="hero__lead" data-reveal style="--d:.16s">
+          <p class="hero__lead" data-reveal style="--d:.1s">
             Corporate Benefits Plattform &amp; Prämienshop für Mitarbeiter-Benefits und Kundenbindung –
             individuell in Ihrem Corporate Design, sofort startklar und ohne Aufwand für Ihr Team.
           </p>
-          <div class="hero__cta" data-reveal style="--d:.24s">
-            <a class="btn btn--primary btn--lg" href="https://www.incent.de/kontakt" data-magnetic>
+          <div class="hero__cta" data-reveal style="--d:.18s">
+            <a class="btn btn--primary btn--lg" href="#kontakt" data-magnetic>
               Demo buchen <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
             </a>
-            <a class="btn btn--ghost btn--lg" href="#loesungen">Lösungen entdecken</a>
+            <a class="btn btn--ghost btn--lg" href="#live-vorschau">
+              <svg class="i" aria-hidden="true"><use href="#i-palette"/></svg> Portal live gestalten
+            </a>
           </div>
-          <ul class="hero__ticks" data-reveal style="--d:.32s">
+          <ul class="hero__ticks" data-reveal style="--d:.26s">
             <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Sofort startklar</li>
             <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Zentrale Verwaltung</li>
             <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Kein Aufwand</li>
@@ -225,8 +228,8 @@
 
       <!-- Interaktive Produkt-Illustration -->
       <div class="container">
-        <div class="hero__visual vp-theme" data-tilt data-reveal style="--d:.36s" data-btn-tone="dark" data-nav-tone="light" aria-hidden="true">
-          <div class="stage" data-tilt-stage>
+        <div class="hero__visual vp-theme" data-tilt data-reveal style="--d:.3s" data-bg="image" data-btn-tone="dark" data-nav-tone="light" data-stage-tone="light" data-logo="default">
+          <div class="stage" data-tilt-stage aria-hidden="true">
             <!-- Nachbau des echten Vorteilsportals (incent.vorteile.net) -->
             <div class="vp-frame">
               <div class="vp">
@@ -237,9 +240,9 @@
                 </div>
                 <div class="vp__header">
                   <div class="vp__top">
-                    <span class="vp__logo"><img class="vp__logo-dark" src="assets/img/incent-logo-dark.png" alt=""><img class="vp__logo-light" src="assets/img/incent-logo-white.png" alt=""></span>
+                    <span class="vp__logo"><img class="vp__logo-dark" src="assets/img/incent-logo-dark.png" alt=""><img class="vp__logo-light" src="assets/img/incent-logo-white.png" alt=""><img class="vp__logo-custom" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt=""></span>
                     <span class="vp__search">Suchen<svg class="i"><use href="#i-search"/></svg></span>
-                    <span class="vp__account"><b>Mitarbeiterportal</b><small>INCENT Corporate Services</small></span>
+                    <span class="vp__account"><b>Mitarbeiterportal</b><small data-portal-name data-default-name="INCENT Corporate Services">INCENT Corporate Services</small></span>
                   </div>
                   <div class="vp__nav">
                     <span class="vp__cats"><i>Highlights</i><i>NEU</i><i class="is-on">Mobilfunk &amp; Internet</i><i>Mobilität</i><i>Technik</i><i>Health &amp; Beauty</i><i>Home &amp; Living</i><i>Sport</i><i class="is-on">Alle Kategorien +</i></span>
@@ -247,6 +250,7 @@
                   </div>
                 </div>
                 <div class="vp__stage">
+<span class="vp__bg vp__bg--image"></span><span class="vp__bg vp__bg--solid"></span><span class="vp__bg vp__bg--gradient"></span>
                   <div class="vp__head"><strong>Unsere Partner Highlights</strong><em>Deals, die wir lieben</em></div>
                   <div class="vp__grid">
                     <span class="vp-deal">
@@ -292,6 +296,19 @@
             <div class="float float--tag" data-depth="40">
               <svg class="i i--sm"><use href="#i-check"/></svg>Steuerfreier Sachbezug
             </div>
+          </div>
+
+          <!-- Live-Vorschau direkt im Hero: Farbe wählen, Portal ändert sich sofort -->
+          <div class="live-chip" data-live-chip>
+            <span class="live-chip__label"><span class="live-chip__pulse" aria-hidden="true"></span>Live-Vorschau</span>
+            <span class="live-chip__dots" role="radiogroup" aria-label="Buttonfarbe der Portal-Vorschau">
+              <button type="button" class="live-chip__dot is-on" style="--c:#1c87b8" data-chip-color="#1c87b8" role="radio" aria-checked="true" aria-label="Portal-Blau"></button>
+              <button type="button" class="live-chip__dot" style="--c:#e30613" data-chip-color="#e30613" role="radio" aria-checked="false" aria-label="Rot" tabindex="-1"></button>
+              <button type="button" class="live-chip__dot" style="--c:#00965e" data-chip-color="#00965e" role="radio" aria-checked="false" aria-label="Grün" tabindex="-1"></button>
+              <button type="button" class="live-chip__dot" style="--c:#ff7a00" data-chip-color="#ff7a00" role="radio" aria-checked="false" aria-label="Orange" tabindex="-1"></button>
+              <button type="button" class="live-chip__dot" style="--c:#7b2cbf" data-chip-color="#7b2cbf" role="radio" aria-checked="false" aria-label="Violett" tabindex="-1"></button>
+            </span>
+            <a class="live-chip__link" href="#live-vorschau">Portal gestalten <svg class="i i--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
           </div>
         </div>
       </div>
@@ -457,7 +474,7 @@
           Wir bieten Ihnen die passenden Tools und Netzwerke, um echte Wertschätzung zu verankern und
           <em>messbare Ergebnisse</em> zu erzielen.
         </p>
-        <a class="btn btn--primary btn--lg" href="https://www.incent.de/kontakt" data-reveal data-magnetic>
+        <a class="btn btn--primary btn--lg" href="#kontakt" data-reveal data-magnetic>
           Beratung vereinbaren <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
         </a>
       </div>
@@ -724,11 +741,27 @@
         </ol>
 
         <!-- Live-Vorschau: Vorteilsportal im eigenen Corporate Design -->
-        <div class="studio vp-theme" data-studio data-bg="image" data-btn-tone="dark" data-nav-tone="light" data-reveal>
+        <div class="studio vp-theme" id="live-vorschau" data-studio data-bg="image" data-btn-tone="dark" data-nav-tone="light" data-stage-tone="light" data-logo="default" data-reveal>
           <div class="studio__controls">
             <p class="eyebrow">Live-Vorschau</p>
             <h3 class="studio__title">Ihr Portal. <span class="grad-text">Ihr Corporate Design.</span></h3>
-            <p class="studio__text">Alles wird individuell in Ihrem Corporate Design umgesetzt und ist schnell einsatzbereit. Probieren Sie es aus:</p>
+            <p class="studio__text">Alles wird individuell in Ihrem Corporate Design umgesetzt und ist schnell einsatzbereit. Probieren Sie es aus – die Vorschau ganz oben auf der Seite passt sich gleich mit an.</p>
+
+            <div class="field">
+              <span class="field__label" id="logo-label">Logo</span>
+              <div class="logo-drop" data-logo-drop>
+                <span class="logo-drop__preview"><img src="assets/img/incent-logo-dark.png" alt="" data-logo-preview></span>
+                <span class="logo-drop__text"><strong data-logo-name>INCENT-Logo</strong><small>PNG, JPG, SVG oder WebP · oder hierher ziehen. Bleibt auf Ihrem Gerät.</small></span>
+                <span class="logo-drop__actions">
+                  <label class="logo-drop__btn">
+                    <svg class="i i--sm" aria-hidden="true"><use href="#i-upload"/></svg>Eigenes Logo hochladen
+                    <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="sr-only" data-logo-input aria-labelledby="logo-label">
+                  </label>
+                  <button type="button" class="logo-drop__reset" data-logo-reset hidden aria-label="Logo zurücksetzen" title="Logo zurücksetzen"><svg class="i i--sm" aria-hidden="true"><use href="#i-reset"/></svg></button>
+                </span>
+              </div>
+              <p class="field__msg" data-logo-msg role="status"></p>
+            </div>
 
             <div class="field">
               <label for="studio-name">Unternehmensname</label>
@@ -737,7 +770,7 @@
 
             <fieldset class="field">
               <legend>Buttonfarbe</legend>
-              <div class="swatches" role="radiogroup" aria-label="Buttonfarbe" data-swatches="btn">
+                <div class="swatches" role="radiogroup" aria-label="Buttonfarbe" data-swatches="btn">
                   <button type="button" class="swatch is-on" style="--c:#1c87b8" data-color="#1c87b8" role="radio" aria-checked="true" aria-label="Portal-Blau"></button>
                   <button type="button" class="swatch" style="--c:#e30613" data-color="#e30613" role="radio" aria-checked="false" aria-label="Rot"></button>
                   <button type="button" class="swatch" style="--c:#00965e" data-color="#00965e" role="radio" aria-checked="false" aria-label="Grün"></button>
@@ -748,11 +781,12 @@
                     <span class="sr-only">Eigene Buttonfarbe wählen</span>
                     <input type="color" value="#1c87b8" data-custom>
                   </label>
-              </div>
+                </div>
             </fieldset>
+
             <fieldset class="field">
               <legend>Navigationsleiste</legend>
-              <div class="swatches" role="radiogroup" aria-label="Farbe der Navigationsleiste" data-swatches="nav">
+                <div class="swatches" role="radiogroup" aria-label="Farbe der Navigationsleiste" data-swatches="nav">
                   <button type="button" class="swatch is-on" style="--c:#ffffff" data-color="#ffffff" role="radio" aria-checked="true" aria-label="Weiß"></button>
                   <button type="button" class="swatch" style="--c:#eef2f7" data-color="#eef2f7" role="radio" aria-checked="false" aria-label="Hellgrau"></button>
                   <button type="button" class="swatch" style="--c:#000a1e" data-color="#000a1e" role="radio" aria-checked="false" aria-label="Navy"></button>
@@ -762,14 +796,49 @@
                     <span class="sr-only">Eigene Farbe für die Navigationsleiste wählen</span>
                     <input type="color" value="#ffffff" data-custom>
                   </label>
-              </div>
+                </div>
             </fieldset>
+
             <fieldset class="field">
               <legend>Hintergrund</legend>
               <div class="bg-options" role="radiogroup" aria-label="Hintergrund">
                 <button type="button" class="bg-opt is-on" role="radio" aria-checked="true" data-bg-option="image"><span class="bg-opt__thumb bg-opt__thumb--image"></span>Bild</button>
                 <button type="button" class="bg-opt" role="radio" aria-checked="false" data-bg-option="solid"><span class="bg-opt__thumb bg-opt__thumb--solid"></span>Einfarbig</button>
                 <button type="button" class="bg-opt" role="radio" aria-checked="false" data-bg-option="gradient"><span class="bg-opt__thumb bg-opt__thumb--gradient"></span>Verlauf</button>
+              </div>
+              <div class="bg-panel" data-bg-panel="solid" inert>
+                <div class="bg-panel__inner">
+                  <span class="bg-panel__label">Hintergrundfarbe</span>
+                  <div class="swatches" role="radiogroup" aria-label="Hintergrundfarbe" data-swatches="solid">
+                    <button type="button" class="swatch is-on" style="--c:#e8f3f9" data-color="#e8f3f9" role="radio" aria-checked="true" aria-label="Eisblau"></button>
+                    <button type="button" class="swatch" style="--c:#f4f6f9" data-color="#f4f6f9" role="radio" aria-checked="false" aria-label="Hellgrau"></button>
+                    <button type="button" class="swatch" style="--c:#fff4e5" data-color="#fff4e5" role="radio" aria-checked="false" aria-label="Creme"></button>
+                    <button type="button" class="swatch" style="--c:#eaf7ef" data-color="#eaf7ef" role="radio" aria-checked="false" aria-label="Mint"></button>
+                    <button type="button" class="swatch" style="--c:#000a1e" data-color="#000a1e" role="radio" aria-checked="false" aria-label="Navy"></button>
+                    <button type="button" class="swatch" style="--c:#1c87b8" data-color="#1c87b8" role="radio" aria-checked="false" aria-label="Portal-Blau"></button>
+                    <label class="swatch swatch--custom" title="Eigene Hintergrundfarbe wählen">
+                      <span class="sr-only">Eigene Hintergrundfarbe wählen</span>
+                      <input type="color" value="#e8f3f9" data-custom>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-panel" data-bg-panel="gradient" inert>
+                <div class="bg-panel__inner">
+                  <span class="bg-panel__label">Farbverlauf</span>
+                  <div class="swatches" role="radiogroup" aria-label="Farbverlauf" data-swatches="gradient">
+                    <button type="button" class="swatch swatch--grad is-on" style="--g1:#1c87b8;--g2:#0a2540" data-g1="#1c87b8" data-g2="#0a2540" role="radio" aria-checked="true" aria-label="Portal-Blau"></button>
+                    <button type="button" class="swatch swatch--grad" style="--g1:#00f2fe;--g2:#2b4bff" data-g1="#00f2fe" data-g2="#2b4bff" role="radio" aria-checked="false" aria-label="INCENT-Verlauf"></button>
+                    <button type="button" class="swatch swatch--grad" style="--g1:#ffb347;--g2:#e30613" data-g1="#ffb347" data-g2="#e30613" role="radio" aria-checked="false" aria-label="Sonnenuntergang"></button>
+                    <button type="button" class="swatch swatch--grad" style="--g1:#a855f7;--g2:#ec4899" data-g1="#a855f7" data-g2="#ec4899" role="radio" aria-checked="false" aria-label="Violett-Pink"></button>
+                    <button type="button" class="swatch swatch--grad" style="--g1:#34d399;--g2:#0f766e" data-g1="#34d399" data-g2="#0f766e" role="radio" aria-checked="false" aria-label="Grün"></button>
+                  </div>
+                  <div class="grad-custom">
+                    <label class="grad-custom__stop"><span class="swatch swatch--pick" style="--c:#1c87b8" data-grad-chip="1"><input type="color" value="#1c87b8" data-grad-input="1"></span>Startfarbe</label>
+                    <span class="grad-custom__line" aria-hidden="true"></span>
+                    <label class="grad-custom__stop"><span class="swatch swatch--pick" style="--c:#0a2540" data-grad-chip="2"><input type="color" value="#0a2540" data-grad-input="2"></span>Endfarbe</label>
+                  </div>
+                </div>
               </div>
             </fieldset>
           </div>
@@ -784,9 +853,9 @@
                 </div>
                 <div class="vp__header">
                   <div class="vp__top">
-                    <span class="vp__logo"><img class="vp__logo-dark" src="assets/img/incent-logo-dark.png" alt=""><img class="vp__logo-light" src="assets/img/incent-logo-white.png" alt=""></span>
+                    <span class="vp__logo"><img class="vp__logo-dark" src="assets/img/incent-logo-dark.png" alt=""><img class="vp__logo-light" src="assets/img/incent-logo-white.png" alt=""><img class="vp__logo-custom" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt=""></span>
                     <span class="vp__search">Suchen<svg class="i"><use href="#i-search"/></svg></span>
-                    <span class="vp__account"><b>Mitarbeiterportal</b><small data-studio-label>Ihr Unternehmen</small></span>
+                    <span class="vp__account"><b>Mitarbeiterportal</b><small data-portal-name data-default-name="Ihr Unternehmen">Ihr Unternehmen</small></span>
                   </div>
                   <div class="vp__nav">
                     <span class="vp__cats"><i>Highlights</i><i>NEU</i><i class="is-on">Mobilfunk &amp; Internet</i><i>Mobilität</i><i>Technik</i><i>Health &amp; Beauty</i><i>Home &amp; Living</i><i>Sport</i><i class="is-on">Alle Kategorien +</i></span>
@@ -794,6 +863,7 @@
                   </div>
                 </div>
                 <div class="vp__stage">
+<span class="vp__bg vp__bg--image"></span><span class="vp__bg vp__bg--solid"></span><span class="vp__bg vp__bg--gradient"></span>
                   <div class="vp__head"><strong>Unsere Partner Highlights</strong><em>Deals, die wir lieben</em></div>
                   <div class="vp__grid">
                     <span class="vp-deal">
@@ -885,18 +955,239 @@
       </div>
     </section>
 
-    <!-- ============ Call to Action ============ -->
-    <section class="section cta" aria-labelledby="cta-title">
+    <!-- ============ Über uns ============ -->
+    <section class="section about" id="ueber-uns" aria-labelledby="about-title">
       <div class="container">
-        <div class="cta__panel" data-reveal data-spot-panel>
-          <div class="cta__bg" aria-hidden="true"><span></span><span></span></div>
-          <p class="eyebrow eyebrow--onbrand">Persönliche Demo</p>
-          <h2 class="cta__title" id="cta-title">Neugierig geworden?</h2>
-          <p class="cta__text">Lernen Sie die Plattform live kennen – und sehen Sie, wie Ihr Vorteilsportal in Ihrem Corporate Design aussieht.</p>
-          <div class="cta__actions">
-            <a class="btn btn--white btn--lg" href="https://www.incent.de/kontakt" data-magnetic>Jetzt Demo buchen <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
-            <a class="btn btn--glass btn--lg" href="tel:+49834193450"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg>08341&nbsp;93450</a>
+        <div class="about__intro">
+          <div class="about__copy">
+            <p class="eyebrow" data-reveal>Über INCENT</p>
+            <h2 class="h2" id="about-title" data-reveal style="--d:.06s">Ihr Partner für digitale Vorteilsportale und Loyalitätslösungen <span class="grad-text">mit echtem Mehrwert</span></h2>
+            <div class="about__text" data-reveal style="--d:.12s">
+              <p class="about__kicker">Schlüsselfertige Lösungen</p>
+              <h3>Ihr Partner für digitale Vorteile</h3>
+              <p>
+                Als Full-Service-Anbieter entwickeln wir individuelle Lösungen, die sich an Ihrem Geschäftsmodell und Ihren Zielen
+                orientieren. Von der Konzeption und Erstellung über Betrieb und Pflege bis hin zur Vermarktung Ihrer Marke kümmern wir
+                uns um alle relevanten Themen rund um unsere Vorteilsportale. Unsere Kunden können sich auf ihr Kerngeschäft
+                fokussieren, während wir die Plattform im Hintergrund betreiben und kontinuierlich weiterentwickeln.
+              </p>
+            </div>
+            <a class="btn btn--primary btn--lg" href="#kontakt" data-reveal style="--d:.18s" data-magnetic>
+              Beratung vereinbaren <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+            </a>
           </div>
+          <figure class="about__media" data-reveal style="--d:.1s">
+            <img src="assets/img/about/about-team.webp" width="1400" height="781" loading="lazy"
+                 alt="Drei Kolleginnen und Kollegen schauen gemeinsam auf ein Smartphone, umgeben von Symbolen für Vorteile">
+            <figcaption class="about__since">
+              <strong>Seit 2012</strong>
+              <span>Echten Mehrwert für Menschen schaffen und diesen nahtlos mit Ihrer Marke verbinden.</span>
+            </figcaption>
+          </figure>
+        </div>
+
+        <dl class="about__stats" data-reveal>
+          <div class="about__stat">
+            <dt>Markenprodukte</dt>
+            <dd><span data-count="3000">3.000</span><span class="stat__suffix">+</span></dd>
+          </div>
+          <div class="about__stat">
+            <dt>Partnergutscheine</dt>
+            <dd><span data-count="70">70</span><span class="stat__suffix">+</span></dd>
+          </div>
+          <div class="about__stat">
+            <dt>Markenpartner</dt>
+            <dd><span data-count="450">450</span><span class="stat__suffix">+</span></dd>
+          </div>
+        </dl>
+
+        <header class="section-head section-head--split about__head">
+          <div>
+            <p class="eyebrow" data-reveal>Unsere Kernbereiche</p>
+            <h2 class="h2" data-reveal style="--d:.06s">Erfolg auf <span class="grad-text">allen Ebenen</span></h2>
+          </div>
+          <p class="lead" data-reveal style="--d:.12s">
+            Ihre Marke im Mittelpunkt: Unser Ziel seit 2012 ist es, echten Mehrwert für Menschen zu schaffen und diesen nahtlos
+            mit Ihrer Marke zu verbinden. Unsere Vorteilsplattform Vorteile.net unterstützt Sie bei drei zentralen Aufgaben.
+          </p>
+        </header>
+
+        <div class="areas">
+          <article class="area" data-reveal>
+            <div class="area__media"><img src="assets/img/about/about-mitarbeiterbindung.webp" width="960" height="524" alt="" loading="lazy"></div>
+            <div class="area__body">
+              <p class="area__kicker"><svg class="i i--sm" aria-hidden="true"><use href="#i-users"/></svg>Mitarbeiterbindung</p>
+              <h3>Mitarbeiterbindung für Arbeitgeber</h3>
+              <p>Arbeitgeber nutzen Vorteile.net, um ihren Mitarbeitenden attraktive Mitarbeiter-Benefits und eine effektive Lösung für Mitarbeitergeschenke bereitzustellen. Die Plattform stärkt die Wahrnehmung als attraktiver Arbeitgeber und unterstützt Unternehmen dabei, Mitarbeitende langfristig zu binden.</p>
+              <a class="area__link" href="https://www.incent.de/corporate-benefits-fuer-arbeitgeber">Mehr erfahren <svg class="i i--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+            </div>
+          </article>
+          <article class="area" data-reveal style="--d:.08s">
+            <div class="area__media"><img src="assets/img/about/about-kundenbindung.webp" width="960" height="536" alt="" loading="lazy"></div>
+            <div class="area__body">
+              <p class="area__kicker"><svg class="i i--sm" aria-hidden="true"><use href="#i-heart"/></svg>Kundenbindung</p>
+              <h3>Kundenbindung für Unternehmen</h3>
+              <p>Unternehmen setzen Vorteile.net ein, um ihren Kundinnen und Kunden zusätzliche Mehrwerte zu bieten und bestehende Beziehungen zu stärken. Individuelle Vorteilsportale schaffen regelmäßig neue Kontaktpunkte und sorgen dafür, dass positive Erlebnisse direkt mit dem Unternehmen verbunden werden.</p>
+              <a class="area__link" href="https://www.incent.de/kundenbindungsprogramm-fuer-unternehmen">Mehr erfahren <svg class="i i--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+            </div>
+          </article>
+          <article class="area" data-reveal style="--d:.16s">
+            <div class="area__media"><img src="assets/img/about/about-neukundengewinnung.webp" width="960" height="524" alt="" loading="lazy"></div>
+            <div class="area__body">
+              <p class="area__kicker"><svg class="i i--sm" aria-hidden="true"><use href="#i-megaphone"/></svg>Neukundengewinnung</p>
+              <h3>Neukundengewinnung für Marken</h3>
+              <p>Marken profitieren von Vorteile.net als zusätzlichem Vertriebskanal. Über unsere Vorteilsportale erreichen sie attraktive Zielgruppen mit exklusiven Angeboten und Sonderkonditionen und können so neue Kundinnen und Kunden gewinnen.</p>
+              <a class="area__link" href="https://www.incent.de/reichweite-steigern-markenpartner">Mehr erfahren <svg class="i i--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+            </div>
+          </article>
+        </div>
+
+        <div class="about__outro" data-reveal>
+          <div class="about__outro-copy">
+            <p>So schafft INCENT eine Verbindung zwischen Arbeitgebern, Unternehmen, Marken und Menschen – mit Lösungen, die Beziehungen stärken und neue Potenziale erschließen.</p>
+            <a class="btn btn--dark btn--lg" href="https://www.incent.de/home">Zum Vorteilsportal <svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+          </div>
+          <img class="about__outro-img" src="assets/img/about/about-vorteilsportal.webp" width="960" height="640" alt="Mehrere Smartphones zeigen das Vorteilsportal mit Angeboten" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Kontakt ============ -->
+    <section class="section contact" id="kontakt" aria-labelledby="contact-title">
+      <div class="container">
+        <div class="contact__panel" data-reveal data-spot-panel>
+          <div class="cta__bg" aria-hidden="true"><span></span><span></span></div>
+
+          <div class="contact__intro">
+            <p class="eyebrow eyebrow--onbrand">Neugierig geworden?</p>
+            <h2 class="contact__title" id="contact-title">Jetzt Kontakt aufnehmen</h2>
+            <p class="contact__text">
+              <strong>Erfolg beginnt im Gespräch.</strong> In einem persönlichen Videogespräch werfen wir gemeinsam einen Blick
+              auf die wichtigsten Fragen:
+            </p>
+            <ul class="contact__questions">
+              <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Was sind die individuellen Anforderungen?</li>
+              <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Was braucht das Unternehmen oder die Marke?</li>
+              <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Wie sieht die ideale Unterstützung aus?</li>
+              <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Welches Potenzial steckt in maßgeschneiderten Corporate Benefits für Mitarbeitende, Kund:innen und Communities?</li>
+            </ul>
+            <div class="contact__direct">
+              <a href="tel:+49834193450"><svg class="i i--sm" aria-hidden="true"><use href="#i-phone"/></svg>08341&nbsp;93450</a>
+              <a href="mailto:info@incent.de"><svg class="i i--sm" aria-hidden="true"><use href="#i-mail"/></svg>info@incent.de</a>
+              <span><svg class="i i--sm" aria-hidden="true"><use href="#i-pin"/></svg>Rudolf-Diesel-Straße 2, 87656 Germaringen</span>
+            </div>
+          </div>
+
+          <!-- Kontaktformular: ohne data-endpoint öffnet es das E-Mail-Programm (siehe README) -->
+          <form class="form" data-contact-form novalidate aria-labelledby="contact-title">
+            <fieldset class="form__choice">
+              <legend class="form__label">Ich bin …<span class="form__req" aria-hidden="true">*</span></legend>
+              <div class="choice">
+                <label class="choice__item"><input type="radio" name="sender_type" value="Arbeitgeber" required><span>Arbeitgeber</span></label>
+                <label class="choice__item"><input type="radio" name="sender_type" value="Unternehmen"><span>Unternehmen</span></label>
+                <label class="choice__item"><input type="radio" name="sender_type" value="Markenpartner"><span>Markenpartner</span></label>
+                <label class="choice__item"><input type="radio" name="sender_type" value="Creator"><span>Creator</span></label>
+              </div>
+              <p class="form__error" data-error-for="sender_type"></p>
+            </fieldset>
+
+            <div class="form__grid">
+              <div class="form__field span-2">
+                <label for="cf-salutation">Anrede</label>
+                <select id="cf-salutation" name="salutation">
+                  <option value="">Bitte wählen</option>
+                  <option>Frau</option>
+                  <option>Herr</option>
+                </select>
+              </div>
+              <div class="form__field span-2">
+                <label for="cf-firstname">Vorname<span class="form__req" aria-hidden="true">*</span></label>
+                <input id="cf-firstname" name="firstname" type="text" autocomplete="given-name" required>
+                <p class="form__error"></p>
+              </div>
+              <div class="form__field span-2">
+                <label for="cf-lastname">Nachname<span class="form__req" aria-hidden="true">*</span></label>
+                <input id="cf-lastname" name="lastname" type="text" autocomplete="family-name" required>
+                <p class="form__error"></p>
+              </div>
+              <div class="form__field span-3">
+                <label for="cf-email">E-Mail-Adresse<span class="form__req" aria-hidden="true">*</span></label>
+                <input id="cf-email" name="email" type="email" autocomplete="email" required>
+                <p class="form__error"></p>
+              </div>
+              <div class="form__field span-3">
+                <label for="cf-phone">Telefon</label>
+                <input id="cf-phone" name="phone" type="tel" autocomplete="tel">
+                <p class="form__error"></p>
+              </div>
+
+              <div class="form__field span-3" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+                <label for="cf-company">Unternehmen<span class="form__req" aria-hidden="true">*</span></label>
+                <input id="cf-company" name="company_name" type="text" autocomplete="organization" required>
+                <p class="form__error"></p>
+              </div>
+              <div class="form__field span-3" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+                <label for="cf-position">Position</label>
+                <input id="cf-position" name="position" type="text" autocomplete="organization-title">
+              </div>
+              <div class="form__field span-3" data-show-for="Arbeitgeber" hidden>
+                <label for="cf-size">Unternehmensgröße<span class="form__req" aria-hidden="true">*</span></label>
+                <select id="cf-size" name="company_size" required>
+                  <option value="">Anzahl Mitarbeitende</option>
+                  <option>1–49</option>
+                  <option>50–249</option>
+                  <option>250–999</option>
+                  <option>1.000 und mehr</option>
+                </select>
+                <p class="form__error"></p>
+              </div>
+              <div class="form__field span-3" data-show-for="Unternehmen Markenpartner" hidden>
+                <label for="cf-url">Website</label>
+                <input id="cf-url" name="company_url" type="url" inputmode="url" placeholder="https://" autocomplete="url">
+                <p class="form__error"></p>
+              </div>
+              <div class="form__field span-3" data-show-for="Creator" hidden>
+                <label for="cf-platform">Plattform<span class="form__req" aria-hidden="true">*</span></label>
+                <input id="cf-platform" name="platform" type="text" placeholder="z. B. Instagram, TikTok, YouTube" required>
+                <p class="form__error"></p>
+              </div>
+              <div class="form__field span-3" data-show-for="Creator" hidden>
+                <label for="cf-profile">Profil-URL<span class="form__req" aria-hidden="true">*</span></label>
+                <input id="cf-profile" name="profile_url" type="url" inputmode="url" placeholder="https://" required>
+                <p class="form__error"></p>
+              </div>
+              <div class="form__field span-6" data-show-for="Creator" hidden>
+                <label for="cf-agency">Agentur</label>
+                <input id="cf-agency" name="agentur" type="text">
+              </div>
+
+              <div class="form__field span-4" data-show-for="none Arbeitgeber Unternehmen Markenpartner">
+                <label for="cf-street">Anschrift Unternehmen</label>
+                <input id="cf-street" name="street" type="text" autocomplete="address-line1">
+              </div>
+              <div class="form__field span-2" data-show-for="none Arbeitgeber Unternehmen Markenpartner">
+                <label for="cf-zip">PLZ</label>
+                <input id="cf-zip" name="postal_code" type="text" inputmode="numeric" autocomplete="postal-code">
+              </div>
+              <div class="form__field span-6">
+                <label for="cf-message">Nachricht</label>
+                <textarea id="cf-message" name="message" rows="4" placeholder="Was Sie uns noch mitteilen möchten …"></textarea>
+              </div>
+            </div>
+
+            <div class="form__footer">
+              <p class="form__legal">Hinweise zum Schutz Ihrer Daten finden Sie in unserer <a href="https://www.incent.de/datenschutz/">Datenschutzerklärung</a>.</p>
+              <button class="btn btn--primary btn--lg form__submit" type="submit">Absenden <svg class="i" aria-hidden="true"><use href="#i-send"/></svg></button>
+              <p class="form__error" data-form-error role="alert"></p>
+            </div>
+
+            <div class="form__success" data-form-success role="status" hidden>
+              <span class="form__success-icon" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+              <strong>Vielen Dank für Ihre Anfrage!</strong>
+              <p data-form-success-text></p>
+              <button type="button" class="btn btn--dark btn--sm" data-form-reset>Neue Anfrage</button>
+            </div>
+          </form>
         </div>
       </div>
     </section>
@@ -942,7 +1233,7 @@
           <ul>
             <li><a href="https://www.incent.de/faq">FAQ</a></li>
             <li><a href="https://www.incent.de/karriere">Karriere</a></li>
-            <li><a href="https://www.incent.de/ueber-uns">Über uns</a></li>
+            <li><a href="#ueber-uns">Über uns</a></li>
           </ul>
         </div>
 
@@ -951,7 +1242,7 @@
           <ul>
             <li><a href="https://www.incent.de/datenschutz/">Datenschutz</a></li>
             <li><a href="https://www.incent.de/impressum/">Impressum</a></li>
-            <li><a href="https://www.incent.de/kontakt/">Kontakt</a></li>
+            <li><a href="#kontakt">Kontakt</a></li>
           </ul>
         </div>
       </div>
@@ -961,7 +1252,7 @@
         <p>Unser Angebot richtet sich ausschließlich an Unternehmen und Gewerbetreibende.</p>
         <p class="footer__partner">
           <span>Wir sind stolzer Partner der Allgäu GmbH</span>
-          <span class="footer__partner-logo"><img src="https://www.incent.de/wp-content/uploads/sites/6/2026/06/csm_Allgaeu_Logo_3D_RGB_0fadfedb8b.jpg" alt="Allgäu GmbH" loading="lazy" data-fallback></span>
+          <span class="footer__partner-logo"><img src="assets/img/allgaeu.webp" width="160" height="160" alt="Allgäu GmbH" loading="lazy"></span>
         </p>
       </div>
       <img class="footer__giant" src="assets/img/incent-logo-white.png" width="446" height="109" alt="" loading="lazy">

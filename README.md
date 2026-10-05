@@ -12,6 +12,7 @@ assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
 assets/img/             INCENT-Logo (weiß + dunkel), Favicon
 assets/img/portal/      Bilder für den Portal-Nachbau (aus dem Dashboard, komprimiert)
+assets/img/about/       Bilder für „Über uns“ (von der bisherigen Über-uns-Seite, komprimiert)
 ```
 
 Es gibt keinen Build-Schritt. Die Dateien lassen sich so, wie sie sind, auf jeden Webserver legen.
@@ -28,15 +29,17 @@ python3 -m http.server 8000
 | Bereich | Was passiert |
 | --- | --- |
 | Navigation | Glas-Leiste beim Scrollen, Mega-Menü „Lösungen“, Vollbild-Menü auf Mobilgeräten, Scrollspy |
-| Hero | Animierter Verlauf, Lichtkegel folgt dem Cursor, Schreibmaschinen-Headline, Nachbau des echten Vorteilsportals in 3D, der sich beim Scrollen aufrichtet |
+| Hero | Animierter Verlauf, Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 2 s, Einblenden von links nach rechts), Nachbau des echten Vorteilsportals in 3D. Der Live-Chip darunter ändert die Buttonfarbe direkt und führt zur Live-Vorschau |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
 | Partner | Endlos-Laufband, pausiert bei Hover |
 | Lösungen | Tabs mit Auto-Play und Fortschrittsbalken, Tastatursteuerung mit Pfeiltasten |
 | Versprechen | Text leuchtet Wort für Wort beim Scrollen auf |
 | Plattform | Netzwerk-Grafik reagiert auf das gewählte Feature im Akkordeon |
 | Leistungen | Bento-Karten mit Lichtkante und animierten Mini-Grafiken |
-| Vorteile | Kacheln mit weichem Hover. Live-Vorschau des Portals: Unternehmensname, Buttonfarbe, Farbe der Navigationsleiste und Hintergrund (Bild, einfarbig, Verlauf) ändern sich in Echtzeit, auch mit eigenen Farben |
+| Vorteile | Kacheln mit weichem Hover. Live-Vorschau des Portals: eigenes Logo (Upload oder Drag & Drop), Unternehmensname, Buttonfarbe, Farbe der Navigationsleiste und Hintergrund (Bild, einfarbig, Verlauf – jeweils mit eigener Farbwahl). Alle Wechsel blenden weich über, und das Portal im Hero übernimmt jede Änderung |
 | Kundenstimmen | Karussell mit Auto-Play, Pause-Taste, Wischgeste und Pfeiltasten |
+| Über uns | Inhalte der bisherigen Über-uns-Seite: Einleitung, Kennzahlen, drei Kernbereiche, Link zum Vorteilsportal |
+| Kontakt | Kontaktformular mit Zielgruppen-Auswahl, passenden Zusatzfeldern je Zielgruppe und Prüfung der Eingaben |
 
 Bei `prefers-reduced-motion` laufen keine Animationen, und alle Inhalte sind sofort sichtbar.
 Ohne JavaScript bleiben alle Inhalte lesbar.
@@ -55,7 +58,14 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 - **Partner- und Kundenlogos** werden direkt von `www.incent.de/wp-content/uploads/…` geladen. Schlägt das Laden fehl,
   zeigt die Seite automatisch den Firmennamen als Text an. Für den Livegang die Dateien nach `assets/img/` kopieren
   und die Pfade anpassen.
-- **Unterseiten** (Lösungen, Über uns, Kontakt, Rechtliches …) verlinken auf die bestehenden URLs unter `www.incent.de`.
+- **Unterseiten** (Lösungen, FAQ, Karriere, Rechtliches …) verlinken auf die bestehenden URLs unter `www.incent.de`.
+  „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
+- **Kontaktformular**: Ohne Backend öffnet „Absenden“ das E-Mail-Programm mit einer vorbereiteten Nachricht an
+  info@incent.de. Für den echten Versand am `<form data-contact-form>` das Attribut `data-endpoint="https://…"` setzen,
+  dann wird das Formular per `fetch` (POST, FormData) an diese Adresse geschickt. Die Zusatzfelder je Zielgruppe
+  (z. B. Unternehmensgröße für Arbeitgeber, Plattform/Profil-URL für Creator) sind nachgebaut, da sie in der
+  gespeicherten Seite nicht enthalten waren – bitte mit dem bisherigen Formular abgleichen.
+- **Logo-Upload** in der Live-Vorschau bleibt im Browser (Object-URL) und wird nirgendwohin übertragen.
 
 ## Gegenüber der alten Seite geändert
 

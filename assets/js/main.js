@@ -175,40 +175,37 @@
     items.forEach((el) => io.observe(el));
   }
 
-  /* ---------- Hero: Schreibmaschinen-Effekt ---------- */
-  function initTyper() {
-    const el = $("[data-typer]");
+  /* ---------- Hero: wechselnde Begriffe (Einblenden von links nach rechts) ---------- */
+  function initRotator() {
+    const el = $("[data-rotator]");
     if (!el || reducedMotion) return;
-    const words = JSON.parse(el.dataset.typer);
-    const out = $(".typer__text", el);
-    let word = 0;
-    let chars = words[0].length;
-    let deleting = true;
+    const words = JSON.parse(el.dataset.rotator);
+    const HOLD = 2000; // je Begriff ~1,6 s voll lesbar + 0,4 s Übergang
+    let index = 0;
+    let current = $(".rotator__word", el);
+    let timer;
 
-    const tick = () => {
-      const current = words[word];
-      if (deleting) {
-        chars -= 1;
-        out.textContent = current.slice(0, chars);
-        if (chars === 0) {
-          deleting = false;
-          word = (word + 1) % words.length;
-          setTimeout(tick, 320);
-        } else {
-          setTimeout(tick, 30);
-        }
-      } else {
-        chars += 1;
-        out.textContent = words[word].slice(0, chars);
-        if (chars === words[word].length) {
-          deleting = true;
-          setTimeout(tick, 2400);
-        } else {
-          setTimeout(tick, 55 + Math.random() * 55);
-        }
-      }
+    const next = () => {
+      index = (index + 1) % words.length;
+      const word = document.createElement("span");
+      word.className = "rotator__word is-in";
+      word.textContent = words[index];
+      const old = current;
+      old.classList.remove("is-in");
+      old.classList.add("is-out");
+      old.addEventListener("animationend", () => old.remove(), { once: true });
+      el.append(word);
+      current = word;
     };
-    setTimeout(tick, 2800);
+    const start = (delay) => {
+      clearTimeout(timer);
+      timer = setTimeout(function loop() {
+        next();
+        timer = setTimeout(loop, HOLD);
+      }, delay);
+    };
+    document.addEventListener("visibilitychange", () => (document.hidden ? clearTimeout(timer) : start(HOLD)));
+    start(HOLD + 600);
   }
 
   /* ---------- Kennzahlen hochzählen ---------- */
@@ -483,107 +480,362 @@
     open(features.find((f) => f.classList.contains("is-open")) || features[0]);
   }
 
-  /* ---------- Live-Vorschau: Vorteilsportal im eigenen Corporate Design ---------- */
-  function initStudio() {
+  /* ---------- Portal-Design: ein gemeinsamer Zustand für Hero-Mockup und Live-Vorschau ---------- */
+  const hexToRgb = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  };
+  const luminance = (hex) => {
+    const channel = (c) => {
+      const v = c / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    };
+    const [r, g, b] = hexToRgb(hex);
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+  };
+  const mixHex = (a, b) => {
+    const [r1, g1, b1] = hexToRgb(a);
+    const [r2, g2, b2] = hexToRgb(b);
+    const h = (v) => Math.round(v).toString(16).padStart(2, "0");
+    return `#${h((r1 + r2) / 2)}${h((g1 + g2) / 2)}${h((b1 + b2) / 2)}`;
+  };
+  // Weiße Schrift, solange sie mindestens 3:1 Kontrast hat (wie im Portal auf #1c87b8)
+  const toneOf = (hex) => (1.05 / (luminance(hex) + 0.05) >= 3 ? "dark" : "light");
+  const sameColor = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
+
+  function createPortalTheme() {
+    const roots = $$(".vp-theme");
+    const state = { btn: "#1c87b8", nav: "#ffffff", bg: "image", solid: "#e8f3f9", g1: "#1c87b8", g2: "#0a2540", name: "", logo: "" };
+    const listeners = [];
+
+    const apply = () => {
+      const stageTone =
+        state.bg === "solid" ? toneOf(state.solid) : state.bg === "gradient" ? toneOf(mixHex(state.g1, state.g2)) : "light";
+      roots.forEach((root) => {
+        root.style.setProperty("--btn", state.btn);
+        root.style.setProperty("--nav", state.nav);
+        root.style.setProperty("--bg-solid", state.solid);
+        root.style.setProperty("--bg-g1", state.g1);
+        root.style.setProperty("--bg-g2", state.g2);
+        root.dataset.btnTone = toneOf(state.btn);
+        root.dataset.navTone = toneOf(state.nav);
+        root.dataset.bg = state.bg;
+        root.dataset.stageTone = stageTone;
+        root.dataset.logo = state.logo ? "custom" : "default";
+      });
+      $$("[data-portal-name]").forEach((el) => (el.textContent = state.name || el.dataset.defaultName));
+      $$(".vp__logo-custom").forEach((img) => {
+        img.dataset.empty = img.dataset.empty || img.getAttribute("src");
+        const src = state.logo || img.dataset.empty;
+        if (img.getAttribute("src") !== src) img.src = src;
+      });
+    };
+
+    return {
+      state,
+      set(patch) {
+        Object.assign(state, patch);
+        apply();
+        listeners.forEach((fn) => fn(state));
+      },
+      onChange(fn) {
+        listeners.push(fn);
+      },
+    };
+  }
+
+  // Radiogruppe mit Pfeiltasten (roving tabindex)
+  const arrowNav = (items, i, e) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const next = items[(i + step + items.length) % items.length];
+    next.click();
+    next.focus();
+  };
+  const markRadio = (items, selected) => {
+    items.forEach((item) => {
+      const on = item === selected;
+      item.classList.toggle("is-on", on);
+      item.setAttribute("aria-checked", String(on));
+      item.tabIndex = on ? 0 : -1;
+    });
+    if (!selected && items[0]) items[0].tabIndex = 0;
+  };
+
+  /* ---------- Live-Vorschau: Logo, Name, Buttonfarbe, Navigationsleiste, Hintergrund ---------- */
+  function initStudio(theme) {
     const root = $("[data-studio]");
     if (!root) return;
-    const nameInput = $("[data-studio-name]", root);
-    const labels = $$("[data-studio-label]", root);
-    const bgOptions = $$("[data-bg-option]", root);
+    const syncers = [];
 
-    const luminance = (hex) => {
-      const n = parseInt(hex.slice(1), 16);
-      const channel = (c) => {
-        const v = c / 255;
-        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-      };
-      return 0.2126 * channel((n >> 16) & 255) + 0.7152 * channel((n >> 8) & 255) + 0.0722 * channel(n & 255);
-    };
-    // Weiße Schrift, solange sie mindestens 3:1 Kontrast hat (wie im Portal auf #1c87b8)
-    const tone = (hex) => (1.05 / (luminance(hex) + 0.05) >= 3 ? "dark" : "light");
-
-    const apply = {
-      btn: (hex) => {
-        root.style.setProperty("--btn", hex);
-        root.dataset.btnTone = tone(hex);
-      },
-      nav: (hex) => {
-        root.style.setProperty("--nav", hex);
-        root.dataset.navTone = tone(hex);
-      },
-    };
-
-    // Farbgruppen (Buttonfarbe, Navigationsleiste): Vorgaben + eigene Farbe
-    $$("[data-swatches]", root).forEach((group) => {
-      const key = group.dataset.swatches;
+    // Farbgruppen: Buttonfarbe, Navigationsleiste, Hintergrundfarbe (je ein Farbwert)
+    ["btn", "nav", "solid"].forEach((key) => {
+      const group = $(`[data-swatches="${key}"]`, root);
+      if (!group) return;
       const swatches = $$(".swatch[data-color]", group);
       const customInput = $("[data-custom]", group);
       const customSwatch = customInput.closest(".swatch");
 
-      const select = (selected) => {
-        swatches.forEach((s) => {
-          const on = s === selected;
-          s.classList.toggle("is-on", on);
-          s.setAttribute("aria-checked", String(on));
-          s.tabIndex = on || (selected === customSwatch && s === swatches[0]) ? 0 : -1;
-        });
-        customSwatch.classList.toggle("is-on", selected === customSwatch);
-      };
-
-      swatches.forEach((s, i) => {
-        s.addEventListener("click", () => {
-          select(s);
-          apply[key](s.dataset.color);
-          customInput.value = s.dataset.color;
-        });
-        s.addEventListener("keydown", (e) => {
-          const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
-          if (!step) return;
-          e.preventDefault();
-          const next = swatches[(i + step + swatches.length) % swatches.length];
-          next.click();
-          next.focus();
-        });
+      swatches.forEach((sw, i) => {
+        sw.addEventListener("click", () => theme.set({ [key]: sw.dataset.color }));
+        sw.addEventListener("keydown", (e) => arrowNav(swatches, i, e));
       });
+      customInput.addEventListener("input", () => theme.set({ [key]: customInput.value }));
 
-      customInput.addEventListener("input", () => {
-        customSwatch.style.setProperty("--c", customInput.value);
-        select(customSwatch);
-        apply[key](customInput.value);
+      syncers.push((state) => {
+        const value = state[key];
+        const preset = swatches.find((sw) => sameColor(sw.dataset.color, value));
+        markRadio(swatches, preset);
+        customSwatch.classList.toggle("is-on", !preset);
+        if (!preset) customSwatch.style.setProperty("--c", value);
+        if (!sameColor(customInput.value, value)) customInput.value = value;
       });
-
-      select(swatches[0]);
-      apply[key](swatches[0].dataset.color);
     });
 
-    // Hintergrund: Bild, einfarbig oder Verlauf
+    // Farbverlauf: Vorlagen + eigene Start-/Endfarbe
+    const gradGroup = $('[data-swatches="gradient"]', root);
+    if (gradGroup) {
+      const swatches = $$(".swatch[data-g1]", gradGroup);
+      swatches.forEach((sw, i) => {
+        sw.addEventListener("click", () => theme.set({ g1: sw.dataset.g1, g2: sw.dataset.g2 }));
+        sw.addEventListener("keydown", (e) => arrowNav(swatches, i, e));
+      });
+      const inputs = $$("[data-grad-input]", root);
+      inputs.forEach((input) =>
+        input.addEventListener("input", () => theme.set(input.dataset.gradInput === "1" ? { g1: input.value } : { g2: input.value }))
+      );
+      syncers.push((state) => {
+        markRadio(swatches, swatches.find((sw) => sameColor(sw.dataset.g1, state.g1) && sameColor(sw.dataset.g2, state.g2)));
+        inputs.forEach((input) => {
+          const value = input.dataset.gradInput === "1" ? state.g1 : state.g2;
+          if (!sameColor(input.value, value)) input.value = value;
+          input.closest(".swatch").style.setProperty("--c", value);
+        });
+      });
+    }
+
+    // Hintergrund: Bild, einfarbig oder Verlauf (+ passende Farbfelder aufklappen)
+    const bgOptions = $$("[data-bg-option]", root);
+    const bgPanels = $$("[data-bg-panel]", root);
     bgOptions.forEach((opt, i) => {
-      opt.tabIndex = opt.classList.contains("is-on") ? 0 : -1;
-      opt.addEventListener("click", () => {
-        bgOptions.forEach((o) => {
-          const on = o === opt;
-          o.classList.toggle("is-on", on);
-          o.setAttribute("aria-checked", String(on));
-          o.tabIndex = on ? 0 : -1;
-        });
-        root.dataset.bg = opt.dataset.bgOption;
-      });
-      opt.addEventListener("keydown", (e) => {
-        const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
-        if (!step) return;
-        e.preventDefault();
-        const next = bgOptions[(i + step + bgOptions.length) % bgOptions.length];
-        next.click();
-        next.focus();
+      opt.addEventListener("click", () => theme.set({ bg: opt.dataset.bgOption }));
+      opt.addEventListener("keydown", (e) => arrowNav(bgOptions, i, e));
+    });
+    syncers.push((state) => {
+      markRadio(bgOptions, bgOptions.find((o) => o.dataset.bgOption === state.bg));
+      bgPanels.forEach((panel) => {
+        const open = panel.dataset.bgPanel === state.bg;
+        panel.classList.toggle("is-open", open);
+        panel.inert = !open;
       });
     });
 
-    const applyName = () => {
-      const name = nameInput.value.trim() || "Ihr Unternehmen";
-      labels.forEach((l) => (l.textContent = name));
+    // Unternehmensname
+    const nameInput = $("[data-studio-name]", root);
+    nameInput.addEventListener("input", () => theme.set({ name: nameInput.value.trim() }));
+
+    // Eigenes Logo: bleibt im Browser (Object-URL), wird nirgendwohin hochgeladen
+    const drop = $("[data-logo-drop]", root);
+    const fileInput = $("[data-logo-input]", root);
+    const resetBtn = $("[data-logo-reset]", root);
+    const preview = $("[data-logo-preview]", root);
+    const fileName = $("[data-logo-name]", root);
+    const msg = $("[data-logo-msg]", root);
+    const defaultSrc = preview.getAttribute("src");
+    const defaultName = fileName.textContent;
+    let objectUrl = "";
+
+    const useFile = (file) => {
+      msg.textContent = "";
+      if (!file) return;
+      if (!/^image\/(png|jpe?g|svg\+xml|webp|gif)$/.test(file.type)) {
+        msg.textContent = "Bitte eine Bilddatei wählen (PNG, JPG, SVG oder WebP).";
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        msg.textContent = "Die Datei ist größer als 5 MB.";
+        return;
+      }
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      objectUrl = URL.createObjectURL(file);
+      preview.src = objectUrl;
+      fileName.textContent = file.name;
+      resetBtn.hidden = false;
+      theme.set({ logo: objectUrl });
     };
-    nameInput.addEventListener("input", applyName);
-    applyName();
+    fileInput.addEventListener("change", () => useFile(fileInput.files[0]));
+    ["dragenter", "dragover"].forEach((type) =>
+      drop.addEventListener(type, (e) => {
+        e.preventDefault();
+        drop.classList.add("is-drag");
+      })
+    );
+    ["dragleave", "drop"].forEach((type) => drop.addEventListener(type, () => drop.classList.remove("is-drag")));
+    drop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      useFile(e.dataTransfer.files[0]);
+    });
+    resetBtn.addEventListener("click", () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      objectUrl = "";
+      fileInput.value = "";
+      preview.src = defaultSrc;
+      fileName.textContent = defaultName;
+      msg.textContent = "";
+      resetBtn.hidden = true;
+      theme.set({ logo: "" });
+      fileInput.focus();
+    });
+
+    theme.onChange((state) => syncers.forEach((sync) => sync(state)));
+  }
+
+  /* ---------- Hero: Live-Chip – Buttonfarbe direkt im Hero ausprobieren ---------- */
+  function initLiveChip(theme) {
+    const chip = $("[data-live-chip]");
+    if (!chip) return;
+    const dots = $$("[data-chip-color]", chip);
+    dots.forEach((dot, i) => {
+      dot.addEventListener("click", () => theme.set({ btn: dot.dataset.chipColor }));
+      dot.addEventListener("keydown", (e) => arrowNav(dots, i, e));
+    });
+    theme.onChange((state) => markRadio(dots, dots.find((d) => sameColor(d.dataset.chipColor, state.btn))));
+  }
+
+  /* ---------- Kontaktformular ---------- */
+  function initContactForm() {
+    const form = $("[data-contact-form]");
+    if (!form) return;
+    const conditional = $$("[data-show-for]", form);
+    const typeError = $('[data-error-for="sender_type"]', form);
+    const formError = $("[data-form-error]", form);
+    const success = $("[data-form-success]", form);
+    const successText = $("[data-form-success-text]", form);
+    const submitBtn = $(".form__submit", form);
+    const phone = form.elements.phone;
+    const senderType = () => (form.querySelector('input[name="sender_type"]:checked') || {}).value || "none";
+
+    const updateFields = (animate) => {
+      const type = senderType();
+      conditional.forEach((field) => {
+        const show = field.dataset.showFor.split(" ").includes(type);
+        const wasHidden = field.hidden;
+        field.hidden = !show;
+        $$("input, select, textarea", field).forEach((el) => (el.disabled = !show));
+        if (show && wasHidden && animate && !reducedMotion) {
+          field.classList.remove("is-entering");
+          void field.offsetWidth;
+          field.classList.add("is-entering");
+        }
+      });
+    };
+
+    const messageFor = (el) => {
+      if (el.validity.valueMissing) return el.tagName === "SELECT" ? "Bitte wählen Sie eine Option." : "Bitte füllen Sie dieses Feld aus.";
+      if (el.validity.typeMismatch) return el.type === "email" ? "Bitte geben Sie eine gültige E-Mail-Adresse ein." : "Bitte geben Sie eine vollständige Adresse ein (mit https://).";
+      if (el.validity.customError) return el.validationMessage;
+      return "Bitte prüfen Sie Ihre Eingabe.";
+    };
+    const setError = (el, text) => {
+      const field = el.closest(".form__field");
+      const out = field && $(".form__error", field);
+      if (!field || !out) return;
+      field.classList.toggle("is-invalid", Boolean(text));
+      out.textContent = text;
+      out.id = out.id || `${el.id}-error`;
+      if (text) {
+        el.setAttribute("aria-invalid", "true");
+        el.setAttribute("aria-describedby", out.id);
+      } else {
+        el.removeAttribute("aria-invalid");
+      }
+    };
+    const checkPhone = () =>
+      phone.setCustomValidity(phone.value && !/^[0-9 ()+\/.-]{5,}$/.test(phone.value) ? "Bitte nur Ziffern und Telefonzeichen verwenden." : "");
+
+    form.addEventListener("change", (e) => {
+      if (e.target.name !== "sender_type") return;
+      typeError.textContent = "";
+      updateFields(true);
+    });
+    form.addEventListener("input", (e) => {
+      if (e.target === phone) checkPhone();
+      if (e.target.closest(".is-invalid") && e.target.checkValidity()) setError(e.target, "");
+    });
+
+    const showSuccess = (text) => {
+      successText.textContent = text;
+      success.hidden = false;
+      $("[data-form-reset]", form).focus();
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formError.textContent = "";
+      checkPhone();
+      let first = null;
+      if (senderType() === "none") {
+        typeError.textContent = "Bitte wählen Sie aus, wer Sie sind.";
+        first = form.querySelector('input[name="sender_type"]');
+      }
+      $$("input:not([type=radio]), select, textarea", form).forEach((el) => {
+        if (el.disabled) return;
+        if (el.checkValidity()) {
+          setError(el, "");
+        } else {
+          setError(el, messageFor(el));
+          first = first || el;
+        }
+      });
+      if (first) {
+        first.focus();
+        return;
+      }
+
+      const data = new FormData(form);
+      if (form.dataset.endpoint) {
+        submitBtn.disabled = true;
+        try {
+          const res = await fetch(form.dataset.endpoint, { method: "POST", body: data, headers: { Accept: "application/json" } });
+          if (!res.ok) throw new Error(String(res.status));
+          showSuccess("Wir haben Ihre Nachricht erhalten und melden uns bei Ihnen.");
+        } catch (err) {
+          formError.textContent = "Das hat leider nicht geklappt. Bitte schreiben Sie uns an info@incent.de.";
+        } finally {
+          submitBtn.disabled = false;
+        }
+        return;
+      }
+
+      // Ohne Formular-Backend: Anfrage als vorbereitete E-Mail öffnen
+      const labels = {
+        sender_type: "Ich bin", salutation: "Anrede", firstname: "Vorname", lastname: "Nachname", email: "E-Mail",
+        phone: "Telefon", company_name: "Unternehmen", position: "Position", company_size: "Unternehmensgröße",
+        company_url: "Website", platform: "Plattform", profile_url: "Profil-URL", agentur: "Agentur",
+        street: "Anschrift", postal_code: "PLZ", message: "Nachricht",
+      };
+      const lines = [];
+      data.forEach((value, key) => {
+        if (String(value).trim()) lines.push(`${labels[key] || key}: ${value}`);
+      });
+      const subject = `Kontaktanfrage über incent.de – ${data.get("firstname")} ${data.get("lastname")}`;
+      window.location.href = `mailto:info@incent.de?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
+      showSuccess("Ihr E-Mail-Programm öffnet sich mit Ihrer Anfrage – bitte dort noch absenden. Alternativ erreichen Sie uns unter info@incent.de oder 08341 93450.");
+    });
+
+    $("[data-form-reset]", form).addEventListener("click", () => {
+      form.reset();
+      success.hidden = true;
+      formError.textContent = "";
+      typeError.textContent = "";
+      $$(".form__field", form).forEach((field) => field.classList.remove("is-invalid"));
+      $$(".form__error", form).forEach((out) => (out.textContent = ""));
+      updateFields(false);
+      form.querySelector('input[name="sender_type"]').focus();
+    });
+
+    updateFields(false);
   }
 
   /* ---------- Kundenstimmen: Karussell ---------- */
@@ -670,7 +922,7 @@
   initNav();
   initScrollProgress();
   initReveal();
-  initTyper();
+  initRotator();
   initCounters();
   initHero();
   initSpotlight();
@@ -678,7 +930,11 @@
   initTabs();
   initWordReveal();
   initNetwork();
-  initStudio();
+  const portalTheme = createPortalTheme();
+  initStudio(portalTheme);
+  initLiveChip(portalTheme);
+  portalTheme.set({});
+  initContactForm();
   initCarousel();
   runScrollTasks();
 })();
