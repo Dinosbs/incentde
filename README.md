@@ -7,10 +7,7 @@ Als Markenfarbe dient nur noch der blaue CI-Verlauf.
 
 ```
 index.html              Startseite (alle Inhalte)
-corporate-benefits-fuer-arbeitgeber.html   Mitarbeiterbindung › 2-in-1-Benefitportal
-mitarbeiterrabatte.html                    Mitarbeiterbindung › Mitarbeiterrabatte
-mitarbeitergutscheine.html                 Mitarbeiterbindung › SELECT Mitarbeitergutscheine
-steuerfreie-mitarbeitergeschenke.html      Mitarbeiterbindung › Geschenkanlässe
+mitarbeiterbindung.html Mitarbeiterbindung: Benefitportal, Mitarbeiterrabatte, Mitarbeitergutscheine, Geschenkanlässe
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
@@ -20,7 +17,7 @@ assets/img/about/       Bilder für „Über uns“ (von der bisherigen Über-un
 assets/img/partner-logos/  Logos für das Laufband „Partner, die uns vertrauen“ – werden automatisch eingelesen
 assets/img/deal-tiles/     Bilder für die Mini-Deal-Kacheln (technik.jpg, wohnen.jpg …) – werden automatisch eingelesen
 assets/img/testimonials/   Logos für die Kundenstimmen
-assets/img/mitarbeiterbindung/  Fotos, Isometrien und Portal-Screenshots der Mitarbeiterbindungs-Seiten (komprimiert)
+assets/img/mitarbeiterbindung/  Fotos, Isometrien und Portal-Screenshots der Mitarbeiterbindung (komprimiert)
 tools/update-image-manifests.mjs  erzeugt die Bildlisten (manifest.json) für die beiden Ordner oben
 tools/sync-layout.mjs   überträgt Navigation, Kontakt, Footer usw. aus index.html in alle Unterseiten
 ```
@@ -55,21 +52,38 @@ python3 -m http.server 8000
 | Über uns | Inhalte der bisherigen Über-uns-Seite: Einleitung, Kennzahlen, drei Kernbereiche, Link zum Vorteilsportal |
 | Kontakt | Kontaktformular mit Zielgruppen-Auswahl, passenden Zusatzfeldern je Zielgruppe und Prüfung der Eingaben |
 
-### Unterseiten Mitarbeiterbindung
+### Mitarbeiterbindung: eine Seite, vier Bereiche
 
-Jede Unterseite ist eine eigene Datei neben `index.html`, benannt nach dem Slug der bisherigen URL
-(`/mitarbeiterrabatte/` → `mitarbeiterrabatte.html`). Alle Links zeigen direkt auf die Dateien, deshalb funktionieren
-sie lokal genauso wie auf dem Server. Alle Seiten haben denselben Aufbau: Hero mit Brotkrumen und Cluster-Navigation
-zu den Schwesterseiten, danach die Inhalte, Kontakt, Partner-Laufband und Footer.
+`mitarbeiterbindung.html` enthält alle vier Bereiche. Die Cluster-Leiste unter dem Seitenkopf schaltet um, ohne die Seite
+neu zu laden: Seitenkopf (Titel, Text, Bild) und Inhalt blenden weich über, die Markierung gleitet zum gewählten Bereich.
+Jeder Bereich hat eine eigene Adresse, die Zurück-Taste funktioniert, und der Seitentitel wechselt mit:
 
-| Seite | Interaktive Elemente |
-| --- | --- |
-| 2-in-1-Benefitportal | Vorteile mit Umschalter „Für Arbeitgeber / Für Mitarbeitende“ (Desktop: Liste und Detailkarte, mobil: Akkordeon), Tabs „Drei gute Gründe“ mit Screenshot-Wechsler und Anlass-Kacheln, Portal mit Hotspots (Klick auf „Ihr Logo“, „Ihre Farben“ … führt die Anpassung im Portal vor), Gutschein-Konfigurator, Warenkorb-Demo, Ablauf in vier Schritten |
-| Mitarbeiterrabatte | Rabatt-Explorer: sechs Lebensbereiche mit echten Angeboten aus dem Vorteilsportal (Auto-Play, Pfeiltasten), Vorteile als Akkordeon, Portal-Hotspots |
-| Mitarbeitergutscheine | Vorteile mit Umschalter Arbeitgeber/Mitarbeitende, Gutschein-Konfigurator (Anlass, Wert, Name, Grußtext, Format PDF/Print/CSV, QR-Code), Preisrechner SELECT vs. Prepaid-Kreditkarte mit Schiebereglern, Warenkorb-Demo (Zuzahlung/Restguthaben), Portal-Hotspots |
-| Geschenkanlässe | Anlass-Finder: Hover oder Fokus auf eine Kachel ändert die Gutschein-Vorschau, SEO-Text mit Links |
+| Bereich | Adresse | Interaktive Elemente |
+| --- | --- | --- |
+| 2-in-1-Benefitportal | `#benefitportal` | Kennzahlen, Tabs „Drei gute Gründe“ mit Screenshot-Wechsler, Vorteile mit Umschalter „Für Arbeitgeber / Für Mitarbeitende“ (Desktop: Liste und Detailkarte, mobil: Akkordeon), Portal mit Hotspots (`#portal`), Verweis auf den SELECT Einkaufsgutschein, Ablauf |
+| Mitarbeiterrabatte | `#mitarbeiterrabatte` | Rabatt-Explorer mit echten Angeboten aus dem Vorteilsportal, Vorteile als Akkordeon, Verweise auf Portal, Ablauf und Gutscheine |
+| Mitarbeitergutscheine | `#mitarbeitergutscheine` | Vorteile Arbeitgeber/Mitarbeitende, Gutschein-Konfigurator (`#gestalten`), Vorteile mit SELECT, Preisrechner (`#preise`), Warenkorb-Demo im Look des Portal-Checkouts (`#einloesen`), Ablauf |
+| Geschenkanlässe | `#geschenkanlaesse` | Anlass-Finder mit Gutschein-Vorschau (`#anlaesse`), Text mit Links |
 
-**SELECT-Gutschein** (`.selv` in `main.css`, Markup in jeder Unterseite): Nachbau der echten Gutscheine. PDF = Hochformat
+Links auf einen Abschnitt in einem anderen Bereich (z. B. `#gestalten` aus dem Benefitportal) wechseln erst den Bereich und
+springen dann zum Abschnitt. Jedes Element steht nur einmal auf der Seite; andere Bereiche verweisen darauf.
+Kontakt und Partner-Laufband stehen einmal unter allen Bereichen.
+
+**Angedockte Leiste:** Sobald die Cluster-Leiste beim Scrollen unter der Hauptnavigation verschwindet, klappt unter der
+Hauptnavigation eine zweite Zeile in derselben Breite auf (Hauptnavigation bleibt sichtbar). Desktop: alle vier Bereiche
+mit gleitender Markierung. Tablet und Handy (bis 1120 px): aktueller Bereich in der Mitte, Pfeile für vorherigen/nächsten
+Bereich, Fortschrittsbalken und eine aufklappbare Liste aller Bereiche.
+
+Technik: Der aktive Bereich steht in `<html data-mb="…">`. Ein kleines Skript im `<head>` setzt ihn schon beim Laden
+aus der Adresse, die passenden CSS-Regeln stehen ebenfalls im `<head>` – so blitzt beim Aufruf von z. B.
+`#mitarbeiterrabatte` nicht erst der erste Bereich auf. Die Logik steckt in `initMb()` in `main.js`.
+
+**Warenkorb-Demo** (`#einloesen`): Nachbau der Checkout-Seite des Vorteilsportals mit Schritten, Warenkorb und der Box
+„Select-Einkaufsgutschein oder Aktions-Code“ (Maße, Farben und Zahlungslogos aus dem Portal). Beim ersten Sichtkontakt
+tippt die Demo den Gutscheincode ein; Produkte lassen sich entfernen und hinzufügen, der Gutscheinwert umstellen,
+„Bezahlen“ schließt die Demo-Bestellung ab.
+
+**SELECT-Gutschein** (`.selv` in `main.css`): Nachbau der echten Gutscheine. PDF = Hochformat
 mit Motiv, Tabelle (Wert, Code, Gültigkeit), Grußtext, QR-Code und Einlöse-Schritten; Print = Karte im Querformat; CSV = Tabelle.
 Im Seitenkopf liegen PDF und Karte übereinander wie auf den Produktbildern. Die Motive sind gezeichnet (Verlauf, Icons) statt
 fotografiert; Texte und Icons je Anlass stehen in `MOTIFS` in `main.js`. SELECT- und SBSCOM-Logo sind als SVG bzw. Schrift
@@ -84,23 +98,24 @@ Die Anlass-Unterseiten (Weihnachten, Geburtstag, Jubiläum …) verlinken weiter
 `node tools/sync-layout.mjs` ausführen: Das Skript kopiert die Blöcke in alle Unterseiten, lenkt Anker, die es nur
 auf der Startseite gibt, auf `index.html#…` um und markiert im Menü die aktuelle Seite (`aria-current="page"`).
 
-**Neue Unterseite anlegen:** Eine bestehende Unterseite kopieren und nach dem URL-Slug benennen
-(z. B. `kundenbindung.html`), Inhalt zwischen Hero und Kontakt ersetzen, die Markierungen für die Bausteine stehen
-lassen und `node tools/sync-layout.mjs` ausführen. Im Mega-Menü von `index.html` den Link auf `kundenbindung.html` setzen.
+**Neue Seite anlegen** (z. B. Kundenbindung): `mitarbeiterbindung.html` kopieren (`kundenbindung.html`), Seitenkopf und
+Bereiche ersetzen, die Markierungen für die Bausteine stehen lassen und `node tools/sync-layout.mjs` ausführen.
+Im Mega-Menü von `index.html` die Links auf `kundenbindung.html#bereich` setzen; das Skript macht daraus auf der Seite
+selbst reine Anker, sodass ein Klick nur den Bereich wechselt.
 
-**Livegang – bisherige Adressen erhalten:** Bei Google sind die Seiten unter `/mitarbeiterrabatte/` usw. bekannt
-(so steht es auch im `canonical`-Tag). Damit diese Adressen weiter funktionieren, liefert der Server für
-`/slug/` die Datei `slug.html` aus. Für Apache (`.htaccess`):
+**Livegang – bisherige Adressen weiterleiten:** Bei Google sind die Seiten noch unter den alten Adressen bekannt.
+Diese per 301 auf die neue Seite und den passenden Bereich umleiten. Für Apache (`.htaccess`):
 
 ```apache
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/$1.html -f
-RewriteRule ^([a-z0-9-]+)/?$ $1.html [L]
+Redirect 301 /corporate-benefits-fuer-arbeitgeber/ /mitarbeiterbindung.html#benefitportal
+Redirect 301 /mitarbeiterrabatte/ /mitarbeiterbindung.html#mitarbeiterrabatte
+Redirect 301 /mitarbeitergutscheine/ /mitarbeiterbindung.html#mitarbeitergutscheine
+Redirect 301 /steuerfreie-mitarbeitergeschenke/ /mitarbeiterbindung.html#geschenkanlaesse
 ```
 
-Für nginx: `location / { try_files $uri $uri.html $uri/ =404; }` und `rewrite ^/([a-z0-9-]+)/$ /$1 last;`.
-Netlify, Vercel und Cloudflare Pages liefern `slug.html` unter `/slug` ohne weitere Einstellung aus.
+Für nginx entsprechend `location = /mitarbeiterrabatte/ { return 301 /mitarbeiterbindung.html#mitarbeiterrabatte; }`.
+Soll die Seite unter `/mitarbeiterbindung/` erreichbar sein (so steht es im `canonical`-Tag), liefert der Server dort
+`mitarbeiterbindung.html` aus. (Die Regeln sind nicht auf einem echten Server getestet.)
 
 Bei `prefers-reduced-motion` laufen keine Animationen, und alle Inhalte sind sofort sichtbar.
 Ohne JavaScript bleiben alle Inhalte lesbar.
@@ -123,7 +138,7 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   Die Seite liest die Liste aus `manifest.json`. Nach einem Push aktualisiert die GitHub Action
   `.github/workflows/image-manifests.yml` diese Datei automatisch; lokal `node tools/update-image-manifests.mjs` ausführen.
   Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
-- **Unterseiten**: Die vier Mitarbeiterbindungs-Seiten liegen in diesem Repository (siehe oben). Alle übrigen
+- **Unterseiten**: Die Mitarbeiterbindung liegt in diesem Repository (siehe oben). Alle übrigen
   (Kundenbindung, Markenplatzierung, Content Creator, FAQ, Karriere, Rechtliches …) verlinken noch auf `www.incent.de`.
   Die Spaltenköpfe im Mega-Menü („Mitarbeiterbindung“ usw.) sind bewusst keine Links.
   „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
@@ -142,5 +157,10 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 - Unterseiten: Die Rückseiten der Wendekarten (Anlässe, Rabatt-Kategorien) fehlten in den gespeicherten Seiten und sind
   durch den Rabatt-Explorer und die Anlass-Kacheln ersetzt. Die Preistabelle rechnet mit den Einzelpreisen (9,90 € × 100 = 990 €, nicht 995 €),
   die Ersparnis ergibt sich daraus (7,7 % statt „rund 10 %“).
+- Mitarbeiterbindung: Die vier bisherigen Seiten sind zu einer Seite zusammengefasst. Was sich bisher doppelte, steht nur noch
+  einmal: der Abschnitt „Unser SELECT Einkaufsgutschein“, Gutschein-Konfigurator und Warenkorb-Demo stehen bei den
+  Mitarbeitergutscheinen, die Portal-Hotspots beim Benefitportal, die Anlass-Kacheln bei den Geschenkanlässen
+  (dort zusätzlich „Projektbezogene Prämien“), die Kennzahlen in der Benefitportal-Einleitung. Der Ablauf der
+  Rabatte war identisch mit dem des Portals und ist durch einen Verweis ersetzt.
 - Google Fonts, Google Tag Manager und Cookie-Banner sind entfallen. Die Schriften liegen lokal.
   Falls Tracking wieder eingebaut wird, gehört auch der Link „Privatsphäre-Einstellungen“ zurück in den Footer.

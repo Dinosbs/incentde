@@ -9,11 +9,12 @@
  *   <!-- layout:contact -->  … <!-- /layout:contact -->   Kontakt mit Formular
  *   <!-- layout:footer -->   … <!-- /layout:footer -->    Footer
  *
- * Jede Unterseite liegt flach neben index.html (z. B. mitarbeiterrabatte.html) und enthält
+ * Jede Unterseite liegt flach neben index.html (z. B. mitarbeiterbindung.html) und enthält
  * dieselben Markierungen (auch leer). Beim Übertragen werden Links angepasst:
  *   #anker              -> bleibt, wenn es den Anker auf der Unterseite gibt, sonst index.html#anker
  *   Logo (data-home)    -> index.html
  *   Link auf die Seite selbst -> bekommt aria-current="page"
+ *   seite.html#anker auf derselben Seite -> #anker (kein Neuladen)
  *
  * Aufruf: node tools/sync-layout.mjs        (ohne Abhängigkeiten)
  */
@@ -53,6 +54,7 @@ for (const page of pages) {
     block
       .replace(/<a ([^>]*?)href="[^"]*"([^>]*?)data-home([^>]*)>/g, '<a $1href="index.html"$2data-home$3>')
       .replace(/\shref="#([^"]*)"/g, (all, id) => (id && ids.has(id) ? all : ` href="index.html#${id}"`))
+      .replace(new RegExp(` href="${page.file}#([^"]+)"`, "g"), (all, id) => (ids.has(id) ? ` href="#${id}"` : all))
       .replaceAll(` href="${page.file}"`, ` href="${page.file}" aria-current="page"`);
   for (const name of used) html = html.replace(blockRe(name), (_, a, inner, c) => `${a}${fixLinks(inner)}${c}`);
 

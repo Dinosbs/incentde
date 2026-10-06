@@ -1367,6 +1367,7 @@
     jubilaeum: { title: "Herzlichen Glückwunsch zum Jubiläum", greeting: "Danke für viele gemeinsame Jahre!", icon: "i-award", accents: ["i-star", "i-sparkles"] },
     praemie: { title: "Danke für Ihre Idee", greeting: "Ihre Idee hat uns weitergebracht – vielen Dank!", icon: "i-bulb", accents: ["i-zap", "i-star"] },
     hochzeit: { title: "Alles Gute zur Hochzeit", greeting: "Herzlichen Glückwunsch zu Ihrem großen Tag!", icon: "i-heart", accents: ["i-sparkles", "i-gift"] },
+    projekt: { title: "Danke für Ihren Projekteinsatz", greeting: "Herzlichen Dank für Ihren Einsatz im Projekt!", icon: "i-target", accents: ["i-star", "i-trending"], cycle: false },
     sachbezug: { title: "Ihr monatlicher Sachbezug", greeting: "Ihr steuerfreier Sachbezug für diesen Monat – viel Freude damit!", icon: "i-banknote", accents: ["i-coins", "i-wallet"], cycle: false },
   };
 
@@ -1525,49 +1526,118 @@
     });
   }
 
-  /* ---------- Gutschein einlösen: Warenkorb-Rechner ---------- */
+  /* ---------- Gutschein einlösen: Nachbau des Portal-Checkouts ---------- */
   function initCheckout() {
     $$("[data-checkout]").forEach((root) => {
-      const products = $$("[data-product]", root);
+      const lines = $$(".pline", root);
+      const adds = $$("[data-add-for]", root);
+      const segs = $$("[data-code-seg]", root);
+      const steps = $$("[data-psteps] li", root);
       const values = $$("[data-voucher-value]", root);
-      const list = $("[data-cart-list]", root);
+      const redeemBtn = $("[data-redeem]", root);
+      const payBtn = $("[data-pay]", root);
+      const done = $("[data-done]", root);
       const out = (key) => $(`[data-out="${key}"]`, root);
+      const CODE = ["SBS", "0006", "1234", "5678", "1904"];
+      const initial = lines.map((l) => l.hidden);
       let voucher = Number((values.find((v) => v.classList.contains("is-on")) || values[0]).dataset.voucherValue);
+      let redeemed = false;
+      let typing = 0;
+      let touched = false;
 
+      const setStep = (n) =>
+        steps.forEach((li, i) => {
+          li.classList.toggle("is-done", i < n - 1);
+          li.classList.toggle("is-current", i === n - 1);
+        });
+      const totals = () => {
+        const chosen = lines.filter((l) => !l.hidden);
+        const subtotal = chosen.reduce((sum, l) => sum + Number(l.dataset.price), 0);
+        const used = redeemed ? Math.min(subtotal, voucher) : 0;
+        return { chosen, subtotal, used, pay: subtotal - used, rest: redeemed ? voucher - used : 0 };
+      };
       const render = () => {
-        const chosen = products.filter((p) => p.getAttribute("aria-pressed") === "true");
-        const subtotal = chosen.reduce((sum, p) => sum + Number(p.dataset.price), 0);
-        const used = Math.min(subtotal, voucher);
-        const pay = Math.max(0, subtotal - voucher);
-        const rest = Math.max(0, voucher - subtotal);
-        list.replaceChildren(
-          ...(chosen.length
-            ? chosen.map((p) => {
-                const li = document.createElement("li");
-                li.innerHTML = "<span></span><b></b>";
-                li.firstChild.textContent = p.dataset.name;
-                li.lastChild.textContent = euro(Number(p.dataset.price));
-                return li;
-              })
-            : [Object.assign(document.createElement("li"), { className: "is-empty", textContent: "Wählen Sie oben ein Produkt aus." })])
-        );
+        const { chosen, subtotal, used, pay, rest } = totals();
+        $("[data-cart-empty]", root).hidden = chosen.length > 0;
+        adds.forEach((li) => (li.hidden = !lines.find((l) => l.dataset.product === li.dataset.addFor).hidden));
+        const count = out("count");
+        if (count.textContent !== String(chosen.length)) {
+          count.textContent = chosen.length;
+          count.classList.remove("is-bump");
+          void count.offsetWidth;
+          count.classList.add("is-bump");
+          setTimeout(() => count.classList.remove("is-bump"), 300);
+        }
         tweenText(out("subtotal"), subtotal, (v) => euro(v));
+        $("[data-voucher-row]", root).hidden = !redeemed;
+        out("voucher-label").textContent = `SELECT-Gutschein (${euro(voucher, 0)})`;
         tweenText(out("voucher"), used, (v) => `– ${euro(v)}`);
         tweenText(out("pay"), pay, (v) => euro(v));
+        $("[data-rest-row]", root).hidden = !(redeemed && rest > 0 && chosen.length);
         tweenText(out("rest"), rest, (v) => euro(v));
-        out("voucher-label").textContent = `SELECT-Gutschein (${euro(voucher, 0)})`;
-        root.dataset.state = !chosen.length ? "empty" : pay > 0 ? "topup" : "rest";
+        payBtn.disabled = !chosen.length;
+        payBtn.textContent = chosen.length && pay <= 0 ? "Bestellung abschließen" : "Bezahlen";
         $$("[data-fact]", root).forEach((f) => {
           const k = f.dataset.fact;
-          f.classList.toggle("is-lit", (k === "topup" && pay > 0) || (k === "rest" && chosen.length > 0 && rest > 0) || k === "tax");
+          f.classList.toggle("is-lit", (k === "topup" && redeemed && pay > 0) || (k === "rest" && redeemed && rest > 0 && chosen.length > 0) || k === "tax");
         });
       };
-      products.forEach((p) =>
-        p.addEventListener("click", () => {
-          p.setAttribute("aria-pressed", String(p.getAttribute("aria-pressed") !== "true"));
+      const apply = () => {
+        redeemed = true;
+        redeemBtn.disabled = true;
+        redeemBtn.classList.add("is-done");
+        redeemBtn.innerHTML = '<svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Gutschein eingelöst';
+        render();
+      };
+      const redeem = (instant = false) => {
+        if (redeemed) return;
+        clearTimeout(typing);
+        redeemBtn.disabled = true;
+        segs.forEach((s) => ((s.value = ""), s.classList.remove("is-filled")));
+        if (instant || reducedMotion) {
+          segs.forEach((s, i) => ((s.value = CODE[i]), s.classList.add("is-filled")));
+          apply();
+          return;
+        }
+        let i = 0;
+        let j = 0;
+        const tick = () => {
+          segs[i].value = CODE[i].slice(0, ++j);
+          if (j >= CODE[i].length) {
+            segs[i].classList.add("is-filled");
+            i += 1;
+            j = 0;
+          }
+          typing = setTimeout(i < segs.length ? tick : apply, i < segs.length ? 55 : 240);
+        };
+        tick();
+      };
+      const unredeem = () => {
+        clearTimeout(typing);
+        redeemed = false;
+        segs.forEach((s) => ((s.value = ""), s.classList.remove("is-filled")));
+        redeemBtn.disabled = false;
+        redeemBtn.classList.remove("is-done");
+        redeemBtn.textContent = "Einlösen";
+        render();
+      };
+
+      lines.forEach((line) =>
+        $("[data-remove]", line).addEventListener("click", () => {
+          touched = true;
+          line.hidden = true;
           render();
         })
       );
+      $$("[data-add]", root).forEach((btn) =>
+        btn.addEventListener("click", () => {
+          touched = true;
+          lines.find((l) => l.dataset.product === btn.dataset.add).hidden = false;
+          render();
+        })
+      );
+      redeemBtn.addEventListener("click", () => ((touched = true), redeem()));
+      $("[data-unredeem]", root).addEventListener("click", unredeem);
       values.forEach((v, i) => {
         v.addEventListener("click", () => {
           voucher = Number(v.dataset.voucherValue);
@@ -1576,8 +1646,201 @@
         });
         v.addEventListener("keydown", (e) => arrowNav(values, i, e));
       });
+      payBtn.addEventListener("click", () => {
+        const { used, pay, rest } = totals();
+        let text = redeemed ? `${euro(used)} mit dem SELECT-Gutschein bezahlt` : "Ohne Gutschein bezahlt";
+        if (pay > 0) text += redeemed ? `, ${euro(pay)} zugezahlt.` : ` (${euro(pay)}).`;
+        else text += ".";
+        if (redeemed && rest > 0) text += ` Ihr Restguthaben von ${euro(rest)} bleibt erhalten.`;
+        out("done-text").textContent = text;
+        setStep(4);
+        done.hidden = false;
+        $("[data-restart]", root).focus({ preventScroll: true });
+      });
+      $("[data-restart]", root).addEventListener("click", () => {
+        lines.forEach((l, i) => (l.hidden = initial[i]));
+        done.hidden = true;
+        setStep(2);
+        unredeem();
+        redeemBtn.focus({ preventScroll: true });
+      });
+
+      setStep(2);
       render();
+      // Beim ersten Sichtkontakt tippt die Demo den Gutscheincode selbst ein
+      if (hasIO && !reducedMotion) {
+        const io = new IntersectionObserver(
+          ([entry]) => {
+            if (!entry.isIntersecting) return;
+            io.disconnect();
+            setTimeout(() => !touched && redeem(), 700);
+          },
+          { threshold: 0.45 }
+        );
+        io.observe($(".pbox", root));
+      }
     });
+  }
+
+  /* ---------- Mitarbeiterbindung: Bereiche umschalten, Leiste an die Navigation andocken ---------- */
+  function initMb() {
+    const wrap = $("[data-mb-panels]");
+    if (!wrap) return;
+    const html = document.documentElement;
+    const ids = $$(".mb-panel", wrap).map((p) => p.id);
+    const nav = $("[data-nav]");
+    const navInner = nav && $(".nav__inner", nav);
+    const cluster = $("[data-cluster]");
+    const dock = $("[data-mb-dock]");
+    const meta = $('meta[name="description"]');
+    const hosts = $$("[data-mb-tabs]");
+    if (nav && dock) nav.append(dock);
+    const dockBox = dock && $(".dock", dock);
+    const dockToggle = dock && $("[data-dock-toggle]", dock);
+    const dockMenu = dock && $(".dock__menu", dock);
+
+    const tabOf = (id) => {
+      if (ids.includes(id)) return id;
+      const el = id && document.getElementById(id);
+      const panel = el && el.closest(".mb-panel");
+      return panel ? panel.id : null;
+    };
+    const isDocked = () => !!nav && nav.classList.contains("is-docked");
+    const offset = () => {
+      const navBottom = navInner ? navInner.getBoundingClientRect().bottom : 80;
+      const bar = dock && $(".dock__bar", dock);
+      return Math.round(Math.max(navBottom, 70) + (bar ? bar.offsetHeight : 0) + 18);
+    };
+    const scrollToEl = (el, behavior) =>
+      window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - offset()), behavior });
+
+    // gleitende Markierung unter dem aktiven Bereich
+    const placeInd = (host) => {
+      const a = $('a[aria-current="page"]', host);
+      if (!a || !a.offsetWidth) return host.style.setProperty("--io", "0");
+      host.style.setProperty("--ix", `${a.offsetLeft}px`);
+      host.style.setProperty("--iy", `${a.offsetTop}px`);
+      host.style.setProperty("--iw", `${a.offsetWidth}px`);
+      host.style.setProperty("--ih", `${a.offsetHeight}px`);
+      host.style.setProperty("--io", "1");
+    };
+    // Textblock im Seitenkopf: Höhe weich an den aktiven Bereich anpassen statt an den längsten
+    const texts = $(".subhero__texts");
+    const fitTexts = () => {
+      const active = texts && $(`[data-mb-only="${html.dataset.mb}"]`, texts);
+      if (active) texts.style.height = `${active.offsetHeight}px`;
+    };
+    const sync = () => {
+      const cur = html.dataset.mb;
+      const panel = document.getElementById(cur);
+      document.title = panel.dataset.title;
+      if (meta) meta.content = panel.dataset.desc;
+      $$('a[href^="#"]')
+        .filter((a) => ids.includes(a.getAttribute("href").slice(1)) && !a.closest(".crumbs"))
+        .forEach((a) => (a.getAttribute("href") === `#${cur}` ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+      html.style.setProperty("--mb-i", String(ids.indexOf(cur)));
+      $$("[data-dock-step]").forEach((b) => {
+        const i = ids.indexOf(cur) + Number(b.dataset.dockStep);
+        b.disabled = i < 0 || i >= ids.length;
+      });
+      hosts.forEach(placeInd);
+      fitTexts();
+      html.style.scrollPaddingTop = `${offset()}px`;
+    };
+
+    let timer = 0;
+    const show = (id, { push = true } = {}) => {
+      const tab = tabOf(id);
+      if (!tab) return false;
+      const target = id === tab ? null : document.getElementById(id);
+      if (push && location.hash !== `#${id}`) history.pushState(null, "", `#${id}`);
+      if (tab === html.dataset.mb) {
+        if (target) scrollToEl(target, "smooth");
+        else if (isDocked()) window.scrollTo({ top: 0, behavior: "smooth" });
+        return true;
+      }
+      const swapNow = () => {
+        html.dataset.mb = tab;
+        sync();
+        if (target) scrollToEl(target, "instant");
+        else if (isDocked()) window.scrollTo({ top: 0, behavior: "instant" });
+        requestAnimationFrame(() => {
+          wrap.classList.remove("is-leaving");
+          runScrollTasks();
+        });
+      };
+      clearTimeout(timer);
+      if (reducedMotion) return swapNow(), true;
+      wrap.classList.add("is-leaving");
+      timer = setTimeout(swapNow, 230);
+      return true;
+    };
+
+    const setDockMenu = (open) => {
+      if (!dockBox) return;
+      dockBox.classList.toggle("is-open", open);
+      dockToggle.setAttribute("aria-expanded", String(open));
+      dockMenu.inert = !open;
+    };
+
+    // Alle Links auf Bereiche oder Abschnitte darin laufen über den weichen Wechsel
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a[href]");
+      if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const url = new URL(a.href, location.href);
+      if (!url.hash || url.href.split("#")[0] !== location.href.split("#")[0]) return;
+      const id = decodeURIComponent(url.hash.slice(1));
+      if (!tabOf(id)) return;
+      e.preventDefault();
+      setDockMenu(false);
+      show(id);
+    });
+    window.addEventListener("popstate", () => show(decodeURIComponent(location.hash.slice(1)) || ids[0], { push: false }));
+
+    if (nav && cluster && dock) {
+      dock.inert = true;
+      scrollTasks.push(() => {
+        const docked = cluster.getBoundingClientRect().bottom < navInner.getBoundingClientRect().bottom + 4;
+        if (docked === isDocked()) return;
+        nav.classList.toggle("is-docked", docked);
+        dock.inert = !docked;
+        if (!docked) setDockMenu(false);
+        requestAnimationFrame(() => hosts.forEach(placeInd));
+      });
+      setDockMenu(false);
+      dockToggle.addEventListener("click", () => setDockMenu(!dockBox.classList.contains("is-open")));
+      $$("[data-dock-step]", dock).forEach((b) =>
+        b.addEventListener("click", () => {
+          const i = ids.indexOf(html.dataset.mb) + Number(b.dataset.dockStep);
+          if (i >= 0 && i < ids.length) show(ids[i]);
+        })
+      );
+      document.addEventListener("click", (e) => !dock.contains(e.target) && setDockMenu(false));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && dockBox.classList.contains("is-open")) {
+          setDockMenu(false);
+          dockToggle.focus();
+        }
+      });
+    }
+
+    sync();
+    // Direktlink auf einen Abschnitt: nach dem Laden (Bilder, Schriften) noch einmal genau ausrichten
+    const first = decodeURIComponent(location.hash.slice(1));
+    const firstEl = first && !ids.includes(first) && tabOf(first) ? document.getElementById(first) : null;
+    if (firstEl) {
+      let moved = false;
+      ["wheel", "touchstart", "keydown"].forEach((ev) => window.addEventListener(ev, () => (moved = true), { once: true, passive: true }));
+      const align = () => !moved && scrollToEl(firstEl, "instant");
+      requestAnimationFrame(align);
+      window.addEventListener("load", () => setTimeout(align, 60));
+    }
+    window.addEventListener("resize", () => {
+      hosts.forEach(placeInd);
+      fitTexts();
+      html.style.scrollPaddingTop = `${offset()}px`;
+    });
+    if (document.fonts) document.fonts.ready.then(() => (hosts.forEach(placeInd), fitTexts()));
   }
 
   /* ---------- Preisvergleich: SELECT vs. Prepaid-Kreditkarte ---------- */
@@ -1679,6 +1942,7 @@
   initCarousel();
   initTiltCards();
   initAccordions();
+  initMb();
   initShots();
   initSteps();
   initHotspots();
