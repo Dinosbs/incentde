@@ -7,6 +7,10 @@ Als Markenfarbe dient nur noch der blaue CI-Verlauf.
 
 ```
 index.html              Startseite (alle Inhalte)
+corporate-benefits-fuer-arbeitgeber/index.html   Mitarbeiterbindung › 2-in-1-Benefitportal
+mitarbeiterrabatte/index.html                    Mitarbeiterbindung › Mitarbeiterrabatte
+mitarbeitergutscheine/index.html                 Mitarbeiterbindung › SELECT Mitarbeitergutscheine
+steuerfreie-mitarbeitergeschenke/index.html      Mitarbeiterbindung › Geschenkanlässe
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
@@ -16,7 +20,9 @@ assets/img/about/       Bilder für „Über uns“ (von der bisherigen Über-un
 assets/img/partner-logos/  Logos für das Laufband „Partner, die uns vertrauen“ – werden automatisch eingelesen
 assets/img/deal-tiles/     Bilder für die Mini-Deal-Kacheln (technik.jpg, wohnen.jpg …) – werden automatisch eingelesen
 assets/img/testimonials/   Logos für die Kundenstimmen
+assets/img/mitarbeiterbindung/  Fotos, Isometrien und Portal-Screenshots der Mitarbeiterbindungs-Seiten (komprimiert)
 tools/update-image-manifests.mjs  erzeugt die Bildlisten (manifest.json) für die beiden Ordner oben
+tools/sync-layout.mjs   überträgt Navigation, Kontakt, Footer usw. aus index.html in alle Unterseiten
 ```
 
 Es gibt keinen Build-Schritt. Die Dateien lassen sich so, wie sie sind, auf jeden Webserver legen.
@@ -45,6 +51,31 @@ python3 -m http.server 8000
 | Über uns | Inhalte der bisherigen Über-uns-Seite: Einleitung, Kennzahlen, drei Kernbereiche, Link zum Vorteilsportal |
 | Kontakt | Kontaktformular mit Zielgruppen-Auswahl, passenden Zusatzfeldern je Zielgruppe und Prüfung der Eingaben |
 
+### Unterseiten Mitarbeiterbindung
+
+Jede Unterseite liegt in einem eigenen Ordner mit dem Slug der bisherigen URL (z. B. `/mitarbeiterrabatte/`),
+die Adressen bleiben also gleich. Alle Seiten haben denselben Aufbau: Hero mit Brotkrumen und Cluster-Navigation
+zu den Schwesterseiten, danach die Inhalte, Kontakt, Partner-Laufband und Footer.
+
+| Seite | Interaktive Elemente |
+| --- | --- |
+| 2-in-1-Benefitportal | Tabs „Drei gute Gründe“ mit Screenshot-Wechsler und Anlass-Kacheln, Portal mit Hotspots (Klick auf „Ihr Logo“, „Ihre Farben“ … führt die Anpassung im Portal vor), Gutschein-Konfigurator, Warenkorb-Demo, Ablauf in vier Schritten |
+| Mitarbeiterrabatte | Rabatt-Explorer: sechs Lebensbereiche mit echten Angeboten aus dem Vorteilsportal (Auto-Play, Pfeiltasten), Portal-Hotspots |
+| Mitarbeitergutscheine | Gutschein-Konfigurator (Anlass, Wert, Name, Grußtext, Format PDF/Print/CSV, QR-Code), Preisrechner SELECT vs. Prepaid-Kreditkarte mit Schiebereglern, Warenkorb-Demo (Zuzahlung/Restguthaben), Portal-Hotspots |
+| Geschenkanlässe | Anlass-Finder: Hover oder Fokus auf eine Kachel ändert die Gutschein-Vorschau, SEO-Text mit Links |
+
+Die Angebote im Rabatt-Explorer sind eine Momentaufnahme (Stand Oktober 2026) und stehen direkt im HTML.
+Die Anlass-Unterseiten (Weihnachten, Geburtstag, Jubiläum …) verlinken weiterhin auf `www.incent.de`.
+
+**Gemeinsame Bausteine:** In `index.html` sind Icon-Sprite, Navigation, Partner-Laufband, Kontakt und Footer mit
+`<!-- layout:name -->` … `<!-- /layout:name -->` markiert. Nach einer Änderung an der Startseite
+`node tools/sync-layout.mjs` ausführen: Das Skript kopiert die Blöcke in alle Unterseiten, passt die Pfade an
+(`assets/…` → `../assets/…`) und markiert im Menü die aktuelle Seite (`aria-current="page"`).
+
+**Neue Unterseite anlegen:** Ordner mit `index.html` anlegen (am einfachsten eine bestehende Unterseite kopieren),
+Inhalt zwischen Hero und Kontakt ersetzen, die leeren Markierungen für die Bausteine stehen lassen und
+`node tools/sync-layout.mjs` ausführen. Im Mega-Menü von `index.html` den Link auf `ordnername/` setzen.
+
 Bei `prefers-reduced-motion` laufen keine Animationen, und alle Inhalte sind sofort sichtbar.
 Ohne JavaScript bleiben alle Inhalte lesbar.
 
@@ -66,7 +97,9 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   Die Seite liest die Liste aus `manifest.json`. Nach einem Push aktualisiert die GitHub Action
   `.github/workflows/image-manifests.yml` diese Datei automatisch; lokal `node tools/update-image-manifests.mjs` ausführen.
   Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
-- **Unterseiten** (Lösungen, FAQ, Karriere, Rechtliches …) verlinken auf die bestehenden URLs unter `www.incent.de`.
+- **Unterseiten**: Die vier Mitarbeiterbindungs-Seiten liegen in diesem Repository (siehe oben). Alle übrigen
+  (Kundenbindung, Markenplatzierung, Content Creator, FAQ, Karriere, Rechtliches …) verlinken noch auf `www.incent.de`.
+  Die Spaltenköpfe im Mega-Menü („Mitarbeiterbindung“ usw.) sind bewusst keine Links.
   „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
 - **Kontaktformular**: Ohne Backend öffnet „Absenden“ das E-Mail-Programm mit einer vorbereiteten Nachricht an
   info@incent.de. Für den echten Versand am `<form data-contact-form>` das Attribut `data-endpoint="https://…"` setzen,
@@ -80,5 +113,8 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 - Durchgehend „Sie“-Ansprache (vorher teilweise „du“).
 - Kleine Korrekturen, z. B. „über unser Vorteilsportal“, „ihr Vorteilsprogramm“, „2-in-1-Benefitportal“.
 - Firmenname einheitlich „INCENT Corporate Services GmbH“.
+- Unterseiten: Aufklapp-Texte und Rückseiten der Wendekarten fehlten in den gespeicherten Seiten. Diese Stellen sind
+  als feste Vorteilslisten umgesetzt. Die Preistabelle rechnet mit den Einzelpreisen (9,90 € × 100 = 990 €, nicht 995 €),
+  die Ersparnis ergibt sich daraus (7,7 % statt „rund 10 %“).
 - Google Fonts, Google Tag Manager und Cookie-Banner sind entfallen. Die Schriften liegen lokal.
   Falls Tracking wieder eingebaut wird, gehört auch der Link „Privatsphäre-Einstellungen“ zurück in den Footer.

@@ -474,7 +474,19 @@
     const spot = $("[data-spot]");
     const visual = $("[data-tilt]");
     const stage = $("[data-tilt-stage]");
-    if (!hero || !visual || !stage) return;
+    if (!hero) return;
+
+    // Unterseiten: nur der Lichtkegel folgt dem Cursor
+    if (!visual || !stage) {
+      if (finePointer && spot && !reducedMotion) {
+        hero.addEventListener("pointermove", (e) => {
+          const r = hero.getBoundingClientRect();
+          spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
+          spot.style.setProperty("--sy", `${e.clientY - r.top}px`);
+        });
+      }
+      return;
+    }
 
     if (reducedMotion) {
       stage.style.setProperty("--p", "1");
@@ -550,15 +562,16 @@
     });
   }
 
-  /* ---------- Lösungen: Tabs mit Auto-Play ---------- */
+  /* ---------- Tabs mit Auto-Play (Lösungen, Showcases, Rabatt-Explorer …) ---------- */
   function initTabs() {
-    const root = $("[data-tabs]");
-    if (!root) return;
-    const tabs = $$('[role="tab"]', root);
+    $$("[data-tabs]").forEach(initTabGroup);
+  }
+  function initTabGroup(root) {
+    const list = $('[role="tablist"]', root);
+    const tabs = $$('[role="tab"]', list);
     const panels = tabs.map((tab) => document.getElementById(tab.getAttribute("aria-controls")));
-    const list = $(".tabs__list", root);
-    let current = 0;
-    let autoplay = !reducedMotion;
+    let current = Math.max(0, tabs.findIndex((t) => t.getAttribute("aria-selected") === "true"));
+    let autoplay = !reducedMotion && root.dataset.autoplay !== "false";
     let inView = false;
 
     const restartProgress = () => {
@@ -603,7 +616,7 @@
     });
 
     root.addEventListener("animationend", (e) => {
-      if (autoplay && e.animationName === "progress") select(current + 1);
+      if (autoplay && e.animationName === "progress" && e.target.closest("[data-tabs]") === root) select(current + 1);
     });
 
     if (autoplay && hasIO) {
@@ -743,7 +756,7 @@
   const sameColor = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
 
   function createPortalTheme() {
-    const roots = $$(".vp-theme");
+    const roots = $$(".vp-theme:not([data-theme-local])");
     const state = { btn: "#1c87b8", nav: "#ffffff", bg: "image", solid: "#e8f3f9", g1: "#1c87b8", g2: "#0a2540", name: "", logo: "" };
     const listeners = [];
 
@@ -1155,6 +1168,453 @@
     setPlaying(playing);
   }
 
+  /* ==========================================================================
+     Bausteine der Unterseiten
+     ========================================================================== */
+  const euro = (v, digits = 2) =>
+    v.toLocaleString("de-DE", { style: "currency", currency: "EUR", minimumFractionDigits: digits, maximumFractionDigits: digits });
+
+  // Zahl weich von alt nach neu zählen
+  const tweenText = (el, to, format, duration = 650) => {
+    const from = Number(el.dataset.value || 0);
+    el.dataset.value = String(to);
+    if (reducedMotion || from === to) {
+      el.textContent = format(to);
+      return;
+    }
+    const start = performance.now();
+    const step = (now) => {
+      const t = clamp((now - start) / duration, 0, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = format(from + (to - from) * eased);
+      if (t < 1 && el.dataset.value === String(to)) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
+  /* ---------- Karten, die dem Cursor folgen (Hero-Bilder, Gutscheine) ---------- */
+  function initTiltCards() {
+    $$("[data-tilt-card]").forEach((card) => {
+      createTilt({
+        area: card.closest("[data-tilt-area]") || card.parentElement,
+        stage: card,
+        origin: () => card.getBoundingClientRect(),
+        rx: Number(card.dataset.rx || 6),
+        ry: Number(card.dataset.ry || 9),
+        tx: Number(card.dataset.tx || 10),
+        ty: Number(card.dataset.ty || 6),
+      });
+    });
+  }
+
+  /* ---------- Bild-Karussell mit Überblendung (Screenshots, Kundenportale) ---------- */
+  function initShots() {
+    $$("[data-shots]").forEach((root) => {
+      const items = $$(".shots__item", root);
+      const dots = $(".shots__dots", root);
+      if (items.length < 2) return;
+      let index = 0;
+      let timer = 0;
+      let hover = false;
+      let visible = false;
+      const buttons = items.map((item, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("aria-label", item.dataset.label || `Bild ${i + 1}`);
+        b.addEventListener("click", () => {
+          go(i);
+          restart();
+        });
+        dots && dots.append(b);
+        return b;
+      });
+      const go = (i) => {
+        index = (i + items.length) % items.length;
+        items.forEach((item, k) => item.classList.toggle("is-active", k === index));
+        buttons.forEach((b, k) => b.setAttribute("aria-current", k === index ? "true" : "false"));
+        const label = $(".shots__label", root);
+        if (label) label.textContent = items[index].dataset.label || "";
+      };
+      const restart = () => {
+        clearInterval(timer);
+        if (!reducedMotion && visible && !hover) timer = setInterval(() => go(index + 1), Number(root.dataset.interval || 3600));
+      };
+      root.addEventListener("pointerenter", () => ((hover = true), restart()));
+      root.addEventListener("pointerleave", () => ((hover = false), restart()));
+      if (hasIO) new IntersectionObserver(([e]) => ((visible = e.isIntersecting), restart())).observe(root);
+      go(0);
+    });
+  }
+
+  /* ---------- Schritte: Linie füllt sich beim Scrollen ---------- */
+  function initSteps() {
+    $$("[data-steps]").forEach((root) => {
+      const steps = $$(".step", root);
+      if (reducedMotion) {
+        root.style.setProperty("--p", "1");
+        steps.forEach((s) => s.classList.add("is-on"));
+        return;
+      }
+      scrollTasks.push(() => {
+        const r = root.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const p = clamp((vh * 0.82 - r.top) / (r.height + vh * 0.25), 0, 1);
+        root.style.setProperty("--p", p.toFixed(3));
+        steps.forEach((s, i) => s.classList.toggle("is-on", p >= (i + 0.35) / steps.length));
+      });
+    });
+  }
+
+  /* ---------- Hotspots auf dem Portal-Mockup (mit kleinen Live-Demos) ---------- */
+  const DEMO_LOGO =
+    "data:image/svg+xml," +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 52"><rect x="1.5" y="1.5" width="197" height="49" rx="12" fill="none" stroke="#1c87b8" stroke-width="3" stroke-dasharray="7 6"/><text x="100" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#1c87b8">IHR LOGO</text></svg>'
+    );
+  function initHotspots() {
+    $$("[data-hotspots]").forEach((root) => {
+      const theme = $("[data-theme-local]", root);
+      const spots = $$("[data-spot]", root);
+      const pins = $$("[data-pin]", root);
+      const logo = theme && $(".vp__logo-custom", theme);
+      const emptyLogo = logo && logo.getAttribute("src");
+      let active = "";
+      let demoTimer = 0;
+      let autoTimer = 0;
+      let auto = !reducedMotion;
+      let visible = false;
+
+      const reset = () => {
+        clearInterval(demoTimer);
+        if (!theme) return;
+        theme.style.removeProperty("--btn");
+        theme.dataset.btnTone = "dark";
+        theme.dataset.bg = "image";
+        theme.dataset.stageTone = "light";
+        theme.dataset.logo = "default";
+        if (logo) logo.src = emptyLogo;
+        theme.classList.remove("is-demo-deals");
+      };
+      const demos = {
+        logo: () => {
+          logo.src = DEMO_LOGO;
+          theme.dataset.logo = "custom";
+        },
+        farben: () => {
+          const colors = ["#e30613", "#00965e", "#7b2cbf", "#ff7a00", "#1c87b8"];
+          let k = 0;
+          const tick = () => {
+            const c = colors[k++ % colors.length];
+            theme.style.setProperty("--btn", c);
+            theme.dataset.btnTone = toneOf(c);
+          };
+          tick();
+          demoTimer = setInterval(tick, 1100);
+        },
+        hintergrund: () => {
+          const bgs = ["gradient", "solid", "image"];
+          let k = 0;
+          const tick = () => {
+            const bg = bgs[k++ % bgs.length];
+            theme.dataset.bg = bg;
+            theme.dataset.stageTone = bg === "gradient" ? "dark" : "light";
+          };
+          tick();
+          demoTimer = setInterval(tick, 1500);
+        },
+        deals: () => theme.classList.add("is-demo-deals"),
+      };
+      const activate = (key) => {
+        if (key === active) return;
+        active = key;
+        reset();
+        spots.forEach((s) => {
+          const on = s.dataset.spot === key;
+          s.classList.toggle("is-active", on);
+          s.setAttribute("aria-pressed", String(on));
+        });
+        pins.forEach((p) => p.classList.toggle("is-active", p.dataset.pin === key));
+        if (theme && !reducedMotion && demos[key]) demos[key]();
+      };
+      const stopAuto = () => {
+        auto = false;
+        clearInterval(autoTimer);
+      };
+      const startAuto = () => {
+        clearInterval(autoTimer);
+        if (!auto || !visible) return;
+        autoTimer = setInterval(() => {
+          const keys = spots.map((s) => s.dataset.spot);
+          activate(keys[(keys.indexOf(active) + 1) % keys.length]);
+        }, 3400);
+      };
+
+      spots.forEach((s) => {
+        s.addEventListener("click", () => (stopAuto(), activate(s.dataset.spot)));
+        s.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && (stopAuto(), activate(s.dataset.spot)));
+        s.addEventListener("focus", () => (stopAuto(), activate(s.dataset.spot)));
+      });
+      pins.forEach((p) => p.addEventListener("click", () => (stopAuto(), activate(p.dataset.pin))));
+      if (hasIO) new IntersectionObserver(([e]) => ((visible = e.isIntersecting), startAuto())).observe(root);
+      activate(spots[0].dataset.spot);
+    });
+  }
+
+  /* ---------- SELECT-Gutschein: Konfigurator + Vorschau ---------- */
+  const MOTIFS = {
+    geburtstag: { title: "Alles Gute zum Geburtstag", greeting: "Herzlichen Glückwunsch zum Geburtstag – feiern Sie schön!", icon: "i-cake" },
+    weihnachten: { title: "Frohe Weihnachten", greeting: "Danke für Ihren Einsatz in diesem Jahr. Frohe Festtage!", icon: "i-tree" },
+    jubilaeum: { title: "Herzlichen Glückwunsch zum Jubiläum", greeting: "Danke für viele gemeinsame Jahre!", icon: "i-award" },
+    praemie: { title: "Danke für Ihre Idee", greeting: "Ihre Idee hat uns weitergebracht – vielen Dank!", icon: "i-bulb" },
+    hochzeit: { title: "Alles Gute zur Hochzeit", greeting: "Herzlichen Glückwunsch zu Ihrem großen Tag!", icon: "i-heart" },
+    sachbezug: { title: "Ihr monatlicher Sachbezug", greeting: "Ihr steuerfreier Sachbezug für diesen Monat – viel Freude damit!", icon: "i-banknote", cycle: false },
+  };
+
+  // Deko-QR-Code (nicht scannbar): drei Suchmuster + Muster aus dem Gutscheincode
+  const drawQR = (svg, seed) => {
+    const N = 21;
+    let h = 2166136261;
+    for (const ch of seed) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+    const rand = () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296;
+    const finder = (x, y) => x < 7 && y < 7;
+    const inFinder = (x, y) => finder(x, y) || finder(N - 1 - x, y) || finder(x, N - 1 - y);
+    let d = "";
+    for (let y = 0; y < N; y++)
+      for (let x = 0; x < N; x++) {
+        if (inFinder(x, y)) continue;
+        if (rand() > 0.52) d += `M${x} ${y}h1v1h-1z`;
+      }
+    const ring = (x, y) => `M${x} ${y}h7v7h-7zM${x + 1} ${y + 1}v5h5v-5zM${x + 2} ${y + 2}h3v3h-3z`;
+    svg.setAttribute("viewBox", `-1 -1 ${N + 2} ${N + 2}`);
+    svg.innerHTML = `<path fill-rule="evenodd" d="${ring(0, 0)}${ring(N - 7, 0)}${ring(0, N - 7)}${d}"/>`;
+  };
+
+  function initVouchers() {
+    const validUntil = `31.12.${new Date().getFullYear() + 3}`;
+    $$("[data-voucher]").forEach((root) => {
+      const card = root.matches("[data-v-card]") ? root : $("[data-v-card]", root);
+      const out = (key) => $$(`[data-v-out="${key}"]`, root);
+      const set = (key, text) => out(key).forEach((el) => (el.textContent = text));
+      const state = { motif: card.dataset.motif || "geburtstag", value: 50, name: "Henry Henryson", greeting: "", format: card.dataset.format || "pdf" };
+      const codeFor = (name) => {
+        let n = 0;
+        for (const ch of name) n = (n * 31 + ch.charCodeAt(0)) % 100000000;
+        const digits = String(n).padStart(8, "0");
+        return `SBS0006-${digits.slice(0, 4)}-${digits.slice(4)}-1904`;
+      };
+
+      const render = () => {
+        const motif = MOTIFS[state.motif] || MOTIFS.geburtstag;
+        card.dataset.motif = state.motif;
+        card.dataset.format = state.format;
+        set("title", motif.title);
+        set("value", euro(state.value));
+        set("name", state.name || "Ihr Name");
+        set("greeting", state.greeting || motif.greeting);
+        set("valid", validUntil);
+        set("format-label", { pdf: "PDF", print: "PRINT", csv: "CSV" }[state.format] || "PDF");
+        const code = codeFor(state.name || "x");
+        set("code", code);
+        $$("[data-v-icon]", root).forEach((use) => use.setAttribute("href", `#${motif.icon}`));
+        $$("[data-qr]", root).forEach((svg) => drawQR(svg, code));
+        $$("[data-v-csv-first]", root).forEach((row) => {
+          row.cells[0].textContent = state.name || "Ihr Name";
+          row.cells[1].textContent = euro(state.value);
+          row.cells[2].textContent = code;
+        });
+        $$("[data-v-csv-value]", root).forEach((cell) => (cell.textContent = euro(state.value)));
+        root.querySelectorAll("[data-v-motif]").forEach((b) => {
+          const on = b.dataset.vMotif === state.motif;
+          b.classList.toggle("is-on", on);
+          b.setAttribute("aria-checked", String(on));
+        });
+        root.querySelectorAll("[data-v-format]").forEach((b) => {
+          const on = b.dataset.vFormat === state.format;
+          b.classList.toggle("is-on", on);
+          b.setAttribute("aria-checked", String(on));
+        });
+      };
+
+      root.querySelectorAll("[data-v-motif]").forEach((b, i, all) => {
+        b.addEventListener("click", () => {
+          state.motif = b.dataset.vMotif;
+          state.greeting = "";
+          const g = $("[data-v-greeting]", root);
+          if (g) g.value = "";
+          render();
+          card.classList.remove("is-swap");
+          void card.offsetWidth;
+          card.classList.add("is-swap");
+        });
+        b.addEventListener("keydown", (e) => arrowNav([...all], i, e));
+      });
+      root.querySelectorAll("[data-v-format]").forEach((b, i, all) => {
+        b.addEventListener("click", () => ((state.format = b.dataset.vFormat), render()));
+        b.addEventListener("keydown", (e) => arrowNav([...all], i, e));
+      });
+      const value = $("[data-v-value]", root);
+      if (value) {
+        const sync = () => {
+          state.value = Number(value.value);
+          value.style.setProperty("--fill", `${((value.value - value.min) / (value.max - value.min)) * 100}%`);
+          render();
+        };
+        value.addEventListener("input", sync);
+        sync();
+      }
+      const name = $("[data-v-name]", root);
+      if (name) name.addEventListener("input", () => ((state.name = name.value.trim()), render()));
+      const greeting = $("[data-v-greeting]", root);
+      if (greeting) greeting.addEventListener("input", () => ((state.greeting = greeting.value.trim()), render()));
+
+      // Legende ↔ Bereiche auf dem Gutschein
+      $$("[data-v-spot]", root).forEach((spot) => {
+        const parts = () => $$(`[data-v-part~="${spot.dataset.vSpot}"]`, root);
+        const on = () => parts().forEach((p) => p.classList.add("is-lit"));
+        const off = () => parts().forEach((p) => p.classList.remove("is-lit"));
+        spot.addEventListener("pointerenter", on);
+        spot.addEventListener("pointerleave", off);
+        spot.addEventListener("focusin", on);
+        spot.addEventListener("focusout", off);
+      });
+
+      // von außen steuerbar (Anlass-Finder)
+      root.voucherSet = (patch) => {
+        Object.assign(state, patch);
+        render();
+        card.classList.remove("is-swap");
+        void card.offsetWidth;
+        card.classList.add("is-swap");
+      };
+
+      // Wechselnde Motive (z. B. im Hero), solange niemand eingreift
+      if (root.hasAttribute("data-voucher-cycle") && !reducedMotion) {
+        const keys = Object.keys(MOTIFS).filter((k) => MOTIFS[k].cycle !== false);
+        let k = Math.max(0, keys.indexOf(state.motif));
+        let paused = false;
+        root.addEventListener("pointerenter", () => (paused = true));
+        root.addEventListener("pointerleave", () => (paused = false));
+        setInterval(() => {
+          if (paused || document.hidden) return;
+          state.motif = keys[++k % keys.length];
+          render();
+          card.classList.remove("is-swap");
+          void card.offsetWidth;
+          card.classList.add("is-swap");
+        }, 2800);
+      }
+      render();
+    });
+  }
+
+  /* ---------- Anlass-Finder: Kachel wählen, Gutschein-Vorschau passt sich an ---------- */
+  function initFinder() {
+    $$("[data-finder]").forEach((root) => {
+      const coupon = $("[data-voucher]", root);
+      const cards = $$("[data-motif]", root).filter((el) => !el.matches("[data-v-card]"));
+      if (!coupon || !coupon.voucherSet) return;
+      const pick = (card) => {
+        cards.forEach((c) => c.classList.toggle("is-on", c === card));
+        if (coupon.voucherSet) coupon.voucherSet({ motif: card.dataset.motif, greeting: "" });
+      };
+      cards.forEach((card) => {
+        card.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && pick(card));
+        card.addEventListener("focus", () => pick(card));
+      });
+      if (cards[0]) pick(cards[0]);
+    });
+  }
+
+  /* ---------- Gutschein einlösen: Warenkorb-Rechner ---------- */
+  function initCheckout() {
+    $$("[data-checkout]").forEach((root) => {
+      const products = $$("[data-product]", root);
+      const values = $$("[data-voucher-value]", root);
+      const list = $("[data-cart-list]", root);
+      const out = (key) => $(`[data-out="${key}"]`, root);
+      let voucher = Number((values.find((v) => v.classList.contains("is-on")) || values[0]).dataset.voucherValue);
+
+      const render = () => {
+        const chosen = products.filter((p) => p.getAttribute("aria-pressed") === "true");
+        const subtotal = chosen.reduce((sum, p) => sum + Number(p.dataset.price), 0);
+        const used = Math.min(subtotal, voucher);
+        const pay = Math.max(0, subtotal - voucher);
+        const rest = Math.max(0, voucher - subtotal);
+        list.replaceChildren(
+          ...(chosen.length
+            ? chosen.map((p) => {
+                const li = document.createElement("li");
+                li.innerHTML = "<span></span><b></b>";
+                li.firstChild.textContent = p.dataset.name;
+                li.lastChild.textContent = euro(Number(p.dataset.price));
+                return li;
+              })
+            : [Object.assign(document.createElement("li"), { className: "is-empty", textContent: "Wählen Sie oben ein Produkt aus." })])
+        );
+        tweenText(out("subtotal"), subtotal, (v) => euro(v));
+        tweenText(out("voucher"), used, (v) => `– ${euro(v)}`);
+        tweenText(out("pay"), pay, (v) => euro(v));
+        tweenText(out("rest"), rest, (v) => euro(v));
+        out("voucher-label").textContent = `SELECT-Gutschein (${euro(voucher, 0)})`;
+        root.dataset.state = !chosen.length ? "empty" : pay > 0 ? "topup" : "rest";
+        $$("[data-fact]", root).forEach((f) => {
+          const k = f.dataset.fact;
+          f.classList.toggle("is-lit", (k === "topup" && pay > 0) || (k === "rest" && chosen.length > 0 && rest > 0) || k === "tax");
+        });
+      };
+      products.forEach((p) =>
+        p.addEventListener("click", () => {
+          p.setAttribute("aria-pressed", String(p.getAttribute("aria-pressed") !== "true"));
+          render();
+        })
+      );
+      values.forEach((v, i) => {
+        v.addEventListener("click", () => {
+          voucher = Number(v.dataset.voucherValue);
+          markRadio(values, v);
+          render();
+        });
+        v.addEventListener("keydown", (e) => arrowNav(values, i, e));
+      });
+      render();
+    });
+  }
+
+  /* ---------- Preisvergleich: SELECT vs. Prepaid-Kreditkarte ---------- */
+  function initPriceCalc() {
+    $$("[data-calc]").forEach((root) => {
+      const people = $("[data-calc-people]", root);
+      const amount = $("[data-calc-amount]", root);
+      const FEES = { card: 9.9, create: 2.95, load: 2.95, ship: 1.9 };
+      const fill = (input) => input.style.setProperty("--fill", `${((input.value - input.min) / (input.max - input.min)) * 100}%`);
+      const render = () => {
+        const n = Number(people.value);
+        const a = Number(amount.value);
+        fill(people);
+        fill(amount);
+        const loads = a * 12 * n;
+        const rows = { loads, card: FEES.card * n, create: FEES.create * n, fee: FEES.load * 12 * n, ship: FEES.ship * n };
+        const competitor = loads + rows.card + rows.create + rows.fee + rows.ship;
+        const save = competitor - loads;
+        $$("[data-calc-label]", root).forEach((el) => {
+          el.textContent = el.dataset.calcLabel === "people" ? n.toLocaleString("de-DE") : euro(a, 0);
+        });
+        $$("[data-calc-unit]", root).forEach((el) => (el.textContent = euro(a)));
+        Object.entries(rows).forEach(([k, v]) => $$(`[data-calc-out="${k}"]`, root).forEach((el) => tweenText(el, v, (x) => euro(x))));
+        $$('[data-calc-out="competitor"]', root).forEach((el) => tweenText(el, competitor, (x) => euro(x)));
+        $$('[data-calc-out="ours"]', root).forEach((el) => tweenText(el, loads, (x) => euro(x)));
+        $$('[data-calc-out="save"]', root).forEach((el) => tweenText(el, save, (x) => euro(x, 0)));
+        $$('[data-calc-out="pct"]', root).forEach((el) =>
+          tweenText(el, (save / competitor) * 100, (x) => `${x.toLocaleString("de-DE", { maximumFractionDigits: 1, minimumFractionDigits: 1 })} %`)
+        );
+        $$('[data-calc-bar="ours"]', root).forEach((el) => el.style.setProperty("--w", `${(loads / competitor) * 100}%`));
+      };
+      people.addEventListener("input", render);
+      amount.addEventListener("input", render);
+      render();
+    });
+  }
+
   /* ---------- Start ---------- */
   initLogoFallbacks();
   initPartnerLogos();
@@ -1177,5 +1637,13 @@
   portalTheme.set({});
   initContactForm();
   initCarousel();
+  initTiltCards();
+  initShots();
+  initSteps();
+  initHotspots();
+  initVouchers();
+  initFinder();
+  initCheckout();
+  initPriceCalc();
   runScrollTasks();
 })();
