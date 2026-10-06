@@ -29,21 +29,69 @@
 
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
-  /* ---------- Partner-Laufband: Inhalte für nahtlosen Loop verdoppeln ---------- */
-  function initMarquee() {
-    $$("[data-marquee-track]").forEach((track) => {
-      Array.from(track.children).forEach((item) => {
-        const clone = item.cloneNode(true);
-        clone.setAttribute("aria-hidden", "true");
-        track.append(clone);
-      });
-      if (!reducedMotion) track.classList.add("is-ready");
-    });
-  }
+  /* ---------- Bildordner automatisch auslesen ----------
+     1. manifest.json im Ordner (erzeugt von tools/update-image-manifests.mjs bzw. der GitHub Action)
+     2. sonst die Verzeichnisliste des Servers (falls aktiviert)
+     Ergebnis: Liste der Dateinamen – oder null, wenn weder Manifest noch Listing verfügbar ist. */
+  const IMAGE_FILE = /\.(png|jpe?g|webp|svg|gif|avif)$/i;
+  const folderCache = new Map();
+  const collator = new Intl.Collator("de", { numeric: true, sensitivity: "base" });
+
+  const listImageFolder = (folder) => {
+    if (!folderCache.has(folder)) {
+      folderCache.set(
+        folder,
+        (async () => {
+          try {
+            const res = await fetch(`${folder}manifest.json`, { cache: "no-cache" });
+            if (res.ok) {
+              const data = await res.json();
+              return (data.files || []).filter((f) => IMAGE_FILE.test(f));
+            }
+          } catch (err) {
+            /* weiter mit Verzeichnisliste */
+          }
+          try {
+            const res = await fetch(folder, { cache: "no-cache" });
+            if (res.ok && (res.headers.get("content-type") || "").includes("text/html")) {
+              const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+              const names = Array.from(doc.querySelectorAll("a[href]"))
+                .map((a) => decodeURIComponent(a.getAttribute("href").split(/[?#]/)[0].split("/").pop()))
+                .filter((f) => IMAGE_FILE.test(f));
+              return [...new Set(names)].sort(collator.compare);
+            }
+          } catch (err) {
+            /* kein Listing verfügbar */
+          }
+          return null;
+        })()
+      );
+    }
+    return folderCache.get(folder);
+  };
+
+  // "01-REWE-Group.webp" -> "REWE Group", "center-parcs.png" -> "Center Parcs"
+  const nameFromFile = (file) => {
+    let name = file
+      .replace(IMAGE_FILE, "")
+      .replace(/^\d+[-_ ]+/, "")
+      .replace(/[-_ ]+\d+$/, "")
+      .replace(/[-_]+/g, " ")
+      .trim();
+    if (name === name.toLowerCase()) name = name.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+    return name;
+  };
+  const slugify = (text) =>
+    text
+      .toLowerCase()
+      .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "");
+  const fileUrl = (folder, file) => folder + encodeURIComponent(file);
 
   /* ---------- Logos: bei Ladefehler sauberer Text-Ersatz ---------- */
-  function initLogoFallbacks() {
-    const swap = (img) => {
+  const attachLogoFallback = (img) => {
+    const swap = () => {
       if (!img.isConnected || img.dataset.failed) return;
       img.dataset.failed = "true";
       const label = document.createElement("span");
@@ -51,10 +99,126 @@
       label.textContent = img.alt;
       img.replaceWith(label);
     };
-    $$("img[data-fallback]").forEach((img) => {
-      if (img.complete && img.naturalWidth === 0) swap(img);
-      else img.addEventListener("error", () => swap(img), { once: true });
+    if (img.complete && img.naturalWidth === 0 && img.getAttribute("src")) swap();
+    else img.addEventListener("error", swap, { once: true });
+  };
+  function initLogoFallbacks() {
+    $$("img[data-fallback]").forEach(attachLogoFallback);
+  }
+
+  /* ---------- Endlos-Laufband: Inhalt verdoppeln, Tempo an Anzahl anpassen ---------- */
+  const startLoop = (track, secondsPerItem) => {
+    $$("[data-clone]", track).forEach((clone) => clone.remove());
+    const items = Array.from(track.children);
+    items.forEach((item) => {
+      const clone = item.cloneNode(true);
+      clone.setAttribute("aria-hidden", "true");
+      clone.dataset.clone = "";
+      $$("img[data-fallback]", clone).forEach(attachLogoFallback);
+      track.append(clone);
     });
+    track.style.setProperty("--marquee-dur", `${Math.max(12, items.length * secondsPerItem)}s`);
+    if (!reducedMotion) track.classList.add("is-ready");
+  };
+
+  /* ---------- Partner-Laufband: Logos aus assets/img/partner-logos/ ---------- */
+  async function initPartnerLogos() {
+    const marquee = $("[data-logo-folder]");
+    const track = marquee && $("[data-marquee-track]", marquee);
+    if (!track) return;
+    startLoop(track, 3.4);
+
+    const files = await listImageFolder(marquee.dataset.logoFolder);
+    if (!files || !files.length) return;
+
+    const folderItems = files.map((file) => {
+      const li = document.createElement("li");
+      const img = document.createElement("img");
+      img.src = fileUrl(marquee.dataset.logoFolder, file);
+      img.alt = nameFromFile(file);
+      img.loading = "lazy";
+      img.dataset.fallback = "";
+      li.append(img);
+      return li;
+    });
+    // Platzhalter aus dem HTML nur behalten, wenn es (noch) keine Datei für den Partner gibt
+    const inFolder = new Set(folderItems.map((li) => slugify(li.firstChild.alt)));
+    const placeholders = Array.from(track.children).filter((li) => {
+      if (li.hasAttribute("data-clone")) return false;
+      const label = $("img", li)?.alt || li.textContent;
+      return !inFolder.has(slugify(label));
+    });
+
+    track.replaceChildren(...folderItems, ...placeholders);
+    folderItems.forEach((li) => attachLogoFallback(li.firstChild));
+    startLoop(track, 3.4);
+  }
+
+  /* ---------- Mini-Deal-Kacheln: Bilder aus assets/img/deal-tiles/ (technik.jpg …) ---------- */
+  async function initDealTiles() {
+    const row = $("[data-tile-folder]");
+    if (!row) return;
+    const folder = row.dataset.tileFolder;
+    const tiles = $$(".mini-deal", row);
+
+    const setImage = (tile, path) => {
+      // absolute URL: url() in CSS-Variablen würde sonst relativ zum Stylesheet aufgelöst
+      const url = new URL(path, document.baseURI).href;
+      const pic = $(".mini-deal__img", tile);
+      const probe = new Image();
+      probe.onload = () => {
+        pic.style.setProperty("--tile-img", `url("${url}")`);
+        pic.classList.add("has-img");
+        // Kopien im Laufband mitziehen
+        $$(`[data-clone][data-tile="${tile.dataset.tile}"] .mini-deal__img`, row).forEach((clone) => {
+          clone.style.setProperty("--tile-img", `url("${url}")`);
+          clone.classList.add("has-img");
+        });
+      };
+      probe.src = url;
+    };
+
+    startLoop(row, 5.6);
+    const files = await listImageFolder(folder);
+
+    if (files) {
+      const bySlug = new Map(files.map((f) => [slugify(f.replace(IMAGE_FILE, "")), f]));
+      tiles.forEach((tile) => {
+        const file = bySlug.get(tile.dataset.tile);
+        if (file) setImage(tile, fileUrl(folder, file));
+      });
+      // weitere Bilder im Ordner werden zu zusätzlichen Kacheln
+      const known = new Set(tiles.map((t) => t.dataset.tile));
+      const extras = files.filter((f) => !known.has(slugify(f.replace(IMAGE_FILE, ""))));
+      if (extras.length) {
+        extras.forEach((file, n) => {
+          const tile = document.createElement("span");
+          tile.className = `mini-deal${(tiles.length + n) % 2 ? " is-low" : ""}`;
+          tile.dataset.tile = slugify(file.replace(IMAGE_FILE, ""));
+          tile.innerHTML = '<i class="mini-deal__img"></i><b></b>';
+          $("b", tile).textContent = nameFromFile(file);
+          $$("[data-clone]", row).forEach((c) => c.remove());
+          row.append(tile);
+          tiles.push(tile);
+        });
+        startLoop(row, 5.6);
+        extras.forEach((file) => setImage(tiles.find((t) => t.dataset.tile === slugify(file.replace(IMAGE_FILE, ""))), fileUrl(folder, file)));
+      }
+    } else {
+      // weder Manifest noch Listing: Standardnamen direkt probieren (technik.jpg, …)
+      tiles.forEach((tile) => {
+        const exts = ["jpg", "jpeg", "png", "webp"];
+        const tryNext = (k) => {
+          if (k >= exts.length) return;
+          const url = `${folder}${tile.dataset.tile}.${exts[k]}`;
+          const probe = new Image();
+          probe.onload = () => setImage(tile, url);
+          probe.onerror = () => tryNext(k + 1);
+          probe.src = url;
+        };
+        tryNext(0);
+      });
+    }
   }
 
   /* ---------- Navigation, Mega-Menü, Mobile-Menü, Scrollspy ---------- */
@@ -257,7 +421,54 @@
     });
   }
 
-  /* ---------- Hero: Lichtkegel, 3D-Neigung, Aufrichten beim Scrollen ---------- */
+  /* ---------- Cursor-Follow: Portal neigt sich zum Cursor, wandert leicht mit, Lichtreflex ----------
+     area:   Fläche, auf der die Maus beobachtet wird
+     stage:  Element, das gekippt wird (bekommt --rx, --ry, --tx, --ty, --gx, --gy, --glare)
+     origin: () => Rect, relativ zu dem die Cursorposition normiert wird
+     Pro Frame weich nachgeführt (lerp) statt starrer CSS-Transition. */
+  function createTilt({ area, stage, origin, rx = 7, ry = 11, tx = 22, ty = 12, onMove }) {
+    if (!finePointer || reducedMotion || !area || !stage) return;
+    const target = { x: 0, y: 0, glare: 0 };
+    const current = { x: 0, y: 0, glare: 0 };
+    let frame = 0;
+    const tick = () => {
+      current.x += (target.x - current.x) * 0.09;
+      current.y += (target.y - current.y) * 0.09;
+      current.glare += (target.glare - current.glare) * 0.08;
+      stage.style.setProperty("--ry", `${(current.x * ry).toFixed(2)}deg`);
+      stage.style.setProperty("--rx", `${(-current.y * rx).toFixed(2)}deg`);
+      stage.style.setProperty("--tx", `${(current.x * tx).toFixed(1)}px`);
+      stage.style.setProperty("--ty", `${(current.y * ty).toFixed(1)}px`);
+      stage.style.setProperty("--gx", `${(50 + current.x * 55).toFixed(1)}%`);
+      stage.style.setProperty("--gy", `${(35 + current.y * 55).toFixed(1)}%`);
+      stage.style.setProperty("--glare", current.glare.toFixed(3));
+      const moving =
+        Math.abs(target.x - current.x) > 0.0005 ||
+        Math.abs(target.y - current.y) > 0.0005 ||
+        Math.abs(target.glare - current.glare) > 0.002;
+      frame = moving ? requestAnimationFrame(tick) : 0;
+    };
+    const kick = () => {
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+    area.addEventListener("pointermove", (e) => {
+      if (onMove) onMove(e);
+      if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
+      const r = origin();
+      target.x = clamp((e.clientX - (r.left + r.width / 2)) / (r.width / 2), -1, 1);
+      target.y = clamp((e.clientY - (r.top + r.height / 2)) / (r.height / 2), -1, 1);
+      target.glare = 1;
+      kick();
+    });
+    area.addEventListener("pointerleave", () => {
+      target.x = 0;
+      target.y = 0;
+      target.glare = 0;
+      kick();
+    });
+  }
+
+  /* ---------- Hero: Lichtkegel, Cursor-Follow, Aufrichten beim Scrollen ---------- */
   function initHero() {
     const hero = $("[data-hero]");
     const spot = $("[data-spot]");
@@ -270,56 +481,44 @@
       return;
     }
 
-    if (finePointer) {
-      // Portal folgt dem Cursor: Neigung, leichte Verschiebung und Lichtreflex,
-      // pro Frame weich nachgeführt (lerp) statt starrer CSS-Transition
-      const target = { x: 0, y: 0, glare: 0 };
-      const current = { x: 0, y: 0, glare: 0 };
-      let frame = 0;
-      const tick = () => {
-        current.x += (target.x - current.x) * 0.09;
-        current.y += (target.y - current.y) * 0.09;
-        current.glare += (target.glare - current.glare) * 0.08;
-        stage.style.setProperty("--ry", `${(current.x * 11).toFixed(2)}deg`);
-        stage.style.setProperty("--rx", `${(-current.y * 7).toFixed(2)}deg`);
-        stage.style.setProperty("--tx", `${(current.x * 22).toFixed(1)}px`);
-        stage.style.setProperty("--ty", `${(current.y * 12).toFixed(1)}px`);
-        stage.style.setProperty("--gx", `${(50 + current.x * 55).toFixed(1)}%`);
-        stage.style.setProperty("--gy", `${(35 + current.y * 55).toFixed(1)}%`);
-        stage.style.setProperty("--glare", current.glare.toFixed(3));
-        const moving =
-          Math.abs(target.x - current.x) > 0.0005 ||
-          Math.abs(target.y - current.y) > 0.0005 ||
-          Math.abs(target.glare - current.glare) > 0.002;
-        frame = moving ? requestAnimationFrame(tick) : 0;
-      };
-      const kick = () => {
-        if (!frame) frame = requestAnimationFrame(tick);
-      };
-
-      hero.addEventListener("pointermove", (e) => {
+    createTilt({
+      area: hero,
+      stage,
+      // im Hero relativ zum Bildschirm normiert: volle Bewegung über die ganze Seite
+      origin: () => ({ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }),
+      onMove: (e) => {
         const r = hero.getBoundingClientRect();
         spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
         spot.style.setProperty("--sy", `${e.clientY - r.top}px`);
-        if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
-        target.x = clamp((e.clientX / window.innerWidth - 0.5) * 2, -1, 1);
-        target.y = clamp((e.clientY / window.innerHeight - 0.5) * 2, -1, 1);
-        target.glare = 1;
-        kick();
-      });
-      hero.addEventListener("pointerleave", () => {
-        target.x = 0;
-        target.y = 0;
-        target.glare = 0;
-        kick();
-      });
-    }
+      },
+    });
 
     scrollTasks.push(() => {
       const top = visual.getBoundingClientRect().top;
       const vh = window.innerHeight;
       const p = clamp((vh - top) / (vh * 0.7), 0, 1);
       stage.style.setProperty("--p", p.toFixed(3));
+    });
+  }
+
+  /* ---------- Live-Vorschau: Portal folgt dem Cursor wie im Hero ---------- */
+  function initStudioTilt() {
+    const body = $("[data-studio-body]");
+    const stage = $("[data-studio-stage]");
+    if (!body || !stage) return;
+    createTilt({
+      area: body,
+      stage,
+      // relativ zur Vorschau: Cursor im Editor links kippt das Portal nach links
+      origin: () => {
+        const p = stage.parentElement.getBoundingClientRect();
+        const b = body.getBoundingClientRect();
+        return { left: p.left + p.width / 2 - b.width / 2, top: b.top, width: b.width, height: b.height };
+      },
+      rx: 6,
+      ry: 9,
+      tx: 14,
+      ty: 8,
     });
   }
 
@@ -957,14 +1156,16 @@
   }
 
   /* ---------- Start ---------- */
-  initMarquee();
   initLogoFallbacks();
+  initPartnerLogos();
+  initDealTiles();
   initNav();
   initScrollProgress();
   initReveal();
   initRotator();
   initCounters();
   initHero();
+  initStudioTilt();
   initSpotlight();
   initMagnetic();
   initTabs();

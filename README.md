@@ -13,6 +13,10 @@ assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe L
 assets/img/             INCENT-Logo (weiß + dunkel), Favicon
 assets/img/portal/      Bilder für den Portal-Nachbau (aus dem Dashboard, komprimiert)
 assets/img/about/       Bilder für „Über uns“ (von der bisherigen Über-uns-Seite, komprimiert)
+assets/img/partner-logos/  Logos für das Laufband „Partner, die uns vertrauen“ – werden automatisch eingelesen
+assets/img/deal-tiles/     Bilder für die Mini-Deal-Kacheln (technik.jpg, wohnen.jpg …) – werden automatisch eingelesen
+assets/img/testimonials/   Logos für die Kundenstimmen
+tools/update-image-manifests.mjs  erzeugt die Bildlisten (manifest.json) für die beiden Ordner oben
 ```
 
 Es gibt keinen Build-Schritt. Die Dateien lassen sich so, wie sie sind, auf jeden Webserver legen.
@@ -31,12 +35,12 @@ python3 -m http.server 8000
 | Navigation | Glas-Leiste beim Scrollen, Mega-Menü „Lösungen“, Vollbild-Menü auf Mobilgeräten, Scrollspy |
 | Hero | Animierter Verlauf, Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz), Nachbau des echten Vorteilsportals in 3D, der dem Cursor folgt (Neigung, Verschiebung, Lichtreflex). Der Live-Chip darunter ändert die Buttonfarbe direkt und führt zur Live-Vorschau |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
-| Partner | Endlos-Laufband, pausiert bei Hover |
+| Partner | Endlos-Laufband aus `assets/img/partner-logos/`, Tempo passt sich der Anzahl an, pausiert bei Hover |
 | Lösungen | Tabs mit Auto-Play und Fortschrittsbalken, Tastatursteuerung mit Pfeiltasten |
 | Versprechen | Text leuchtet Wort für Wort beim Scrollen auf |
 | Plattform | Netzwerk-Grafik reagiert auf das gewählte Feature im Akkordeon |
-| Leistungen | Bento-Karten mit Lichtkante und animierten Mini-Grafiken |
-| Vorteile | Kacheln mit weichem Hover. Live-Vorschau des Portals: eigenes Logo (Upload oder Drag & Drop), Unternehmensname, Buttonfarbe, Farbe der Navigationsleiste und Hintergrund (Bild, einfarbig, Verlauf – jeweils mit eigener Farbwahl). Alle Wechsel blenden weich über, und das Portal im Hero übernimmt jede Änderung |
+| Leistungen | Bento-Karten mit Lichtkante und animierten Mini-Grafiken; Kachelbilder aus `assets/img/deal-tiles/` |
+| Vorteile | Kacheln mit weichem Hover. Live-Vorschau des Portals (Text oben, darunter Editor und Vorschau nebeneinander; die Vorschau folgt dem Cursor): eigenes Logo (Upload oder Drag & Drop), Unternehmensname, Buttonfarbe, Farbe der Navigationsleiste und Hintergrund (Bild, einfarbig, Verlauf – jeweils mit eigener Farbwahl). Alle Wechsel blenden weich über, und das Portal im Hero übernimmt jede Änderung |
 | Kundenstimmen | Karussell mit Auto-Play, Pause-Taste, Wischgeste und Pfeiltasten |
 | Über uns | Inhalte der bisherigen Über-uns-Seite: Einleitung, Kennzahlen, drei Kernbereiche, Link zum Vorteilsportal |
 | Kontakt | Kontaktformular mit Zielgruppen-Auswahl, passenden Zusatzfeldern je Zielgruppe und Prüfung der Eingaben |
@@ -58,6 +62,10 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 - **Partner- und Kundenlogos** werden direkt von `www.incent.de/wp-content/uploads/…` geladen. Schlägt das Laden fehl,
   zeigt die Seite automatisch den Firmennamen als Text an. Für den Livegang die Dateien nach `assets/img/` kopieren
   und die Pfade anpassen.
+- **Partner-Logos und Kachelbilder** einfach in den jeweiligen Ordner legen (Anleitung: `LIESMICH.md` im Ordner).
+  Die Seite liest die Liste aus `manifest.json`. Nach einem Push aktualisiert die GitHub Action
+  `.github/workflows/image-manifests.yml` diese Datei automatisch; lokal `node tools/update-image-manifests.mjs` ausführen.
+  Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
 - **Unterseiten** (Lösungen, FAQ, Karriere, Rechtliches …) verlinken auf die bestehenden URLs unter `www.incent.de`.
   „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
 - **Kontaktformular**: Ohne Backend öffnet „Absenden“ das E-Mail-Programm mit einer vorbereiteten Nachricht an

@@ -1,0 +1,34 @@
+# Aktualisiert die Bildlisten (manifest.json), sobald Logos oder Kachelbilder
+# hinzugefügt, umbenannt oder gelöscht werden. Die Website liest diese Listen.
+name: Bildlisten aktualisieren
+
+on:
+  push:
+    paths:
+      - "assets/img/partner-logos/**"
+      - "assets/img/deal-tiles/**"
+      - "!assets/img/partner-logos/manifest.json"
+      - "!assets/img/deal-tiles/manifest.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Manifeste erzeugen
+        run: node tools/update-image-manifests.mjs
+      - name: Änderungen committen
+        run: |
+          if git diff --quiet -- assets/img/partner-logos/manifest.json assets/img/deal-tiles/manifest.json; then
+            echo "Keine Änderungen."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/img/partner-logos/manifest.json assets/img/deal-tiles/manifest.json
+          git commit -m "Bildlisten aktualisiert"
+          git push

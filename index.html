@@ -351,7 +351,9 @@
           langjährigen Partnerschaft zusammenzuarbeiten.
         </p>
       </div>
-      <div class="marquee" data-marquee>
+      <!-- Logos kommen automatisch aus assets/img/partner-logos/ (siehe LIESMICH.md dort).
+           Die Liste unten dient als Platzhalter für Partner, deren Datei noch fehlt. -->
+      <div class="marquee" data-marquee data-logo-folder="assets/img/partner-logos/">
         <ul class="marquee__track" data-marquee-track>
           <li><img src="https://www.incent.de/wp-content/uploads/sites/6/2026/07/dyson.png" alt="Dyson" loading="lazy" data-fallback></li>
           <li><img src="https://www.incent.de/wp-content/uploads/sites/6/2026/08/REWE-Group.png" alt="REWE Group" loading="lazy" data-fallback></li>
@@ -637,17 +639,13 @@
         <div class="bento">
           <article class="card card--wide" data-spotlight data-reveal>
             <div class="card__visual viz-deals" aria-hidden="true">
-              <div class="viz-deals__row">
-                <span class="mini-deal"><i><svg class="i"><use href="#i-tag"/></svg></i><b>Technik</b><em>−20 %</em></span>
-                <span class="mini-deal"><i><svg class="i"><use href="#i-gift"/></svg></i><b>Wohnen</b><em>Exklusiv</em></span>
-                <span class="mini-deal"><i><svg class="i"><use href="#i-ticket"/></svg></i><b>Reisen</b><em>Aktion</em></span>
-                <span class="mini-deal"><i><svg class="i"><use href="#i-store"/></svg></i><b>Mode</b><em>−15 %</em></span>
-                <span class="mini-deal"><i><svg class="i"><use href="#i-star"/></svg></i><b>Sport</b><em>Neu</em></span>
-                <span class="mini-deal"><i><svg class="i"><use href="#i-tag"/></svg></i><b>Technik</b><em>−20 %</em></span>
-                <span class="mini-deal"><i><svg class="i"><use href="#i-gift"/></svg></i><b>Wohnen</b><em>Exklusiv</em></span>
-                <span class="mini-deal"><i><svg class="i"><use href="#i-ticket"/></svg></i><b>Reisen</b><em>Aktion</em></span>
-                <span class="mini-deal"><i><svg class="i"><use href="#i-store"/></svg></i><b>Mode</b><em>−15 %</em></span>
-                <span class="mini-deal"><i><svg class="i"><use href="#i-star"/></svg></i><b>Sport</b><em>Neu</em></span>
+              <!-- Kachelbilder kommen automatisch aus assets/img/deal-tiles/ (technik.jpg, wohnen.jpg …) -->
+              <div class="viz-deals__row" data-tile-folder="assets/img/deal-tiles/">
+                <span class="mini-deal" data-tile="technik"><i class="mini-deal__img"><svg class="i"><use href="#i-tag"/></svg></i><b>Technik</b><em>−20 %</em></span>
+                <span class="mini-deal is-low" data-tile="wohnen"><i class="mini-deal__img"><svg class="i"><use href="#i-gift"/></svg></i><b>Wohnen</b><em>Exklusiv</em></span>
+                <span class="mini-deal" data-tile="reisen"><i class="mini-deal__img"><svg class="i"><use href="#i-ticket"/></svg></i><b>Reisen</b><em>Aktion</em></span>
+                <span class="mini-deal is-low" data-tile="mode"><i class="mini-deal__img"><svg class="i"><use href="#i-store"/></svg></i><b>Mode</b><em>−15 %</em></span>
+                <span class="mini-deal" data-tile="sport"><i class="mini-deal__img"><svg class="i"><use href="#i-star"/></svg></i><b>Sport</b><em>Neu</em></span>
               </div>
             </div>
             <div class="card__copy">
@@ -744,10 +742,16 @@
 
         <!-- Live-Vorschau: Vorteilsportal im eigenen Corporate Design -->
         <div class="studio vp-theme" id="live-vorschau" data-studio data-bg="image" data-btn-tone="dark" data-nav-tone="light" data-stage-tone="light" data-logo="default" data-reveal>
-          <div class="studio__controls">
-            <p class="eyebrow">Live-Vorschau</p>
-            <h3 class="studio__title">Ihr Portal. <span class="grad-text">Ihr Corporate Design.</span></h3>
+          <header class="studio__head">
+            <div>
+              <p class="eyebrow">Live-Vorschau</p>
+              <h3 class="studio__title">Ihr Portal. <span class="grad-text">Ihr Corporate Design.</span></h3>
+            </div>
             <p class="studio__text">Alles wird individuell in Ihrem Corporate Design umgesetzt und ist schnell einsatzbereit. Probieren Sie es aus – die Vorschau ganz oben auf der Seite passt sich gleich mit an.</p>
+          </header>
+
+          <div class="studio__body" data-studio-body>
+          <div class="studio__controls">
 
             <div class="field">
               <span class="field__label" id="logo-label">Logo</span>
@@ -846,6 +850,8 @@
           </div>
 
           <div class="studio__preview" role="img" aria-label="Vorschau des Vorteilsportals im gewählten Design">
+            <div class="studio__stage" data-studio-stage>
+            <span class="stage__glare"></span>
             <div class="vp-frame">
               <div class="vp">
                 <div class="vp__bar">
@@ -893,9 +899,46 @@
                       <span class="vp-deal__info"><b>posterXXL</b><span>Für wertvolle Erinnerungen</span></span>
                     </span>
                   </div>
+                  <div class="vp__head vp__head--shop"><strong>Besonders beliebt im Vorteils-Shop</strong><em>Im Trend</em></div>
+                  <div class="vp__products">
+                    <span class="vp-product">
+                      <svg class="i vp-product__fav"><use href="#i-heart"/></svg>
+                      <img src="assets/img/portal/product-denver.webp" alt="" loading="lazy">
+                      <span class="vp-product__meta"><b>DENVER</b><span>Bluetooth Lautsprecher „Moon LBS-15“</span></span>
+                      <span class="vp-product__cart"><svg class="i"><use href="#i-bag"/></svg></span>
+                      <span class="vp-product__price"><strong>15,95 €</strong><em>-65%</em></span>
+                      <s>44,95 €</s>
+                    </span>
+                    <span class="vp-product">
+                      <svg class="i vp-product__fav"><use href="#i-heart"/></svg>
+                      <img src="assets/img/portal/product-beurer-massage.webp" alt="" loading="lazy">
+                      <span class="vp-product__meta"><b>BEURER</b><span>Akku-Massage-Gun „MG 79“ Sensitive</span></span>
+                      <span class="vp-product__cart"><svg class="i"><use href="#i-bag"/></svg></span>
+                      <span class="vp-product__price"><strong>34,95 €</strong><em>-50%</em></span>
+                      <s>69,99 €</s>
+                    </span>
+                    <span class="vp-product">
+                      <svg class="i vp-product__fav"><use href="#i-heart"/></svg>
+                      <img src="assets/img/portal/product-fatboy.webp" alt="" loading="lazy">
+                      <span class="vp-product__meta"><b>FATBOY</b><span>Tischlampe „Edison the Ambiance“</span></span>
+                      <span class="vp-product__cart"><svg class="i"><use href="#i-bag"/></svg></span>
+                      <span class="vp-product__price"><strong>57,95 €</strong><em>-27%</em></span>
+                      <s>79,00 €</s>
+                    </span>
+                    <span class="vp-product">
+                      <svg class="i vp-product__fav"><use href="#i-heart"/></svg>
+                      <img src="assets/img/portal/product-beurer-diffuser.webp" alt="" loading="lazy">
+                      <span class="vp-product__meta"><b>BEURER</b><span>Aroma-Diffuser „LA 40“</span></span>
+                      <span class="vp-product__cart"><svg class="i"><use href="#i-bag"/></svg></span>
+                      <span class="vp-product__price"><strong>43,95 €</strong><em>-30%</em></span>
+                      <s>62,99 €</s>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
+            </div>
+          </div>
           </div>
         </div>
       </div>
@@ -925,7 +968,7 @@
           <div class="carousel__viewport" data-viewport>
             <figure class="quote is-active" aria-roledescription="Folie" aria-label="1 von 3">
               <div class="quote__top">
-                <span class="quote__logo"><img src="https://www.incent.de/wp-content/uploads/sites/6/2026/08/REWE-Group.png" alt="REWE Group" loading="lazy" data-fallback></span>
+                <span class="quote__logo"><img src="assets/img/testimonials/REWE-Group.webp" alt="REWE Group" loading="lazy"></span>
                 <span class="quote__since">Partner seit 2013</span>
               </div>
               <blockquote>„Seit 2013 können wir unseren Mitarbeitern über Incent einen zusätzlichen Benefit anbieten. Die Zusammenarbeit zeichnet sich seitdem durch professionellen Umgang mit neuen Anforderungen aus. Auch bei Problemen konnte sowohl den Mitarbeitern als auch uns immer eine schnelle Lösung präsentiert werden.“</blockquote>
@@ -933,7 +976,7 @@
             </figure>
             <figure class="quote" aria-roledescription="Folie" aria-label="2 von 3" aria-hidden="true">
               <div class="quote__top">
-                <span class="quote__logo"><img src="https://www.incent.de/wp-content/uploads/sites/6/2026/08/Acer.png" alt="Acer" loading="lazy" data-fallback></span>
+                <span class="quote__logo"><img src="assets/img/testimonials/Acer.webp" alt="Acer" loading="lazy"></span>
                 <span class="quote__since">Partner seit 2017</span>
               </div>
               <blockquote>„Im September 2017 haben wir die Kooperation mit INCENT mit einer Testphase begonnen. Nach dem erfolgreichen Start haben wir diese verlängert und sind seither sehr zufrieden mit den positiven Ergebnissen, die wir durch die attraktiven Newsletter und Portalplatzierungen erzielen konnten.“</blockquote>
@@ -941,7 +984,7 @@
             </figure>
             <figure class="quote" aria-roledescription="Folie" aria-label="3 von 3" aria-hidden="true">
               <div class="quote__top">
-                <span class="quote__logo"><img src="https://www.incent.de/wp-content/uploads/sites/6/2026/08/Samsonite.png" alt="Samsonite" loading="lazy" data-fallback></span>
+                <span class="quote__logo"><img src="assets/img/testimonials/Samsonite.webp" alt="Samsonite" loading="lazy"></span>
                 <span class="quote__since">Partner seit 2024</span>
               </div>
               <blockquote>„Die Zusammenarbeit seit 2024 mit INCENT ist für uns von großem Mehrwert. Die Betreuung ist stets persönlich, zuverlässig und professionell – wir fühlen uns bestens unterstützt. Besonders schätzen wir die unkomplizierte Kommunikation und die partnerschaftliche Zusammenarbeit, die maßgeblich zum Erfolg unserer Projekte beiträgt.“</blockquote>
@@ -1257,7 +1300,6 @@
           <span class="footer__partner-logo"><img src="assets/img/allgaeu.webp" width="160" height="160" alt="Allgäu GmbH" loading="lazy"></span>
         </p>
       </div>
-      <img class="footer__giant" src="assets/img/incent-logo-white.png" width="446" height="109" alt="" loading="lazy">
     </div>
   </footer>
 </body>
