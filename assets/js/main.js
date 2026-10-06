@@ -1266,11 +1266,18 @@
   }
 
   /* ---------- Hotspots auf dem Portal-Mockup (mit kleinen Live-Demos) ---------- */
-  const DEMO_LOGO =
+  const demoLogo = (text = "IHR LOGO") =>
     "data:image/svg+xml," +
     encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 52"><rect x="1.5" y="1.5" width="197" height="49" rx="12" fill="none" stroke="#1c87b8" stroke-width="3" stroke-dasharray="7 6"/><text x="100" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#1c87b8">IHR LOGO</text></svg>'
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 52"><rect x="1.5" y="1.5" width="197" height="49" rx="12" fill="none" stroke="#1c87b8" stroke-width="3" stroke-dasharray="7 6"/><text x="100" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#1c87b8">${text}</text></svg>`
     );
+  // Kategorien je Creator-Thema (Demo „Kategorien passend zu Deinem Content“)
+  const CREATOR_CATS = [
+    ["Highlights", "Fitness", "Supplements", "Sportmode", "Recovery", "Outdoor", "Ernährung", "Gadgets"],
+    ["Highlights", "Reisen", "Kamera", "Gepäck", "Outdoor", "Hotels", "Mobilität", "Technik"],
+    ["Highlights", "Gaming", "Technik", "Audio", "Setup", "Streaming", "Snacks", "Merch"],
+    ["Highlights", "Beauty", "Skincare", "Fashion", "Wellness", "Düfte", "Schmuck", "Lifestyle"],
+  ];
   function initHotspots() {
     $$("[data-hotspots]").forEach((root) => {
       const theme = $("[data-theme-local]", root);
@@ -1278,6 +1285,9 @@
       const pins = $$("[data-pin]", root);
       const logo = theme && $(".vp__logo-custom", theme);
       const emptyLogo = logo && logo.getAttribute("src");
+      const logoSrc = demoLogo(root.dataset.logoText);
+      const cats = theme ? $$(".vp__cats i", theme).slice(0, -1) : [];
+      const catTexts = cats.map((c) => c.textContent);
       let active = "";
       let demoTimer = 0;
       let autoTimer = 0;
@@ -1293,11 +1303,12 @@
         theme.dataset.stageTone = "light";
         theme.dataset.logo = "default";
         if (logo) logo.src = emptyLogo;
-        theme.classList.remove("is-demo-deals");
+        theme.classList.remove("is-demo-deals", "is-demo-cats");
+        cats.forEach((c, i) => (c.textContent = catTexts[i]));
       };
       const demos = {
         logo: () => {
-          logo.src = DEMO_LOGO;
+          logo.src = logoSrc;
           theme.dataset.logo = "custom";
         },
         farben: () => {
@@ -1323,6 +1334,21 @@
           demoTimer = setInterval(tick, 1500);
         },
         deals: () => theme.classList.add("is-demo-deals"),
+        kategorien: () => {
+          let k = 0;
+          theme.classList.add("is-demo-cats");
+          const tick = () => {
+            const set = CREATOR_CATS[k++ % CREATOR_CATS.length];
+            cats.forEach((c, i) => {
+              c.textContent = set[i] || c.textContent;
+              c.classList.remove("is-swap");
+              void c.offsetWidth;
+              c.classList.add("is-swap");
+            });
+          };
+          tick();
+          demoTimer = setInterval(tick, 1500);
+        },
       };
       const activate = (key) => {
         if (key === active) return;
@@ -1522,6 +1548,123 @@
         if (conf && conf.voucherSet) conf.voucherSet({ motif: link.dataset.pickMotif, greeting: "" });
       })
     );
+  }
+
+  /* ---------- Markenplatzierung: So erscheint Ihre Marke ---------- */
+  function initPlacement() {
+    $$("[data-placement]").forEach((root) => {
+      const brand = $("[data-pl-brand]", root);
+      const offer = $("[data-pl-offer]", root);
+      const cats = $$("[data-pl-cat]", root);
+      const views = $$("[data-pl-view]", root);
+      const ICONS = { technik: "i-zap", mode: "i-shirt", reisen: "i-plane", sport: "i-activity", wohnen: "i-home" };
+      const URLS = { start: "mitarbeiter.vorteile.net", kategorie: "mitarbeiter.vorteile.net/kategorie", newsletter: "Posteingang – Deals der Woche" };
+      const state = { cat: root.dataset.cat || "technik", view: root.dataset.view || "start" };
+      const set = (key, text) => $$(`[data-pl-out="${key}"]`, root).forEach((el) => (el.textContent = text));
+      const pulse = () => {
+        root.classList.remove("is-swap");
+        void root.offsetWidth;
+        root.classList.add("is-swap");
+      };
+      const render = () => {
+        const cat = cats.find((c) => c.dataset.plCat === state.cat) || cats[0];
+        root.dataset.cat = state.cat;
+        root.dataset.view = state.view;
+        set("brand", brand.value.trim() || "Ihre Marke");
+        set("offer", offer.value.trim() || "20 %");
+        set("desc", cat.dataset.plDesc);
+        set("catname", cat.textContent.trim());
+        $$("[data-pl-icon]", root).forEach((u) => u.setAttribute("href", `#${ICONS[state.cat]}`));
+        $$(".plk__art use, .nlm__art use", root).forEach((u) => u.setAttribute("href", `#${ICONS[state.cat]}`));
+        const url = $("[data-pl-url]", root);
+        if (url) url.textContent = URLS[state.view];
+        markRadio(cats, cat);
+        markRadio(views, views.find((v) => v.dataset.plView === state.view));
+      };
+      brand.addEventListener("input", render);
+      offer.addEventListener("input", render);
+      cats.forEach((c, i) => {
+        c.addEventListener("click", () => ((state.cat = c.dataset.plCat), render(), pulse()));
+        c.addEventListener("keydown", (e) => arrowNav(cats, i, e));
+      });
+      views.forEach((v, i) => {
+        v.addEventListener("click", () => ((state.view = v.dataset.plView), render()));
+        v.addEventListener("keydown", (e) => arrowNav(views, i, e));
+      });
+      render();
+    });
+  }
+
+  /* ---------- Newsletter-Pakete mit Kampagnen-Zeitplan ---------- */
+  function initPackages() {
+    $$("[data-packages]").forEach((root) => {
+      const cards = $$("[data-pk]", root);
+      const chart = $("[data-pk-chart]", root);
+      const spread = (n, w) => Array.from({ length: n }, (_, i) => Math.min(w, Math.floor(((i + 0.5) * w) / n) + 1));
+      const lane = (name, cols) => {
+        const track = $(`[data-lane="${name}"] .pkt__track`, chart);
+        track.replaceChildren(
+          ...cols.map(([start, span], n) => {
+            const i = document.createElement("i");
+            i.style.gridColumn = `${start} / span ${span}`;
+            i.style.setProperty("--n", n);
+            return i;
+          })
+        );
+      };
+      const render = (card) => {
+        markRadio(cards, card);
+        const m = Number(card.dataset.months);
+        const w = Math.round((m * 52) / 12);
+        chart.style.setProperty("--w", w);
+        chart.style.setProperty("--m", m);
+        $$(".pkt__track", chart).forEach((t) => t.style.setProperty("--w", w));
+        lane("list", [[1, w]]);
+        lane("start", spread(Number(card.dataset.start), w).map((s) => [s, 1]));
+        lane("nl", spread(Number(card.dataset.nl), w).map((s) => [s, 1]));
+        lane("banner", spread(Number(card.dataset.banner), w).map((s) => [Math.min(w, s + 1), 1]));
+        const months = $(".pkt__months", chart);
+        months.style.setProperty("--m", m);
+        months.replaceChildren(
+          ...Array.from({ length: m }, (_, i) => {
+            const s = document.createElement("span");
+            s.textContent = m > 12 && i % 3 ? "" : `M${i + 1}`;
+            return s;
+          })
+        );
+        $$('[data-pk-out="name"]', root).forEach((el) => (el.textContent = $(".pk__name", card).textContent));
+        $$('[data-pk-out="months"]', root).forEach((el) => (el.textContent = m));
+      };
+      cards.forEach((c, i) => {
+        c.addEventListener("click", () => render(c));
+        c.addEventListener("keydown", (e) => arrowNav(cards, i, e));
+      });
+      render(cards.find((c) => c.classList.contains("is-on")) || cards[0]);
+    });
+  }
+
+  /* ---------- Einnahmen im Vergleich: Brand Deals vs. Community-Shop ---------- */
+  function initEarnings() {
+    $$("[data-earn]").forEach((root) => {
+      const btns = $$("[data-earn-mode]", root);
+      let touched = false;
+      const set = (mode) => {
+        root.dataset.mode = mode;
+        btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.earnMode === mode)));
+      };
+      btns.forEach((b) => b.addEventListener("click", () => ((touched = true), set(b.dataset.earnMode))));
+      if (hasIO && !reducedMotion) {
+        const io = new IntersectionObserver(
+          ([entry]) => {
+            if (!entry.isIntersecting) return;
+            io.disconnect();
+            setTimeout(() => !touched && set("shop"), 1600);
+          },
+          { threshold: 0.5 }
+        );
+        io.observe(root);
+      }
+    });
   }
 
   /* ---------- Kontaktkalender: ohne / mit Kundenrabatten ---------- */
@@ -1991,6 +2134,9 @@
   initTiltCards();
   initAccordions();
   initTouchpoints();
+  initPlacement();
+  initPackages();
+  initEarnings();
   initMb();
   initShots();
   initSteps();

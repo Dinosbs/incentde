@@ -9,6 +9,8 @@ Als Markenfarbe dient nur noch der blaue CI-Verlauf.
 index.html              Startseite (alle Inhalte)
 mitarbeiterbindung.html Mitarbeiterbindung: Benefitportal, Mitarbeiterrabatte, Mitarbeitergutscheine, Geschenkanlässe
 kundenbindung.html      Kundenbindung: Loyalty-Portal, Kundenrabatte, Kundengutscheine
+markenplatzierung.html  Markenplatzierung: Anbieter werden, Newsletter-Platzierung
+content-creator.html    Content Creator: Community-Shop (Du-Ansprache)
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
@@ -20,6 +22,8 @@ assets/img/deal-tiles/     Bilder für die Mini-Deal-Kacheln (technik.jpg, wohne
 assets/img/testimonials/   Logos für die Kundenstimmen
 assets/img/mitarbeiterbindung/  Fotos, Isometrien und Portal-Screenshots der Mitarbeiterbindung (komprimiert)
 assets/img/kundenbindung/       Fotos und Isometrien der Kundenbindung (Portal-Screenshots kommen aus mitarbeiterbindung/)
+assets/img/markenplatzierung/   Fotos, Isometrien und Screenshots der Markenplatzierung
+assets/img/content-creator/     Fotos, Isometrien und Shop-Screenshots für Creator
 tools/update-image-manifests.mjs  erzeugt die Bildlisten (manifest.json) für die beiden Ordner oben
 tools/sync-layout.mjs   überträgt Navigation, Kontakt, Footer usw. aus index.html in alle Unterseiten
 ```
@@ -99,6 +103,23 @@ Der Kontaktkalender ist ein Beispiel (welche Anlässe in welchem Monat) und steh
 Die Branchen-Angebote sind Beispiele aus dem Vorteilsportal; Konkurrenzangebote (z. B. Vodafone bei Telekommunikation,
 Wechselpilot bei Energieversorgern) sind bewusst nicht als Beispiel gewählt.
 
+### Markenplatzierung: eine Seite, zwei Bereiche
+
+| Bereich | Adresse | Interaktive Elemente |
+| --- | --- | --- |
+| Anbieter werden | `#anbieter-werden` | Kennzahlen (1,3 Mio. Nutzer, 4.400 Arbeitgeber, 1.100 Portale), Tabs „Drei gute Gründe“, Live-Vorschau „So erscheint Ihre Marke“ (`#vorschau`: Markenname, Angebot und Kategorie eintippen – Ansicht als Startseiten-Kachel, Kategorie-Banner oder Newsletter), Vorteile, Ablauf, Verweis auf die Newsletter-Platzierung |
+| Newsletter-Platzierung | `#newsletter-platzierung` | Newsletter-Kennzahlen (450.000+, 25 %, 12 %), vier Vorteils-Karten, Erfolgsfaktoren, Pakete Starter/Business/Extended mit Kampagnen-Zeitplan (`#pakete`: zeigt je Paket Laufzeit, Newsletter, Startseiten- und Banner-Wochen), Ablauf |
+
+Die Vorschau ist eine reine Demo im Browser (keine Übertragung). Der Zeitplan verteilt die gebuchten Platzierungen gleichmäßig
+und ist als „beispielhafte Verteilung“ gekennzeichnet.
+
+### Content Creator
+
+`content-creator.html` ist eine einzelne Seite (es gibt nur ein Angebot) und durchgehend in Du-Ansprache. Inhalte:
+Kennzahlen, Tabs „Vier gute Gründe“, Vorteile, „Dein Shop, Dein Look“ mit Portal-Hotspots (Logo, Creator-Farben,
+Kategorien passend zum Content – wechselnde Beispiel-Kategorien für Fitness, Reisen, Gaming, Beauty –, Hintergrundbild),
+Vergleich „Klassische Brand Deals / Dein Community-Shop“ (`#einnahmen`, schematisch, keine Umsatzprognose) und Ablauf.
+
 **SELECT-Gutschein** (`.selv` in `main.css`): Nachbau der echten Gutscheine. PDF = Hochformat
 mit Motiv, Tabelle (Wert, Code, Gültigkeit), Grußtext, QR-Code und Einlöse-Schritten; Print = Karte im Querformat; CSV = Tabelle.
 Im Seitenkopf liegen PDF und Karte übereinander wie auf den Produktbildern. Die Motive sind gezeichnet (Verlauf, Icons) statt
@@ -131,6 +152,10 @@ Redirect 301 /steuerfreie-mitarbeitergeschenke/ /mitarbeiterbindung.html#geschen
 Redirect 301 /kundenbindungsprogramm-fuer-unternehmen/ /kundenbindung.html#loyalty-portal
 Redirect 301 /kundenrabatte/ /kundenbindung.html#kundenrabatte
 Redirect 301 /gutscheine-kundenbindung/ /kundenbindung.html#kundengutscheine
+
+Redirect 301 /reichweite-steigern-markenpartner/ /markenplatzierung.html#anbieter-werden
+Redirect 301 /b2c-e-mail-marketing/ /markenplatzierung.html#newsletter-platzierung
+Redirect 301 /community-benefits/ /content-creator.html
 ```
 
 Für nginx entsprechend `location = /mitarbeiterrabatte/ { return 301 /mitarbeiterbindung.html#mitarbeiterrabatte; }`.
@@ -158,8 +183,8 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   Die Seite liest die Liste aus `manifest.json`. Nach einem Push aktualisiert die GitHub Action
   `.github/workflows/image-manifests.yml` diese Datei automatisch; lokal `node tools/update-image-manifests.mjs` ausführen.
   Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
-- **Unterseiten**: Mitarbeiterbindung und Kundenbindung liegen in diesem Repository (siehe oben). Alle übrigen
-  (Markenplatzierung, Content Creator, FAQ, Karriere, Rechtliches …) verlinken noch auf `www.incent.de`.
+- **Unterseiten**: Alle Lösungsseiten (Mitarbeiterbindung, Kundenbindung, Markenplatzierung, Content Creator) liegen in
+  diesem Repository (siehe oben). FAQ, Karriere und Rechtliches verlinken noch auf `www.incent.de`.
   Die Spaltenköpfe im Mega-Menü („Mitarbeiterbindung“ usw.) sind bewusst keine Links.
   „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
 - **Kontaktformular**: Ohne Backend öffnet „Absenden“ das E-Mail-Programm mit einer vorbereiteten Nachricht an
@@ -189,5 +214,11 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   Abschlusstexte und Buttons, die auf Mitarbeitende bzw. „Zu allen Anlässen“ (Mitarbeitergeschenke) verwiesen, sind
   auf Kunden umgestellt. Der Kunden-Vorteil „Maximale Flexibilität“ heißt „Doppelter Vorteil“, weil der Titel schon
   bei den Unternehmens-Vorteilen vorkommt. Das Kleingedruckte des Kundengutscheins enthält keine Arbeitgeber-Bezüge.
+  Im Seitenkopf steht „Keine Servicekosten“ statt „Kostenfrei“, weil die Unterlagen zur Kundenbindung keine Kostenfreiheit nennen.
+- Markenplatzierung: Anbieter- und Newsletter-Seite sind eine Seite mit zwei Bereichen. Der Menüpunkt „Reichweite steigern“
+  heißt jetzt „Newsletter-Platzierung“ (beide alten Seiten hießen sinngemäß „Reichweite steigern“). Die Netzwerk-Kennzahlen
+  stehen nur bei „Anbieter werden“, die Newsletter-Kennzahlen nur bei der Newsletter-Platzierung; der Newsletter-Abschnitt und
+  der Abschlusstext der Anbieter-Seite sind zu einem Verweis zusammengefasst. Seitenkopf ohne „Kostenfrei“, weil Marken Pakete
+  buchen. Tippfehler korrigiert („Abgebotslistung“, „Potrale“, „Markenparter“).
 - Google Fonts, Google Tag Manager und Cookie-Banner sind entfallen. Die Schriften liegen lokal.
   Falls Tracking wieder eingebaut wird, gehört auch der Link „Privatsphäre-Einstellungen“ zurück in den Footer.
