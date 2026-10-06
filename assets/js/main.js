@@ -1362,12 +1362,12 @@
 
   /* ---------- SELECT-Gutschein: Konfigurator + Vorschau ---------- */
   const MOTIFS = {
-    geburtstag: { title: "Alles Gute zum Geburtstag", greeting: "Herzlichen Glückwunsch zum Geburtstag – feiern Sie schön!", icon: "i-cake" },
-    weihnachten: { title: "Frohe Weihnachten", greeting: "Danke für Ihren Einsatz in diesem Jahr. Frohe Festtage!", icon: "i-tree" },
-    jubilaeum: { title: "Herzlichen Glückwunsch zum Jubiläum", greeting: "Danke für viele gemeinsame Jahre!", icon: "i-award" },
-    praemie: { title: "Danke für Ihre Idee", greeting: "Ihre Idee hat uns weitergebracht – vielen Dank!", icon: "i-bulb" },
-    hochzeit: { title: "Alles Gute zur Hochzeit", greeting: "Herzlichen Glückwunsch zu Ihrem großen Tag!", icon: "i-heart" },
-    sachbezug: { title: "Ihr monatlicher Sachbezug", greeting: "Ihr steuerfreier Sachbezug für diesen Monat – viel Freude damit!", icon: "i-banknote", cycle: false },
+    geburtstag: { title: "Alles Gute zum Geburtstag", greeting: "Herzlichen Glückwunsch zum Geburtstag – feiern Sie schön!", icon: "i-cake", accents: ["i-gift", "i-sparkles"] },
+    weihnachten: { title: "Frohe Weihnachten", greeting: "Danke für Ihren Einsatz in diesem Jahr. Frohe Festtage!", icon: "i-tree", accents: ["i-star", "i-gift"] },
+    jubilaeum: { title: "Herzlichen Glückwunsch zum Jubiläum", greeting: "Danke für viele gemeinsame Jahre!", icon: "i-award", accents: ["i-star", "i-sparkles"] },
+    praemie: { title: "Danke für Ihre Idee", greeting: "Ihre Idee hat uns weitergebracht – vielen Dank!", icon: "i-bulb", accents: ["i-zap", "i-star"] },
+    hochzeit: { title: "Alles Gute zur Hochzeit", greeting: "Herzlichen Glückwunsch zu Ihrem großen Tag!", icon: "i-heart", accents: ["i-sparkles", "i-gift"] },
+    sachbezug: { title: "Ihr monatlicher Sachbezug", greeting: "Ihr steuerfreier Sachbezug für diesen Monat – viel Freude damit!", icon: "i-banknote", accents: ["i-coins", "i-wallet"], cycle: false },
   };
 
   // Deko-QR-Code (nicht scannbar): drei Suchmuster + Muster aus dem Gutscheincode
@@ -1412,10 +1412,10 @@
         set("name", state.name || "Ihr Name");
         set("greeting", state.greeting || motif.greeting);
         set("valid", validUntil);
-        set("format-label", { pdf: "PDF", print: "PRINT", csv: "CSV" }[state.format] || "PDF");
         const code = codeFor(state.name || "x");
         set("code", code);
         $$("[data-v-icon]", root).forEach((use) => use.setAttribute("href", `#${motif.icon}`));
+        $$("[data-v-accent]", root).forEach((use) => use.setAttribute("href", `#${motif.accents[use.dataset.vAccent]}`));
         $$("[data-qr]", root).forEach((svg) => drawQR(svg, code));
         $$("[data-v-csv-first]", root).forEach((row) => {
           row.cells[0].textContent = state.name || "Ihr Name";

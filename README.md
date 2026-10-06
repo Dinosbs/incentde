@@ -69,6 +69,13 @@ zu den Schwesterseiten, danach die Inhalte, Kontakt, Partner-Laufband und Footer
 | Mitarbeitergutscheine | Vorteile mit Umschalter Arbeitgeber/Mitarbeitende, Gutschein-Konfigurator (Anlass, Wert, Name, Grußtext, Format PDF/Print/CSV, QR-Code), Preisrechner SELECT vs. Prepaid-Kreditkarte mit Schiebereglern, Warenkorb-Demo (Zuzahlung/Restguthaben), Portal-Hotspots |
 | Geschenkanlässe | Anlass-Finder: Hover oder Fokus auf eine Kachel ändert die Gutschein-Vorschau, SEO-Text mit Links |
 
+**SELECT-Gutschein** (`.selv` in `main.css`, Markup in jeder Unterseite): Nachbau der echten Gutscheine. PDF = Hochformat
+mit Motiv, Tabelle (Wert, Code, Gültigkeit), Grußtext, QR-Code und Einlöse-Schritten; Print = Karte im Querformat; CSV = Tabelle.
+Im Seitenkopf liegen PDF und Karte übereinander wie auf den Produktbildern. Die Motive sind gezeichnet (Verlauf, Icons) statt
+fotografiert; Texte und Icons je Anlass stehen in `MOTIFS` in `main.js`. SELECT- und SBSCOM-Logo sind als SVG bzw. Schrift
+nachgebaut – liegen die Originale als SVG vor, können sie direkt eingesetzt werden. Alle Maße hängen an der Gutscheinbreite
+(Container-Einheiten `cqi`), der Gutschein sieht daher in jeder Größe gleich aus.
+
 Die Angebote im Rabatt-Explorer sind eine Momentaufnahme (Stand Oktober 2026) und stehen direkt im HTML.
 Die Anlass-Unterseiten (Weihnachten, Geburtstag, Jubiläum …) verlinken weiterhin auf `www.incent.de`.
 
