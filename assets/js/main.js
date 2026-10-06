@@ -1615,6 +1615,46 @@
     });
   }
 
+  /* ---------- Vorteils-Akkordeon: Desktop Liste + Detailkarte, schmal aufklappbar ---------- */
+  function initAccordions() {
+    const narrow = window.matchMedia("(max-width: 980px)");
+    $$("[data-acc]").forEach((root) => {
+      const items = $$(".acc__item", root);
+      const btns = items.map((item) => $(".acc__btn", item));
+      const collapsible = () => root.classList.contains("acc--stack") || narrow.matches;
+      const open = (index, { toggle = false } = {}) => {
+        const closing = toggle && collapsible() && items[index].classList.contains("is-open");
+        items.forEach((item, i) => {
+          const on = i === index && !closing;
+          item.classList.toggle("is-open", on);
+          btns[i].setAttribute("aria-expanded", String(on));
+        });
+      };
+      btns.forEach((btn, i) => {
+        btn.addEventListener("click", () => open(i, { toggle: true }));
+        btn.addEventListener("keydown", (e) => {
+          const step = { ArrowDown: 1, ArrowUp: -1 }[e.key];
+          if (!step) return;
+          e.preventDefault();
+          btns[(i + step + btns.length) % btns.length].focus();
+        });
+      });
+      items.forEach((item, i) => {
+        const next = $("[data-acc-next]", item);
+        if (!next) return;
+        next.addEventListener("click", () => {
+          const n = (i + 1) % items.length;
+          open(n);
+          btns[n].focus({ preventScroll: true });
+        });
+      });
+      // In der Desktop-Ansicht muss immer eine Detailkarte sichtbar sein
+      narrow.addEventListener("change", () => {
+        if (!collapsible() && !items.some((item) => item.classList.contains("is-open"))) open(0);
+      });
+    });
+  }
+
   /* ---------- Start ---------- */
   initLogoFallbacks();
   initPartnerLogos();
@@ -1638,6 +1678,7 @@
   initContactForm();
   initCarousel();
   initTiltCards();
+  initAccordions();
   initShots();
   initSteps();
   initHotspots();

@@ -59,9 +59,9 @@ zu den Schwesterseiten, danach die Inhalte, Kontakt, Partner-Laufband und Footer
 
 | Seite | Interaktive Elemente |
 | --- | --- |
-| 2-in-1-Benefitportal | Tabs „Drei gute Gründe“ mit Screenshot-Wechsler und Anlass-Kacheln, Portal mit Hotspots (Klick auf „Ihr Logo“, „Ihre Farben“ … führt die Anpassung im Portal vor), Gutschein-Konfigurator, Warenkorb-Demo, Ablauf in vier Schritten |
-| Mitarbeiterrabatte | Rabatt-Explorer: sechs Lebensbereiche mit echten Angeboten aus dem Vorteilsportal (Auto-Play, Pfeiltasten), Portal-Hotspots |
-| Mitarbeitergutscheine | Gutschein-Konfigurator (Anlass, Wert, Name, Grußtext, Format PDF/Print/CSV, QR-Code), Preisrechner SELECT vs. Prepaid-Kreditkarte mit Schiebereglern, Warenkorb-Demo (Zuzahlung/Restguthaben), Portal-Hotspots |
+| 2-in-1-Benefitportal | Vorteile mit Umschalter „Für Arbeitgeber / Für Mitarbeitende“ (Desktop: Liste und Detailkarte, mobil: Akkordeon), Tabs „Drei gute Gründe“ mit Screenshot-Wechsler und Anlass-Kacheln, Portal mit Hotspots (Klick auf „Ihr Logo“, „Ihre Farben“ … führt die Anpassung im Portal vor), Gutschein-Konfigurator, Warenkorb-Demo, Ablauf in vier Schritten |
+| Mitarbeiterrabatte | Rabatt-Explorer: sechs Lebensbereiche mit echten Angeboten aus dem Vorteilsportal (Auto-Play, Pfeiltasten), Vorteile als Akkordeon, Portal-Hotspots |
+| Mitarbeitergutscheine | Vorteile mit Umschalter Arbeitgeber/Mitarbeitende, Gutschein-Konfigurator (Anlass, Wert, Name, Grußtext, Format PDF/Print/CSV, QR-Code), Preisrechner SELECT vs. Prepaid-Kreditkarte mit Schiebereglern, Warenkorb-Demo (Zuzahlung/Restguthaben), Portal-Hotspots |
 | Geschenkanlässe | Anlass-Finder: Hover oder Fokus auf eine Kachel ändert die Gutschein-Vorschau, SEO-Text mit Links |
 
 Die Angebote im Rabatt-Explorer sind eine Momentaufnahme (Stand Oktober 2026) und stehen direkt im HTML.
@@ -113,8 +113,8 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 - Durchgehend „Sie“-Ansprache (vorher teilweise „du“).
 - Kleine Korrekturen, z. B. „über unser Vorteilsportal“, „ihr Vorteilsprogramm“, „2-in-1-Benefitportal“.
 - Firmenname einheitlich „INCENT Corporate Services GmbH“.
-- Unterseiten: Aufklapp-Texte und Rückseiten der Wendekarten fehlten in den gespeicherten Seiten. Diese Stellen sind
-  als feste Vorteilslisten umgesetzt. Die Preistabelle rechnet mit den Einzelpreisen (9,90 € × 100 = 990 €, nicht 995 €),
+- Unterseiten: Die Rückseiten der Wendekarten (Anlässe, Rabatt-Kategorien) fehlten in den gespeicherten Seiten und sind
+  durch den Rabatt-Explorer und die Anlass-Kacheln ersetzt. Die Preistabelle rechnet mit den Einzelpreisen (9,90 € × 100 = 990 €, nicht 995 €),
   die Ersparnis ergibt sich daraus (7,7 % statt „rund 10 %“).
 - Google Fonts, Google Tag Manager und Cookie-Banner sind entfallen. Die Schriften liegen lokal.
   Falls Tracking wieder eingebaut wird, gehört auch der Link „Privatsphäre-Einstellungen“ zurück in den Footer.
