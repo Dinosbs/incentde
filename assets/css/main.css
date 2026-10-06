@@ -646,6 +646,8 @@ html:not(.js) .has-mega:focus-within > .mega {
 .vp-theme[data-logo="custom"] .vp__logo-dark,
 .vp-theme[data-logo="custom"] .vp__logo-light { display: none; }
 .vp-theme[data-logo="custom"] .vp__logo-custom { display: block; animation: logo-in .5s var(--ease-out); }
+/* Hotspot-Demos: auch das Zurückwechseln zum Standard-Logo blendet weich ein */
+.vp-theme[data-theme-local] .vp__logo-dark, .vp-theme[data-theme-local] .vp__logo-light { animation: logo-in .5s var(--ease-out); }
 @keyframes logo-in { from { opacity: 0; transform: translateY(calc(6 * var(--u))) scale(.96); } }
 .vp__search {
   display: flex; align-items: center; justify-content: space-between;
@@ -949,6 +951,7 @@ html:not(.js) .has-mega:focus-within > .mega {
    Partner-Laufband
    ========================================================================== */
 .partners { padding: clamp(72px, 9vw, 112px) 0 0; }
+main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .partners__head {
   display: grid; grid-template-columns: 1fr 1.1fr; align-items: end; gap: 20px 64px;
   margin-bottom: 40px;
@@ -2261,7 +2264,6 @@ html:not(.js) .has-mega:focus-within > .mega {
 .pin.is-active::before { animation: pin-ping 1.6s var(--ease-out) infinite; }
 @keyframes pin-ping { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(1.9); } }
 .vp-theme.is-demo-deals .vp-deal { animation: deal-pop 1.8s var(--ease-out) infinite; }
-.vp-theme.is-demo-cats .vp__cats i.is-swap { animation: rise .45s var(--ease-out); }
 .vp-theme.is-demo-deals .vp-deal:nth-child(2) { animation-delay: .2s; }
 .vp-theme.is-demo-deals .vp-deal:nth-child(3) { animation-delay: .4s; }
 .vp-theme.is-demo-deals .vp-deal:nth-child(4) { animation-delay: .6s; }

@@ -1286,8 +1286,42 @@
       const logo = theme && $(".vp__logo-custom", theme);
       const emptyLogo = logo && logo.getAttribute("src");
       const logoSrc = demoLogo(root.dataset.logoText);
-      const cats = theme ? $$(".vp__cats i", theme).slice(0, -1) : [];
+      const allCats = theme ? $$(".vp__cats i", theme) : [];
+      const cats = allCats.slice(0, -1);
+      const more = allCats[allCats.length - 1];
       const catTexts = cats.map((c) => c.textContent);
+      let catGen = 0;
+      // Kategorien weich austauschen: nacheinander ausblenden, Text tauschen (unsichtbar), nacheinander einblenden
+      const swapCats = (texts) => {
+        const gen = ++catGen;
+        if (!cats[0] || !cats[0].animate) return cats.forEach((c, i) => (c.textContent = texts[i]));
+        cats.forEach((c) => c.getAnimations().forEach((a) => a.cancel()));
+        const outs = cats.map((c, i) =>
+          c.animate(
+            [{ opacity: 1, transform: "none", filter: "blur(0)" }, { opacity: 0, transform: "translateY(-40%)", filter: "blur(2px)" }],
+            { duration: 240, delay: i * 30, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards" }
+          )
+        );
+        Promise.all(outs.map((a) => a.finished))
+          .then(() => {
+            if (gen !== catGen) return;
+            // „Alle Kategorien“ bleibt sichtbar: gleitet an seine neue Position statt zu springen
+            const from = more.getBoundingClientRect().left;
+            more.getAnimations().forEach((a) => a.cancel());
+            cats.forEach((c, i) => (c.textContent = texts[i]));
+            const dx = from - more.getBoundingClientRect().left;
+            if (Math.abs(dx) > 0.5)
+              more.animate([{ transform: `translateX(${dx}px)` }, { transform: "none" }], { duration: 520, easing: "cubic-bezier(.2,.8,.2,1)" });
+            cats.forEach((c, i) => {
+              c.animate(
+                [{ opacity: 0, transform: "translateY(40%)", filter: "blur(2px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+                { duration: 420, delay: i * 45, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" }
+              );
+            });
+            outs.forEach((a) => a.cancel());
+          })
+          .catch(() => {});
+      };
       let active = "";
       let demoTimer = 0;
       let autoTimer = 0;
@@ -1303,8 +1337,11 @@
         theme.dataset.stageTone = "light";
         theme.dataset.logo = "default";
         if (logo) logo.src = emptyLogo;
-        theme.classList.remove("is-demo-deals", "is-demo-cats");
-        cats.forEach((c, i) => (c.textContent = catTexts[i]));
+        theme.classList.remove("is-demo-deals");
+        if (theme.classList.contains("is-demo-cats")) {
+          theme.classList.remove("is-demo-cats");
+          swapCats(catTexts);
+        }
       };
       const demos = {
         logo: () => {
@@ -1339,15 +1376,10 @@
           theme.classList.add("is-demo-cats");
           const tick = () => {
             const set = CREATOR_CATS[k++ % CREATOR_CATS.length];
-            cats.forEach((c, i) => {
-              c.textContent = set[i] || c.textContent;
-              c.classList.remove("is-swap");
-              void c.offsetWidth;
-              c.classList.add("is-swap");
-            });
+            swapCats(cats.map((c, i) => set[i] || catTexts[i]));
           };
           tick();
-          demoTimer = setInterval(tick, 1500);
+          demoTimer = setInterval(tick, 2400);
         },
       };
       const activate = (key) => {
