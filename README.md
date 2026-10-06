@@ -7,10 +7,10 @@ Als Markenfarbe dient nur noch der blaue CI-Verlauf.
 
 ```
 index.html              Startseite (alle Inhalte)
-corporate-benefits-fuer-arbeitgeber/index.html   Mitarbeiterbindung › 2-in-1-Benefitportal
-mitarbeiterrabatte/index.html                    Mitarbeiterbindung › Mitarbeiterrabatte
-mitarbeitergutscheine/index.html                 Mitarbeiterbindung › SELECT Mitarbeitergutscheine
-steuerfreie-mitarbeitergeschenke/index.html      Mitarbeiterbindung › Geschenkanlässe
+corporate-benefits-fuer-arbeitgeber.html   Mitarbeiterbindung › 2-in-1-Benefitportal
+mitarbeiterrabatte.html                    Mitarbeiterbindung › Mitarbeiterrabatte
+mitarbeitergutscheine.html                 Mitarbeiterbindung › SELECT Mitarbeitergutscheine
+steuerfreie-mitarbeitergeschenke.html      Mitarbeiterbindung › Geschenkanlässe
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
@@ -28,6 +28,10 @@ tools/sync-layout.mjs   überträgt Navigation, Kontakt, Footer usw. aus index.h
 Es gibt keinen Build-Schritt. Die Dateien lassen sich so, wie sie sind, auf jeden Webserver legen.
 
 ## Lokal ansehen
+
+`index.html` per Doppelklick im Browser öffnen genügt – alle Seiten und Links funktionieren auch ohne Server.
+Einzige Ausnahme: Neue Bilder in `assets/img/partner-logos/` und `assets/img/deal-tiles/` erscheinen lokal nur
+mit einem kleinen Webserver, weil der Browser die Bildliste (`manifest.json`) sonst nicht lesen darf:
 
 ```bash
 python3 -m http.server 8000
@@ -53,8 +57,9 @@ python3 -m http.server 8000
 
 ### Unterseiten Mitarbeiterbindung
 
-Jede Unterseite liegt in einem eigenen Ordner mit dem Slug der bisherigen URL (z. B. `/mitarbeiterrabatte/`),
-die Adressen bleiben also gleich. Alle Seiten haben denselben Aufbau: Hero mit Brotkrumen und Cluster-Navigation
+Jede Unterseite ist eine eigene Datei neben `index.html`, benannt nach dem Slug der bisherigen URL
+(`/mitarbeiterrabatte/` → `mitarbeiterrabatte.html`). Alle Links zeigen direkt auf die Dateien, deshalb funktionieren
+sie lokal genauso wie auf dem Server. Alle Seiten haben denselben Aufbau: Hero mit Brotkrumen und Cluster-Navigation
 zu den Schwesterseiten, danach die Inhalte, Kontakt, Partner-Laufband und Footer.
 
 | Seite | Interaktive Elemente |
@@ -69,12 +74,26 @@ Die Anlass-Unterseiten (Weihnachten, Geburtstag, Jubiläum …) verlinken weiter
 
 **Gemeinsame Bausteine:** In `index.html` sind Icon-Sprite, Navigation, Partner-Laufband, Kontakt und Footer mit
 `<!-- layout:name -->` … `<!-- /layout:name -->` markiert. Nach einer Änderung an der Startseite
-`node tools/sync-layout.mjs` ausführen: Das Skript kopiert die Blöcke in alle Unterseiten, passt die Pfade an
-(`assets/…` → `../assets/…`) und markiert im Menü die aktuelle Seite (`aria-current="page"`).
+`node tools/sync-layout.mjs` ausführen: Das Skript kopiert die Blöcke in alle Unterseiten, lenkt Anker, die es nur
+auf der Startseite gibt, auf `index.html#…` um und markiert im Menü die aktuelle Seite (`aria-current="page"`).
 
-**Neue Unterseite anlegen:** Ordner mit `index.html` anlegen (am einfachsten eine bestehende Unterseite kopieren),
-Inhalt zwischen Hero und Kontakt ersetzen, die leeren Markierungen für die Bausteine stehen lassen und
-`node tools/sync-layout.mjs` ausführen. Im Mega-Menü von `index.html` den Link auf `ordnername/` setzen.
+**Neue Unterseite anlegen:** Eine bestehende Unterseite kopieren und nach dem URL-Slug benennen
+(z. B. `kundenbindung.html`), Inhalt zwischen Hero und Kontakt ersetzen, die Markierungen für die Bausteine stehen
+lassen und `node tools/sync-layout.mjs` ausführen. Im Mega-Menü von `index.html` den Link auf `kundenbindung.html` setzen.
+
+**Livegang – bisherige Adressen erhalten:** Bei Google sind die Seiten unter `/mitarbeiterrabatte/` usw. bekannt
+(so steht es auch im `canonical`-Tag). Damit diese Adressen weiter funktionieren, liefert der Server für
+`/slug/` die Datei `slug.html` aus. Für Apache (`.htaccess`):
+
+```apache
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+RewriteRule ^([a-z0-9-]+)/?$ $1.html [L]
+```
+
+Für nginx: `location / { try_files $uri $uri.html $uri/ =404; }` und `rewrite ^/([a-z0-9-]+)/$ /$1 last;`.
+Netlify, Vercel und Cloudflare Pages liefern `slug.html` unter `/slug` ohne weitere Einstellung aus.
 
 Bei `prefers-reduced-motion` laufen keine Animationen, und alle Inhalte sind sofort sichtbar.
 Ohne JavaScript bleiben alle Inhalte lesbar.
