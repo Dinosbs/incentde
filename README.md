@@ -8,6 +8,7 @@ Als Markenfarbe dient nur noch der blaue CI-Verlauf.
 ```
 index.html              Startseite (alle Inhalte)
 mitarbeiterbindung.html Mitarbeiterbindung: Benefitportal, Mitarbeiterrabatte, Mitarbeitergutscheine, Geschenkanlässe
+kundenbindung.html      Kundenbindung: Loyalty-Portal, Kundenrabatte, Kundengutscheine
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
@@ -18,6 +19,7 @@ assets/img/partner-logos/  Logos für das Laufband „Partner, die uns vertrauen
 assets/img/deal-tiles/     Bilder für die Mini-Deal-Kacheln (technik.jpg, wohnen.jpg …) – werden automatisch eingelesen
 assets/img/testimonials/   Logos für die Kundenstimmen
 assets/img/mitarbeiterbindung/  Fotos, Isometrien und Portal-Screenshots der Mitarbeiterbindung (komprimiert)
+assets/img/kundenbindung/       Fotos und Isometrien der Kundenbindung (Portal-Screenshots kommen aus mitarbeiterbindung/)
 tools/update-image-manifests.mjs  erzeugt die Bildlisten (manifest.json) für die beiden Ordner oben
 tools/sync-layout.mjs   überträgt Navigation, Kontakt, Footer usw. aus index.html in alle Unterseiten
 ```
@@ -83,6 +85,20 @@ aus der Adresse, die passenden CSS-Regeln stehen ebenfalls im `<head>` – so bl
 tippt die Demo den Gutscheincode ein; Produkte lassen sich entfernen und hinzufügen, der Gutscheinwert umstellen,
 „Bezahlen“ schließt die Demo-Bestellung ab.
 
+### Kundenbindung: eine Seite, drei Bereiche
+
+`kundenbindung.html` funktioniert genauso wie die Mitarbeiterbindung (Cluster-Leiste, angedockte Leiste, eigene Adressen).
+
+| Bereich | Adresse | Interaktive Elemente |
+| --- | --- | --- |
+| Loyalty-Portal | `#loyalty-portal` | Kennzahlen, Tabs „Vier gute Gründe“ mit Illustrationen und Screenshots, Leistungsversprechen mit Umschalter „Für Unternehmen / Für Kunden“, Portal-Hotspots (`#portal`), Verweis auf den SELECT Einkaufsgutschein, Ablauf (`#ablauf`) |
+| Kundenrabatte | `#kundenrabatte` | Kontaktkalender „Ohne / Mit Kundenrabatten“ (`#anlaesse`, schaltet beim ersten Sichtkontakt selbst um), Branchen-Explorer mit sieben Branchen, Texten und Beispielangeboten (`#branchen`), Verweise auf Portal, Ablauf und Gutscheine |
+| Kundengutscheine | `#kundengutscheine` | Drei Einsatzmöglichkeiten mit Link zum passenden Gutscheinmotiv, Vorteile Unternehmen/Kunden, Gutschein-Gestalter mit Kunden-Anlässen (Treue, Willkommen, Gewinnspiel, Kulanz, Geburtstag; `#gestalten`), Warenkorb-Demo (`#einloesen`), Ablauf |
+
+Der Kontaktkalender ist ein Beispiel (welche Anlässe in welchem Monat) und steht direkt im HTML.
+Die Branchen-Angebote sind Beispiele aus dem Vorteilsportal; Konkurrenzangebote (z. B. Vodafone bei Telekommunikation,
+Wechselpilot bei Energieversorgern) sind bewusst nicht als Beispiel gewählt.
+
 **SELECT-Gutschein** (`.selv` in `main.css`): Nachbau der echten Gutscheine. PDF = Hochformat
 mit Motiv, Tabelle (Wert, Code, Gültigkeit), Grußtext, QR-Code und Einlöse-Schritten; Print = Karte im Querformat; CSV = Tabelle.
 Im Seitenkopf liegen PDF und Karte übereinander wie auf den Produktbildern. Die Motive sind gezeichnet (Verlauf, Icons) statt
@@ -111,6 +127,10 @@ Redirect 301 /corporate-benefits-fuer-arbeitgeber/ /mitarbeiterbindung.html#bene
 Redirect 301 /mitarbeiterrabatte/ /mitarbeiterbindung.html#mitarbeiterrabatte
 Redirect 301 /mitarbeitergutscheine/ /mitarbeiterbindung.html#mitarbeitergutscheine
 Redirect 301 /steuerfreie-mitarbeitergeschenke/ /mitarbeiterbindung.html#geschenkanlaesse
+
+Redirect 301 /kundenbindungsprogramm-fuer-unternehmen/ /kundenbindung.html#loyalty-portal
+Redirect 301 /kundenrabatte/ /kundenbindung.html#kundenrabatte
+Redirect 301 /gutscheine-kundenbindung/ /kundenbindung.html#kundengutscheine
 ```
 
 Für nginx entsprechend `location = /mitarbeiterrabatte/ { return 301 /mitarbeiterbindung.html#mitarbeiterrabatte; }`.
@@ -138,8 +158,8 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   Die Seite liest die Liste aus `manifest.json`. Nach einem Push aktualisiert die GitHub Action
   `.github/workflows/image-manifests.yml` diese Datei automatisch; lokal `node tools/update-image-manifests.mjs` ausführen.
   Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
-- **Unterseiten**: Die Mitarbeiterbindung liegt in diesem Repository (siehe oben). Alle übrigen
-  (Kundenbindung, Markenplatzierung, Content Creator, FAQ, Karriere, Rechtliches …) verlinken noch auf `www.incent.de`.
+- **Unterseiten**: Mitarbeiterbindung und Kundenbindung liegen in diesem Repository (siehe oben). Alle übrigen
+  (Markenplatzierung, Content Creator, FAQ, Karriere, Rechtliches …) verlinken noch auf `www.incent.de`.
   Die Spaltenköpfe im Mega-Menü („Mitarbeiterbindung“ usw.) sind bewusst keine Links.
   „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
 - **Kontaktformular**: Ohne Backend öffnet „Absenden“ das E-Mail-Programm mit einer vorbereiteten Nachricht an
@@ -162,5 +182,12 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   Mitarbeitergutscheinen, die Portal-Hotspots beim Benefitportal, die Anlass-Kacheln bei den Geschenkanlässen
   (dort zusätzlich „Projektbezogene Prämien“), die Kennzahlen in der Benefitportal-Einleitung. Der Ablauf der
   Rabatte war identisch mit dem des Portals und ist durch einen Verweis ersetzt.
+- Kundenbindung: Die drei bisherigen Seiten sind zu einer Seite zusammengefasst. Kennzahlen stehen nur im Loyalty-Portal,
+  Portal-Hotspots nur im Loyalty-Portal, Gutschein-Gestalter und Warenkorb nur bei den Kundengutscheinen (im
+  Loyalty-Portal steht ein Verweis). Der Ablauf der Kundenrabatte war von der Mitarbeitergutschein-Seite kopiert
+  („Gutscheine an Ihre Mitarbeitenden“) und ist durch einen Verweis auf den Ablauf des Loyalty-Portals ersetzt.
+  Abschlusstexte und Buttons, die auf Mitarbeitende bzw. „Zu allen Anlässen“ (Mitarbeitergeschenke) verwiesen, sind
+  auf Kunden umgestellt. Der Kunden-Vorteil „Maximale Flexibilität“ heißt „Doppelter Vorteil“, weil der Titel schon
+  bei den Unternehmens-Vorteilen vorkommt. Das Kleingedruckte des Kundengutscheins enthält keine Arbeitgeber-Bezüge.
 - Google Fonts, Google Tag Manager und Cookie-Banner sind entfallen. Die Schriften liegen lokal.
   Falls Tracking wieder eingebaut wird, gehört auch der Link „Privatsphäre-Einstellungen“ zurück in den Footer.

@@ -1368,6 +1368,11 @@
     praemie: { title: "Danke für Ihre Idee", greeting: "Ihre Idee hat uns weitergebracht – vielen Dank!", icon: "i-bulb", accents: ["i-zap", "i-star"] },
     hochzeit: { title: "Alles Gute zur Hochzeit", greeting: "Herzlichen Glückwunsch zu Ihrem großen Tag!", icon: "i-heart", accents: ["i-sparkles", "i-gift"] },
     projekt: { title: "Danke für Ihren Projekteinsatz", greeting: "Herzlichen Dank für Ihren Einsatz im Projekt!", icon: "i-target", accents: ["i-star", "i-trending"], cycle: false },
+    // Kundengutscheine (Kundenbindung) – nicht im wechselnden Seitenkopf der Mitarbeiterbindung
+    treue: { title: "Danke für Ihre Treue", greeting: "Danke, dass Sie uns vertrauen – suchen Sie sich etwas Schönes aus!", icon: "i-heart", accents: ["i-star", "i-sparkles"], cycle: false },
+    willkommen: { title: "Herzlich willkommen", greeting: "Schön, dass Sie da sind! Ihr Willkommensgeschenk wartet.", icon: "i-gift", accents: ["i-sparkles", "i-star"], cycle: false },
+    gewinn: { title: "Sie haben gewonnen!", greeting: "Herzlichen Glückwunsch zu Ihrem Gewinn – viel Freude damit!", icon: "i-ticket", accents: ["i-star", "i-zap"], cycle: false },
+    kulanz: { title: "Wir machen es wieder gut", greeting: "Danke für Ihre Geduld – dieser Gutschein ist unser Dankeschön.", icon: "i-chat", accents: ["i-heart", "i-sparkles"], cycle: false },
     sachbezug: { title: "Ihr monatlicher Sachbezug", greeting: "Ihr steuerfreier Sachbezug für diesen Monat – viel Freude damit!", icon: "i-banknote", accents: ["i-coins", "i-wallet"], cycle: false },
   };
 
@@ -1505,6 +1510,48 @@
         }, 2800);
       }
       render();
+    });
+  }
+
+  // Links mit data-pick-motif setzen das Motiv im Gutschein-Gestalter, auf den sie zeigen
+  function initMotifLinks() {
+    $$("[data-pick-motif]").forEach((link) =>
+      link.addEventListener("click", () => {
+        const target = document.getElementById((link.getAttribute("href") || "").slice(1));
+        const conf = target && $(".vconf[data-voucher]", target);
+        if (conf && conf.voucherSet) conf.voucherSet({ motif: link.dataset.pickMotif, greeting: "" });
+      })
+    );
+  }
+
+  /* ---------- Kontaktkalender: ohne / mit Kundenrabatten ---------- */
+  function initTouchpoints() {
+    $$("[data-touchpoints]").forEach((root) => {
+      const btns = $$("[data-tp-mode]", root);
+      const count = $("[data-tp-count]", root);
+      const pos = $("[data-tp-pos]", root);
+      const admin = Number(count.dataset.admin);
+      const plus = Number(count.dataset.plus);
+      let touched = false;
+      const set = (mode) => {
+        root.dataset.mode = mode;
+        btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tpMode === mode)));
+        tweenText(count, mode === "mit" ? admin + plus : admin, (v) => String(Math.round(v)));
+        tweenText(pos, mode === "mit" ? plus : 0, (v) => String(Math.round(v)));
+      };
+      btns.forEach((b) => b.addEventListener("click", () => ((touched = true), set(b.dataset.tpMode))));
+      // Beim ersten Sichtkontakt einmal von „ohne“ auf „mit“ umschalten
+      if (hasIO && !reducedMotion) {
+        const io = new IntersectionObserver(
+          ([entry]) => {
+            if (!entry.isIntersecting) return;
+            io.disconnect();
+            setTimeout(() => !touched && set("mit"), 1400);
+          },
+          { threshold: 0.5 }
+        );
+        io.observe(root);
+      }
     });
   }
 
@@ -1739,6 +1786,7 @@
         .filter((a) => ids.includes(a.getAttribute("href").slice(1)) && !a.closest(".crumbs"))
         .forEach((a) => (a.getAttribute("href") === `#${cur}` ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
       html.style.setProperty("--mb-i", String(ids.indexOf(cur)));
+      html.style.setProperty("--mb-n", String(ids.length));
       $$("[data-dock-step]").forEach((b) => {
         const i = ids.indexOf(cur) + Number(b.dataset.dockStep);
         b.disabled = i < 0 || i >= ids.length;
@@ -1942,6 +1990,7 @@
   initCarousel();
   initTiltCards();
   initAccordions();
+  initTouchpoints();
   initMb();
   initShots();
   initSteps();
@@ -1949,6 +1998,7 @@
   initVouchers();
   initFinder();
   initCheckout();
+  initMotifLinks();
   initPriceCalc();
   runScrollTasks();
 })();
