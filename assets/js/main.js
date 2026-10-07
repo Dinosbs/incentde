@@ -76,23 +76,25 @@
     return folderCache.get(folder);
   };
 
-  // "01-REWE-Group.webp" -> "REWE Group", "center-parcs.png" -> "Center Parcs"
-  const nameFromFile = (file) => {
-    let name = file
-      .replace(IMAGE_FILE, "")
-      .replace(/^\d+[-_ ]+/, "")
-      .replace(/[-_ ]+\d+$/, "")
-      .replace(/[-_]+/g, " ")
-      .trim();
-    if (name === name.toLowerCase()) name = name.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
-    return name;
-  };
   const slugify = (text) =>
     text
       .toLowerCase()
       .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "");
+  // "01-REWE-Group.webp" -> "REWE Group", "center-parcs.png" -> "Center Parcs", "HelloFresh_1 1.png" -> "HelloFresh"
+  // Kurz- oder Exportnamen, die nicht dem Markennamen entsprechen (Alternativtext und Abgleich mit den Platzhaltern)
+  const BRAND_NAMES = { ui: "Union Investment", tui: "TUI", on: "On", delonghi: "De’Longhi", mediamarkt: "MediaMarkt", hellofresh: "HelloFresh" };
+  const nameFromFile = (file) => {
+    let name = file
+      .replace(IMAGE_FILE, "")
+      .replace(/^\d+[-_ ]+/, "")
+      .replace(/([-_ ]+\d+)+$/, "")
+      .replace(/[-_]+/g, " ")
+      .trim();
+    if (name === name.toLowerCase()) name = name.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+    return BRAND_NAMES[slugify(name)] || name;
+  };
   const fileUrl = (folder, file) => folder + encodeURIComponent(file);
 
   /* ---------- Logos: bei Ladefehler sauberer Text-Ersatz ---------- */
@@ -127,6 +129,61 @@
     if (!reducedMotion) track.classList.add("is-ready");
   };
 
+  /* ---------- Partner-Logos zuschneiden und angleichen ----------
+     Exporte haben oft viel transparenten (oder weißen) Rand, z. B. 150 × 150 px mit kleinem Logo in der Mitte.
+     Der Rand wird abgeschnitten, danach bekommen alle Logos etwa dieselbe Fläche: breite Schriftzüge werden
+     flacher, kompakte Zeichen höher – so wirkt das Laufband gleichmäßig. Nur für Dateien aus dem eigenen Ordner
+     (fremde Bilder lassen sich nicht auslesen). */
+  const LOGO_AREA = 2400; // px² sichtbare Logofläche
+  const fitLogo = (img) =>
+    new Promise((resolve) => {
+      const apply = () => {
+        if (!img.naturalWidth) return resolve(null);
+        let { naturalWidth: w, naturalHeight: h } = img;
+        try {
+          const c = document.createElement("canvas");
+          c.width = w;
+          c.height = h;
+          const ctx = c.getContext("2d", { willReadFrequently: true });
+          ctx.drawImage(img, 0, 0);
+          const px = ctx.getImageData(0, 0, w, h).data;
+          let x0 = w, y0 = h, x1 = -1, y1 = -1;
+          for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+              const i = (y * w + x) * 4;
+              const empty = px[i + 3] < 12 || (px[i] > 245 && px[i + 1] > 245 && px[i + 2] > 245);
+              if (empty) continue;
+              if (x < x0) x0 = x;
+              if (x > x1) x1 = x;
+              if (y < y0) y0 = y;
+              if (y > y1) y1 = y;
+            }
+          }
+          if (x1 >= x0 && y1 >= y0 && (x1 - x0 + 1) * (y1 - y0 + 1) < w * h * 0.9) {
+            const cw = x1 - x0 + 1, ch = y1 - y0 + 1;
+            const out = document.createElement("canvas");
+            out.width = cw;
+            out.height = ch;
+            out.getContext("2d").drawImage(c, x0, y0, cw, ch, 0, 0, cw, ch);
+            w = cw;
+            h = ch;
+            img.src = out.toDataURL("image/png");
+          }
+        } catch (err) {
+          /* nicht auslesbar – Bild bleibt, wie es ist */
+        }
+        const fit = { src: img.src, h: `${Math.round(Math.sqrt(LOGO_AREA / (w / h)))}px` };
+        img.style.setProperty("--logo-h", fit.h);
+        img.classList.add("is-fitted");
+        resolve(fit);
+      };
+      if (img.complete) apply();
+      else {
+        img.addEventListener("load", apply, { once: true });
+        img.addEventListener("error", () => resolve(null), { once: true });
+      }
+    });
+
   /* ---------- Partner-Laufband: Logos aus assets/img/partner-logos/ ---------- */
   async function initPartnerLogos() {
     const marquee = $("[data-logo-folder]");
@@ -137,16 +194,22 @@
     const files = await listImageFolder(marquee.dataset.logoFolder);
     if (!files || !files.length) return;
 
-    const folderItems = files.map((file) => {
-      const li = document.createElement("li");
-      const img = document.createElement("img");
-      img.src = fileUrl(marquee.dataset.logoFolder, file);
-      img.alt = nameFromFile(file);
-      img.loading = "lazy";
-      img.dataset.fallback = "";
-      li.append(img);
-      return li;
-    });
+    // ein Logo je Partner (z. B. „Acer.webp“ und „Acer 1.png“ → nur das erste)
+    const seen = new Set();
+    const folderItems = files
+      .filter((file) => {
+        const key = slugify(nameFromFile(file));
+        return !seen.has(key) && seen.add(key);
+      })
+      .map((file) => {
+        const li = document.createElement("li");
+        const img = document.createElement("img");
+        img.src = fileUrl(marquee.dataset.logoFolder, file);
+        img.alt = nameFromFile(file);
+        img.dataset.fallback = "";
+        li.append(img);
+        return li;
+      });
     // Platzhalter aus dem HTML nur behalten, wenn es (noch) keine Datei für den Partner gibt
     const inFolder = new Set(folderItems.map((li) => slugify(li.firstChild.alt)));
     const placeholders = Array.from(track.children).filter((li) => {
@@ -158,6 +221,26 @@
     track.replaceChildren(...folderItems, ...placeholders);
     folderItems.forEach((li) => attachLogoFallback(li.firstChild));
     startLoop(track, 3.4);
+    // zuschneiden (auch die Kopien im Laufband): die zugeschnittene Fassung wird einmal je Datei erzeugt
+    const fitted = new Map();
+    $$("img", track)
+      .filter((img) => img.src.startsWith(new URL(marquee.dataset.logoFolder, document.baseURI).href))
+      .forEach((img) => {
+        const key = img.src;
+        if (!fitted.has(key)) fitted.set(key, []);
+        fitted.get(key).push(img);
+      });
+    fitted.forEach(([first, ...copies]) =>
+      fitLogo(first).then(
+        (fit) =>
+          fit &&
+          copies.forEach((img) => {
+            img.src = fit.src;
+            img.style.setProperty("--logo-h", fit.h);
+            img.classList.add("is-fitted");
+          })
+      )
+    );
   }
 
   /* ---------- Mini-Deal-Kacheln: Bilder aus assets/img/deal-tiles/ (technik.jpg …) ---------- */

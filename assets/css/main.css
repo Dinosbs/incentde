@@ -1013,6 +1013,8 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   transition: filter .3s, opacity .3s;
 }
 .marquee li:hover img { filter: none; opacity: 1; }
+/* Logos aus assets/img/partner-logos/: Rand abgeschnitten, Höhe nach Seitenverhältnis (main.js: fitLogo) */
+.marquee img.is-fitted { height: var(--logo-h); max-height: 48px; }
 .logo-fallback {
   font-family: var(--font-display);
   font-weight: 650; font-size: 1.08rem;

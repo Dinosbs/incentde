@@ -33,6 +33,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      # Bildlisten (manifest.json) frisch erzeugen: Der Commit der Action „Bildlisten aktualisieren“
+      # löst selbst keine Veröffentlichung aus, neue Logos/Kachelbilder wären sonst online nicht gelistet.
+      - name: Bildlisten erzeugen
+        run: node tools/update-image-manifests.mjs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
