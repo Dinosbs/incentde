@@ -21,6 +21,7 @@ assets/img/partner-logos/  Logos für das Laufband „Partner, die uns vertrauen
 assets/img/deal-tiles/     Bilder für die Mini-Deal-Kacheln (technik.jpg, wohnen.jpg …) – werden automatisch eingelesen
 assets/img/testimonials/   Logos für die Kundenstimmen
 assets/img/mitarbeiterbindung/  Fotos, Isometrien und Portal-Screenshots der Mitarbeiterbindung (komprimiert)
+assets/img/mitarbeiterbindung/vorschau/  Bilder und Logos für die Portal-Vorschauen „Drei gute Gründe“ (aus den Portalseiten Deal, Gutscheinwelt, Gutscheinansicht)
 assets/img/kundenbindung/       Fotos und Isometrien der Kundenbindung (Portal-Screenshots kommen aus mitarbeiterbindung/)
 assets/img/markenplatzierung/   Fotos, Isometrien und Screenshots der Markenplatzierung
 assets/img/content-creator/     Fotos, Isometrien und Shop-Screenshots für Creator
@@ -69,7 +70,7 @@ Jeder Bereich hat eine eigene Adresse, die Zurück-Taste funktioniert, und der S
 
 | Bereich | Adresse | Interaktive Elemente |
 | --- | --- | --- |
-| 2-in-1-Benefitportal | `#benefitportal` | Kennzahlen, Tabs „Drei gute Gründe“ mit Screenshot-Wechsler, Vorteile mit Umschalter „Für Arbeitgeber / Für Mitarbeitende“ (Desktop: Liste und Detailkarte, mobil: Akkordeon), Portal mit Hotspots (`#portal`), Verweis auf den SELECT Einkaufsgutschein, Ablauf |
+| 2-in-1-Benefitportal | `#benefitportal` | Kennzahlen, Tabs „Drei gute Gründe“ mit interaktiven Portal-Vorschauen statt Screenshots (Deal-Seite: „Jetzt sichern!“ zeigt den persönlichen Code, ähnliche Deals wechseln den Inhalt; Geschenkeshop: Gutscheinwelt → Gutscheinansicht mit Wertauswahl, Warenkorb und Geschenk-Guthaben; Corporate Design: Portal-Nachbau mit wechselnden Beispiel-Designs und Link zum Portal-Builder auf der Startseite `index.html#live-vorschau`; jede Vorschau spielt beim Einblenden eine kurze Demo, ein Klick in die Vorschau stoppt das automatische Weiterschalten), Vorteile mit Umschalter „Für Arbeitgeber / Für Mitarbeitende“ (Desktop: Liste und Detailkarte, mobil: Akkordeon), Portal mit Hotspots (`#portal`), Verweis auf den SELECT Einkaufsgutschein, Ablauf |
 | Mitarbeiterrabatte | `#mitarbeiterrabatte` | Rabatt-Explorer mit echten Angeboten aus dem Vorteilsportal, „Bindung und Recruiting“ (`#arbeitgebermarke`) mit eigener Visualisierung „Arbeitgeber-Magnet“ statt Bild (Team auf einer Umlaufbahn, Bewerbungen werden angezogen; die Grafik zeigt den im Akkordeon geöffneten Vorteil, steht vertikal mittig und bleibt am Desktop beim Lesen stehen), Verweise auf Portal, Ablauf und Gutscheine |
 | Mitarbeitergutscheine | `#mitarbeitergutscheine` | Vorteile Arbeitgeber/Mitarbeitende, Gutschein-Konfigurator (`#gestalten`), Vorteile mit SELECT, Preisrechner (`#preise`), Warenkorb-Demo im Look des Portal-Checkouts (`#einloesen`), Ablauf |
 | Geschenkanlässe | `#geschenkanlaesse` | Anlass-Finder mit Gutschein-Vorschau (`#anlaesse`), Text mit Links |

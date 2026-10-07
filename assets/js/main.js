@@ -664,6 +664,14 @@
     root.addEventListener("animationend", (e) => {
       if (autoplay && e.animationName === "progress" && e.target.closest("[data-tabs]") === root) select(current + 1);
     });
+    // Wer im Inhalt eines Bereichs klickt oder tippt, will dort bleiben: kein automatisches Weiterschalten mehr
+    panels.forEach((panel) =>
+      panel.addEventListener("pointerdown", () => {
+        if (!autoplay) return;
+        autoplay = false;
+        restartProgress();
+      })
+    );
 
     if (autoplay && hasIO) {
       new IntersectionObserver(
@@ -2265,6 +2273,296 @@
     });
   }
 
+  /* ---------- Drei gute Gründe: interaktive Portal-Vorschauen (Mitarbeiterbindung) ----------
+     Deal-Detailseite, Gutscheinwelt mit Gutscheinansicht und Portal im wechselnden Corporate Design.
+     Jede Vorschau spielt beim Einblenden eine kurze Demo, bis jemand selbst klickt. */
+  const PV_IMG = "assets/img/mitarbeiterbindung/vorschau/";
+  const PV_HOW = "Persönlichen Gutscheincode anzeigen lassen und im Onlineshop des Partners einlösen.";
+  const PV_DEALS = {
+    ghd: { slug: "ghd", crumbs: "Health & Beauty › Beauty & Wellness", img: "deal-ghd.webp", logo: "logo-ghd.webp", alt: "ghd", title: "Einfaches Hair-Styling in Salonqualität mit ghd", badge: "25%", how: "Jetzt persönlichen Gutscheincode anzeigen lassen und im Checkout des Onlineshops einlösen.", code: "GHD25-INC-7Q4K" },
+    pinkbox: { slug: "pink-box", crumbs: "Health & Beauty › Düfte & Kosmetik", img: "deal-pinkbox.webp", logo: "logo-pinkbox.svg", alt: "Pink Box", title: "Beauty-Boxen von Pink Box", badge: "30%", how: PV_HOW, code: "PINK30-INC-M2X8" },
+    klier: { slug: "klier", crumbs: "Health & Beauty › Beauty & Wellness", img: "deal-klier.webp", logo: "logo-klier.webp", alt: "KLIER", title: "Wohlfühlen beginnt hier – mit KLIER", badge: "10%", how: PV_HOW, code: "KLIER10-INC-T5R1" },
+    philips: { slug: "philips", crumbs: "Home & Living › Haushaltselektronik", img: "deal-philips.webp", logo: "logo-philips.webp", alt: "Philips", title: "Philips Loyaltyshop Angebote", badge: "bis zu 40%", how: PV_HOW, code: "PHIL40-INC-H9W3" },
+  };
+  const PV_VOUCHERS = {
+    aldi: { brand: "ALDI Nord DE", title: "ALDI Nord Geschenkgutschein", img: "gs-aldi.webp", values: [10, 25, 50] },
+    tkmaxx: { brand: "TK Maxx DE", title: "TK Maxx Gutschein", img: "gs-tkmaxx.webp", values: [5, 10, 25, 50] },
+    lieferando: { brand: "Lieferando DE", title: "Lieferando Gutschein", img: "gs-lieferando.webp", values: [20, 25, 50] },
+    burnhard: { brand: "BURNHARD", title: "Burnhard Gutschein", img: "gs-burnhard.webp", values: [25, 50, 100] },
+    fcbayern: { brand: "FC Bayern München DE", title: "FC Bayern München Gutschein", img: "gs-fcbayern.webp", values: [25, 50, 100] },
+    mueller: { brand: "Müller DE", title: "Drogerie Müller Gutschein", img: "gs-mueller.webp", values: [15, 25, 50] },
+    paperandsons: { brand: "Paper & Sons", title: "Paper & Sons Gutschein", img: "gs-paperandsons.webp", values: [50, 100] },
+    home24: { brand: "home24 DE", title: "home24 Gutschein", img: "gs-home24.webp", values: [15, 25, 50] },
+    circlek: { brand: "Circle K DE", title: "Circle K Gutschein (Total)", img: "gs-circlek.webp", values: [10, 15, 25, 50, 75, 100] },
+    zooplus: { brand: "zooplus DE", title: "zooplus Gutschein", img: "gs-zooplus.webp", values: [5, 10, 25] },
+    misterspex: { brand: "misterspex DE", title: "Mister Spex Gutschein", img: "gs-misterspex.webp", values: [10, 25, 50] },
+    sixt: { brand: "Sixt", title: "Sixt Gutschein", img: "gs-sixt.webp", values: [15, 25, 50] },
+  };
+  const PV_CI = {
+    incent: { label: "INCENT Corporate Services", btn: "#1c87b8", nav: "#ffffff", bg: "image" },
+    nordwerk: { label: "Nordwerk GmbH", btn: "#e30613", nav: "#ffffff", bg: "solid", solid: "#fdeeee", logo: ["NORDWERK", "#e30613"] },
+    gruental: { label: "Grüntal AG", btn: "#00965e", nav: "#0b3d2e", bg: "gradient", g1: "#00965e", g2: "#0b3d2e", logo: ["GRÜNTAL", "#ffffff"] },
+    vela: { label: "Vela Mobility", btn: "#7b2cbf", nav: "#ffffff", bg: "image", logo: ["VELA", "#7b2cbf"] },
+  };
+  const textLogo = (text, color) =>
+    "data:image/svg+xml," +
+    encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${text.length * 27 + 8} 52"><text x="2" y="39" font-family="Arial,sans-serif" font-weight="800" font-size="36" letter-spacing="1" fill="${color}">${text}</text></svg>`
+    );
+
+  // ruft fn(sichtbar) auf, sobald ein Bereich eingeblendet/ausgeblendet wird oder ins Bild kommt
+  const watchShown = (el, fn) => {
+    const panel = el.closest("[role='tabpanel']") || el;
+    let inView = !hasIO;
+    let last = null;
+    const check = () => {
+      const shown = inView && !panel.hidden;
+      if (shown !== last) fn((last = shown));
+    };
+    if (hasIO) new IntersectionObserver(([e]) => ((inView = e.isIntersecting), check()), { threshold: 0.3 }).observe(el);
+    new MutationObserver(check).observe(panel, { attributes: true, attributeFilter: ["hidden"] });
+    check();
+  };
+
+  function initDealPreview(root) {
+    const out = (key) => $$(`[data-pvd-out="${key}"]`, root);
+    const codeEl = $("[data-pvd-code]", root);
+    const copy = $("[data-pvd-copy]", root);
+    const fav = $("[data-pvd-fav]", root);
+    const tiles = $$("[data-pvd-pick]", root);
+    let deal = PV_DEALS.ghd;
+    let typing = 0;
+    let user = false;
+    let demo = 0;
+    const setCode = (text) => (codeEl.textContent = text);
+    const reveal = () => {
+      if (root.classList.contains("is-revealed")) return;
+      root.classList.add("is-revealed");
+      clearInterval(typing);
+      if (reducedMotion) return setCode(deal.code);
+      let n = 0;
+      setCode("");
+      typing = setInterval(() => {
+        setCode(deal.code.slice(0, ++n));
+        if (n >= deal.code.length) clearInterval(typing);
+      }, 55);
+    };
+    const pick = (key) => {
+      const next = PV_DEALS[key];
+      if (!next) return;
+      clearInterval(typing);
+      root.classList.remove("is-revealed");
+      copy.classList.remove("is-done");
+      $("span", copy).textContent = "Kopieren";
+      fav.setAttribute("aria-pressed", "false");
+      $("span", fav).textContent = "Diesen Deal merken";
+      tiles.forEach((t) => t.setAttribute("aria-pressed", String(t.dataset.pvdPick === key)));
+      const apply = () => {
+        deal = next;
+        out("slug").forEach((el) => (el.textContent = deal.slug));
+        out("crumbs").forEach((el) => (el.textContent = deal.crumbs));
+        out("title").forEach((el) => (el.textContent = deal.title));
+        out("badge").forEach((el) => (el.textContent = deal.badge));
+        out("how").forEach((el) => (el.textContent = deal.how));
+        out("img").forEach((el) => (el.src = PV_IMG + deal.img));
+        out("logo").forEach((el) => ((el.src = PV_IMG + deal.logo), (el.alt = deal.alt)));
+        setCode("");
+        root.classList.remove("is-swapping");
+      };
+      if (reducedMotion || next === deal) return apply();
+      root.classList.add("is-swapping");
+      setTimeout(apply, 220);
+    };
+    $("[data-pvd-reveal]", root).addEventListener("click", reveal);
+    copy.addEventListener("click", () => {
+      if (navigator.clipboard) navigator.clipboard.writeText(deal.code).catch(() => {});
+      copy.classList.add("is-done");
+      $("span", copy).textContent = "Kopiert";
+    });
+    fav.addEventListener("click", () => {
+      const on = fav.getAttribute("aria-pressed") !== "true";
+      fav.setAttribute("aria-pressed", String(on));
+      $("span", fav).textContent = on ? "Gemerkt" : "Diesen Deal merken";
+    });
+    tiles.forEach((t) => t.addEventListener("click", () => pick(t.dataset.pvdPick)));
+    root.addEventListener("pointerdown", () => ((user = true), clearTimeout(demo)));
+    // Demo: beim Einblenden zeigt die Vorschau den persönlichen Code
+    watchShown(root, (shown) => {
+      clearTimeout(demo);
+      if (!shown || user) return;
+      pick("ghd");
+      demo = setTimeout(reveal, 1700);
+    });
+  }
+
+  function initShopPreview(root) {
+    const balanceEl = $("[data-pvs-balance]", root);
+    const chip = balanceEl.closest(".pvs__balance");
+    const countEl = $("[data-pvs-count]", root);
+    const values = $("[data-pvs-values]", root);
+    const add = $("[data-pvs-add]", root);
+    const note = $("[data-pvs-note]", root);
+    const out = (key) => $(`[data-pvs-out="${key}"]`, root);
+    const START = 50;
+    let balance = START;
+    let count = 0;
+    let voucher = null;
+    let value = 0;
+    let user = false;
+    let timers = [];
+    const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+    const stopDemo = () => {
+      timers.forEach(clearTimeout);
+      timers = [];
+      $$(".is-demo", root).forEach((el) => el.classList.remove("is-demo"));
+    };
+    const bump = (el, cls = "is-bump") => {
+      el.classList.remove(cls);
+      void el.offsetWidth;
+      el.classList.add(cls);
+    };
+    const setValue = (v) => {
+      value = v;
+      $$("button", values).forEach((b) => {
+        const on = Number(b.dataset.value) === v;
+        b.setAttribute("aria-checked", String(on));
+        b.tabIndex = on ? 0 : -1;
+      });
+      out("price").textContent = euro(v);
+      const tooMuch = v > balance;
+      add.disabled = tooMuch || balance <= 0;
+      note.classList.toggle("is-warn", tooMuch && balance > 0);
+      note.textContent = balance <= 0 ? "Ihr Geschenk-Guthaben ist vollständig eingelöst." : tooMuch ? `Ihr Guthaben reicht für diesen Wert nicht aus (noch ${euro(balance)}).` : "";
+    };
+    const view = (name, slug) => {
+      root.dataset.view = name;
+      out("slug").textContent = slug;
+    };
+    const open = (key) => {
+      voucher = PV_VOUCHERS[key];
+      if (!voucher) return;
+      out("img").src = PV_IMG + voucher.img;
+      out("brand").textContent = voucher.brand;
+      out("title").textContent = voucher.title;
+      values.innerHTML = voucher.values.map((v) => `<button type="button" role="radio" aria-checked="false" data-value="${v}">${v} €</button>`).join("");
+      setValue(voucher.values.find((v) => v <= balance) || voucher.values[0]);
+      view("detail", `gutschein/${key}`);
+    };
+    const reset = () => {
+      balance = START;
+      count = 0;
+      balanceEl.textContent = euro(balance);
+      countEl.textContent = "0";
+      view("list", "gutscheinwelt");
+    };
+    root.addEventListener("click", (e) => {
+      const card = e.target.closest("[data-pvs-open]");
+      if (card) return open(card.dataset.pvsOpen);
+      if (e.target.closest("[data-pvs-back]")) return view("list", "gutscheinwelt");
+      const v = e.target.closest("[data-value]");
+      if (v) return setValue(Number(v.dataset.value));
+      if (e.target.closest("[data-pvs-add]") && !add.disabled) {
+        balance -= value;
+        count += 1;
+        balanceEl.textContent = euro(balance);
+        countEl.textContent = String(count);
+        bump(chip);
+        bump(countEl);
+        setValue(value);
+        if (balance > 0) note.textContent = `✓ Im Warenkorb – verbleibendes Guthaben ${euro(balance)}`;
+        else note.textContent = "✓ Im Warenkorb – Ihr Geschenk-Guthaben ist vollständig eingelöst.";
+        note.classList.remove("is-warn");
+      }
+    });
+    // Pfeiltasten in der Werteauswahl
+    values.addEventListener("keydown", (e) => {
+      const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (!step || !voucher) return;
+      e.preventDefault();
+      const from = Number(e.target.dataset && e.target.dataset.value) || value;
+      const i = voucher.values.indexOf(from);
+      setValue(voucher.values[(i + step + voucher.values.length) % voucher.values.length]);
+      $('[aria-checked="true"]', values).focus();
+    });
+    root.addEventListener("pointerdown", () => ((user = true), stopDemo()));
+    // Demo: Gutschein öffnen, Wert wählen, in den Warenkorb – mit dem Guthaben vom Arbeitgeber
+    watchShown(root, (shown) => {
+      stopDemo();
+      if (!shown || user) return;
+      reset();
+      if (reducedMotion) return;
+      const first = $("[data-pvs-open]", root);
+      later(1200, () => first.classList.add("is-demo"));
+      later(1900, () => (first.classList.remove("is-demo"), open(first.dataset.pvsOpen)));
+      later(3300, () => setValue(25));
+      later(4300, () => add.classList.add("is-demo"));
+      later(4900, () => (add.classList.remove("is-demo"), add.click()));
+    });
+  }
+
+  function initCiPreview(root) {
+    const theme = $(".vp-theme", root);
+    const logo = $(".vp__logo-custom", theme);
+    const dots = $$("[data-ci]", root);
+    const label = $("[data-ci-label]", root);
+    const portal = $("[data-ci-portal]", theme);
+    const keys = dots.map((d) => d.dataset.ci);
+    let current = keys[0];
+    let timer = 0;
+    let user = false;
+    const apply = (key) => {
+      const ci = PV_CI[key];
+      current = key;
+      theme.style.setProperty("--btn", ci.btn);
+      theme.style.setProperty("--nav", ci.nav);
+      if (ci.solid) theme.style.setProperty("--bg-solid", ci.solid);
+      if (ci.g1) theme.style.setProperty("--bg-g1", ci.g1);
+      if (ci.g2) theme.style.setProperty("--bg-g2", ci.g2);
+      theme.dataset.btnTone = toneOf(ci.btn);
+      theme.dataset.navTone = toneOf(ci.nav);
+      theme.dataset.bg = ci.bg;
+      theme.dataset.stageTone = ci.bg === "solid" ? toneOf(ci.solid) : ci.bg === "gradient" ? toneOf(mixHex(ci.g1, ci.g2)) : "light";
+      if (ci.logo) {
+        logo.src = textLogo(ci.logo[0], ci.logo[1]);
+        theme.dataset.logo = "custom";
+      } else theme.dataset.logo = "default";
+      if (portal) portal.textContent = ci.label;
+      label.textContent = ci.label;
+      dots.forEach((d) => {
+        const on = d.dataset.ci === key;
+        d.classList.toggle("is-on", on);
+        d.setAttribute("aria-checked", String(on));
+        d.tabIndex = on ? 0 : -1;
+      });
+    };
+    const stop = () => ((user = true), clearInterval(timer));
+    dots.forEach((d, i) => {
+      d.addEventListener("click", () => (stop(), apply(d.dataset.ci)));
+      d.addEventListener("keydown", (e) => {
+        const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (!step) return;
+        e.preventDefault();
+        stop();
+        const next = dots[(i + step + dots.length) % dots.length];
+        apply(next.dataset.ci);
+        next.focus();
+      });
+    });
+    // Demo: Beispiel-Designs wechseln, solange niemand selbst wählt
+    watchShown(root, (shown) => {
+      clearInterval(timer);
+      if (!shown || user || reducedMotion) return;
+      timer = setInterval(() => apply(keys[(keys.indexOf(current) + 1) % keys.length]), 2200);
+    });
+    apply(current);
+  }
+
+  function initPreviews() {
+    $$("[data-pv-deal]").forEach(initDealPreview);
+    $$("[data-pv-shop]").forEach(initShopPreview);
+    $$("[data-pv-ci]").forEach(initCiPreview);
+  }
+
   /* ---------- Start ---------- */
   initLogoFallbacks();
   initPartnerLogos();
@@ -2292,6 +2590,7 @@
   initParallax();
   initAccordions();
   initBrandViz();
+  initPreviews();
   initTouchpoints();
   initPlacement();
   initPackages();
