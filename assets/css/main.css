@@ -352,11 +352,32 @@ html:not(.js) .has-mega:focus-within > .mega {
 .mega__col { padding: 12px; border-radius: 18px; transition: background-color .2s; }
 .mega__col:hover { background: rgba(255, 255, 255, .04); }
 .mega__head {
+  position: relative;
   display: flex; align-items: flex-start; gap: 12px;
-  padding-bottom: 12px; margin-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  padding: 8px 30px 12px 8px; margin: -8px -8px 8px;
+  border-radius: 14px 14px 4px 4px;
   color: #fff;
+  transition: background-color .2s;
 }
+/* Trennlinie unter dem Spaltentitel – unabhängig vom Hover-Hintergrund */
+.mega__head::after {
+  content: ""; position: absolute; left: 8px; right: 8px; bottom: 0;
+  height: 1px; background: rgba(255, 255, 255, .08);
+}
+.mega__go {
+  position: absolute; right: 8px; top: 18px;
+  color: #8fe3ff;
+  opacity: 0; transform: translateX(-6px);
+  transition: opacity .2s, transform .3s var(--ease-out);
+}
+.mega__head:hover { background: rgba(255, 255, 255, .06); }
+.mega__head[aria-current="page"] { background: rgba(255, 255, 255, .06); }
+.mega__head:hover .mega__go,
+.mega__head:focus-visible .mega__go { opacity: 1; transform: none; }
+/* Touch: kein Hover – der Pfeil zeigt dauerhaft, dass der Titel klickbar ist */
+@media (hover: none) { .mega__go { opacity: .8; transform: none; } }
+.mega__head .mega__icon { transition: box-shadow .25s, color .25s; }
+.mega__head:hover .mega__icon { color: #fff; box-shadow: inset 0 0 0 1px rgba(143, 227, 255, .45), 0 0 18px -4px rgba(0, 242, 254, .55); }
 .mega__head strong { display: block; font-size: 1rem; font-weight: 600; }
 .mega__head small { display: block; margin-top: 2px; font-size: .89rem; line-height: 1.35; color: var(--on-dark-2); }
 .mega__icon {
@@ -2081,7 +2102,68 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .chip-float__ico { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 12px; color: #fff; background: var(--grad-btn); }
 .chip-float__ico--alt { background: linear-gradient(135deg, #ff8a5b, #ff3d7f); }
 .chip-float__ico--ok { background: linear-gradient(135deg, #34d399, #0f9d6b); }
+.chip-float__ico--violet { background: linear-gradient(135deg, #a78bfa, #6d3df5); }
 .chip-float strong.big { font-family: var(--font-display); font-size: 1.35rem; }
+
+/* Freigestellte Geräte mit schwebenden Vorteils-Tags (Kundenbindung › Leistungsversprechen) */
+.devices { margin: 0; perspective: 1400px; }
+.devices__stage {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  will-change: transform;
+}
+.devices__img { display: block; width: 100%; height: auto; filter: drop-shadow(0 40px 46px rgba(0, 30, 90, .24)); }
+/* preserve-3d macht die Liste zum Bezugsrahmen der Tags – daher deckt sie die ganze Bühne ab */
+.devices__tags { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; transform-style: preserve-3d; pointer-events: none; }
+.devices__tag { pointer-events: auto; }
+.devices__tag {
+  gap: 12px;
+  padding: 10px 20px 10px 10px;
+  font-size: 1.04rem; line-height: 1.15;
+  border: 1px solid rgba(255, 255, 255, .8);
+  background: rgba(255, 255, 255, .84);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 26px 50px -22px rgba(0, 30, 90, .5), inset 0 1px 0 #fff;
+  transform: translateZ(calc(var(--z, 60px) + var(--lift, 0px)));
+  transition: transform .5s var(--ease-out), scale .5s var(--ease-out), box-shadow .35s;
+}
+.devices__tag strong { font-weight: 600; }
+.devices__tag .chip-float__ico { width: 44px; height: 44px; border-radius: 14px; box-shadow: 0 8px 18px -8px rgba(0, 20, 60, .55); }
+.devices__tag .chip-float__ico .i { width: 22px; height: 22px; }
+.devices__tag:hover { --lift: 40px; scale: 1.06; box-shadow: 0 34px 60px -22px rgba(0, 30, 90, .6), 0 0 0 1px rgba(26, 120, 255, .18), inset 0 1px 0 #fff; }
+/* Icon-Bewegung je Tag beim Darüberfahren */
+.devices__tag[data-anim="shake"]:hover .i { animation: ico-shake .7s ease-in-out; }
+.devices__tag[data-anim="wave"]:hover .i { animation: ico-wave .9s ease-in-out; transform-origin: 18% 100%; }
+.devices__tag[data-anim="spin"]:hover .i { animation: ico-spin .9s var(--ease-out); }
+.devices__tag[data-anim="bounce"]:hover .i { animation: ico-bounce .75s var(--ease-out); }
+@keyframes ico-shake { 20% { rotate: -14deg; } 40% { rotate: 10deg; } 60% { rotate: -7deg; } 80% { rotate: 3deg; } }
+@keyframes ico-wave { 25% { transform: skewY(-9deg) scaleX(.94); } 55% { transform: skewY(6deg); } 80% { transform: skewY(-2deg); } }
+@keyframes ico-spin { to { rotate: 90deg; } }
+@keyframes ico-bounce { 30% { translate: 0 -5px; scale: 1.12; } 55% { translate: 0 1px; scale: .95; } 78% { translate: 0 -1px; scale: 1.02; } }
+/* Tags erscheinen nacheinander, sobald die Geräte im Bild sind */
+.js .devices:not(.is-in) .devices__tag { opacity: 0; }
+.js .devices.is-in .devices__tag {
+  animation:
+    tag-in .8s var(--ease-out) calc(.45s + var(--i, 0) * .14s) backwards,
+    bob 7s ease-in-out var(--delay, 0s) infinite;
+}
+@keyframes tag-in { from { opacity: 0; scale: .6; filter: blur(6px); } }
+@media (max-width: 640px) {
+  /* Mobil: Tags nicht über die Geräte legen, sondern als Raster darunter */
+  .devices__tags { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+  .devices__tag {
+    position: static; transform: none;
+    gap: 10px; padding: 8px 10px 8px 8px;
+    font-size: .9rem;
+    hyphens: auto; overflow-wrap: anywhere;
+  }
+  .devices__tag br { display: none; }
+  .devices__tag .chip-float__ico { width: 34px; height: 34px; border-radius: 11px; }
+  .devices__tag .chip-float__ico .i { width: 18px; height: 18px; }
+  .js .devices.is-in .devices__tag { animation: tag-in .7s var(--ease-out) calc(.3s + var(--i, 0) * .1s) backwards; }
+}
 
 /* Lösungs-Navigation unter dem Seitenkopf */
 .cluster {
@@ -2588,6 +2670,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px 
   .chip-float[style*="left:-"] { left: 8px !important; }
   .chip-float[style*="right:-"] { right: 8px !important; }
   .subhero__visual { max-width: 620px; }
+  .devices { width: 100%; max-width: 720px; margin-inline: auto; }
   .steps { grid-template-columns: repeat(2, 1fr); row-gap: 32px; }
   .steps::before, .steps::after { display: none; }
   .finder__stage { position: relative; top: 0; }

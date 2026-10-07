@@ -1904,6 +1904,19 @@
     });
   }
 
+  /* ---------- Links auf die aktuelle Seite (ohne Anker): weich nach oben statt neu laden ---------- */
+  function initSelfLinks() {
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a[href]");
+      if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target) return;
+      const url = new URL(a.href, location.href);
+      if (url.hash || url.href !== location.href.split("#")[0]) return;
+      e.preventDefault();
+      if (location.hash) history.pushState(null, "", url.pathname + url.search);
+      window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+    });
+  }
+
   /* ---------- Mitarbeiterbindung: Bereiche umschalten, Leiste an die Navigation andocken ---------- */
   function initMb() {
     const wrap = $("[data-mb-panels]");
@@ -1972,21 +1985,21 @@
     };
 
     let timer = 0;
-    const show = (id, { push = true } = {}) => {
+    const show = (id, { push = true, top = false } = {}) => {
       const tab = tabOf(id);
       if (!tab) return false;
       const target = id === tab ? null : document.getElementById(id);
       if (push && location.hash !== `#${id}`) history.pushState(null, "", `#${id}`);
       if (tab === html.dataset.mb) {
         if (target) scrollToEl(target, "smooth");
-        else if (isDocked()) window.scrollTo({ top: 0, behavior: "smooth" });
+        else if (top || isDocked()) window.scrollTo({ top: 0, behavior: "smooth" });
         return true;
       }
       const swapNow = () => {
         html.dataset.mb = tab;
         sync();
         if (target) scrollToEl(target, "instant");
-        else if (isDocked()) window.scrollTo({ top: 0, behavior: "instant" });
+        else if (top || isDocked()) window.scrollTo({ top: 0, behavior: "instant" });
         requestAnimationFrame(() => {
           wrap.classList.remove("is-leaving");
           runScrollTasks();
@@ -2011,7 +2024,14 @@
       const a = e.target.closest("a[href]");
       if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const url = new URL(a.href, location.href);
-      if (!url.hash || url.href.split("#")[0] !== location.href.split("#")[0]) return;
+      if (url.href.split("#")[0] !== location.href.split("#")[0]) return;
+      // Link auf die Seite selbst (z. B. Spaltentitel im Mega-Menü): erster Bereich, nach oben
+      if (!url.hash) {
+        e.preventDefault();
+        setDockMenu(false);
+        show(ids[0], { top: true });
+        return;
+      }
       const id = decodeURIComponent(url.hash.slice(1));
       if (!tabOf(id)) return;
       e.preventDefault();
@@ -2170,6 +2190,7 @@
   initPackages();
   initEarnings();
   initMb();
+  initSelfLinks();
   initShots();
   initSteps();
   initHotspots();

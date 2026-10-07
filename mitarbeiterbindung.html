@@ -85,6 +85,10 @@
     <symbol id="i-cake" viewBox="0 0 24 24"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/><path d="M7 4h.01M12 4h.01M17 4h.01"/></symbol>
     <symbol id="i-tree" viewBox="0 0 24 24"><path d="m17 14 3 3.3a1 1 0 0 1-.7 1.7H4.7a1 1 0 0 1-.7-1.7L7 14h-.3a1 1 0 0 1-.7-1.7L9 9h-.2A1 1 0 0 1 8 7.3L12 3l4 4.3a1 1 0 0 1-.8 1.7H15l3 3.3a1 1 0 0 1-.7 1.7H17Z"/><path d="M12 22v-3"/></symbol>
     <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/></symbol>
+    <symbol id="i-handshake" viewBox="0 0 24 24"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol>
     <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
     <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
     <symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></symbol>
@@ -140,10 +144,11 @@
             <div class="mega" id="mega-loesungen" data-mega-panel>
               <div class="mega__grid">
                 <div class="mega__col">
-                  <div class="mega__head">
+                  <a class="mega__head" href="mitarbeiterbindung.html" aria-current="page">
                     <span class="mega__icon"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg></span>
                     <span><strong>Mitarbeiterbindung</strong><small>Digitale Mitarbeiter-Benefits</small></span>
-                  </div>
+                    <svg class="i i--sm mega__go" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                  </a>
                   <ul>
                     <li><a href="#benefitportal">2-in-1-Benefitportal</a></li>
                     <li><a href="#mitarbeiterrabatte">Mitarbeiterrabatte</a></li>
@@ -152,10 +157,11 @@
                   </ul>
                 </div>
                 <div class="mega__col">
-                  <div class="mega__head">
+                  <a class="mega__head" href="kundenbindung.html">
                     <span class="mega__icon"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></span>
                     <span><strong>Kundenbindung</strong><small>Digitale Loyalty-Programme</small></span>
-                  </div>
+                    <svg class="i i--sm mega__go" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                  </a>
                   <ul>
                     <li><a href="kundenbindung.html#loyalty-portal">Individuelles Loyalty-Portal</a></li>
                     <li><a href="kundenbindung.html#kundenrabatte">Kundenrabatte</a></li>
@@ -163,20 +169,22 @@
                   </ul>
                 </div>
                 <div class="mega__col">
-                  <div class="mega__head">
+                  <a class="mega__head" href="markenplatzierung.html">
                     <span class="mega__icon"><svg class="i" aria-hidden="true"><use href="#i-megaphone"/></svg></span>
                     <span><strong>Markenplatzierung</strong><small>Markenplatzierung &amp; Vertriebslösung</small></span>
-                  </div>
+                    <svg class="i i--sm mega__go" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                  </a>
                   <ul>
                     <li><a href="markenplatzierung.html#anbieter-werden">Anbieter werden</a></li>
                     <li><a href="markenplatzierung.html#newsletter-platzierung">Newsletter-Platzierung</a></li>
                   </ul>
                 </div>
                 <div class="mega__col">
-                  <div class="mega__head">
+                  <a class="mega__head" href="content-creator.html">
                     <span class="mega__icon"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></span>
                     <span><strong>Content Creator</strong><small>Community-Shop &amp; Reichweitenaufbau</small></span>
-                  </div>
+                    <svg class="i i--sm mega__go" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                  </a>
                   <ul>
                     <li><a href="content-creator.html">Community-Shop</a></li>
                   </ul>

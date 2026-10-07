@@ -95,7 +95,7 @@ tippt die Demo den Gutscheincode ein; Produkte lassen sich entfernen und hinzuf�
 
 | Bereich | Adresse | Interaktive Elemente |
 | --- | --- | --- |
-| Loyalty-Portal | `#loyalty-portal` | Kennzahlen, Tabs „Vier gute Gründe“ mit Illustrationen und Screenshots, Leistungsversprechen mit Umschalter „Für Unternehmen / Für Kunden“, Portal-Hotspots (`#portal`), Verweis auf den SELECT Einkaufsgutschein, Ablauf (`#ablauf`) |
+| Loyalty-Portal | `#loyalty-portal` | Kennzahlen, Tabs „Vier gute Gründe“ mit Illustrationen und Screenshots, Leistungsversprechen (freigestellte Geräte, die dem Mauszeiger folgen, mit vier schwebenden Vorteils-Tags; mobil als Raster unter dem Bild) mit Umschalter „Für Unternehmen / Für Kunden“, Portal-Hotspots (`#portal`), Verweis auf den SELECT Einkaufsgutschein, Ablauf (`#ablauf`) |
 | Kundenrabatte | `#kundenrabatte` | Kontaktkalender „Ohne / Mit Kundenrabatten“ (`#anlaesse`, schaltet beim ersten Sichtkontakt selbst um), Branchen-Explorer mit sieben Branchen, Texten und Beispielangeboten (`#branchen`), Verweise auf Portal, Ablauf und Gutscheine |
 | Kundengutscheine | `#kundengutscheine` | Drei Einsatzmöglichkeiten mit Link zum passenden Gutscheinmotiv, Vorteile Unternehmen/Kunden, Gutschein-Gestalter mit Kunden-Anlässen (Treue, Willkommen, Gewinnspiel, Kulanz, Geburtstag; `#gestalten`), Warenkorb-Demo (`#einloesen`), Ablauf |
 
@@ -185,7 +185,8 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
 - **Unterseiten**: Alle Lösungsseiten (Mitarbeiterbindung, Kundenbindung, Markenplatzierung, Content Creator) liegen in
   diesem Repository (siehe oben). FAQ, Karriere und Rechtliches verlinken noch auf `www.incent.de`.
-  Die Spaltenköpfe im Mega-Menü („Mitarbeiterbindung“ usw.) sind bewusst keine Links.
+  Die Spaltenköpfe im Mega-Menü („Mitarbeiterbindung“ usw.) verlinken auf die jeweilige Seite (erster Bereich).
+  Auf der eigenen Seite lädt der Klick nicht neu, sondern wechselt weich zum ersten Bereich und scrollt nach oben.
   „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
 - **Kontaktformular**: Ohne Backend öffnet „Absenden“ das E-Mail-Programm mit einer vorbereiteten Nachricht an
   info@incent.de. Für den echten Versand am `<form data-contact-form>` das Attribut `data-endpoint="https://…"` setzen,
