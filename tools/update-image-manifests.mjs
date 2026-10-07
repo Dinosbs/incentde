@@ -8,7 +8,8 @@
  * Aufruf (ohne Abhängigkeiten): node tools/update-image-manifests.mjs
  * Läuft außerdem automatisch per GitHub Action, sobald sich Bilder ändern.
  */
-import { readdirSync, writeFileSync, existsSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -23,6 +24,10 @@ for (const folder of FOLDERS) {
   const files = readdirSync(dir)
     .filter((name) => IMAGE.test(name) && !name.startsWith("."))
     .sort(collator.compare);
-  writeFileSync(join(dir, "manifest.json"), JSON.stringify({ files }, null, 2) + "\n");
+  // Kennung je Dateiinhalt: Wird eine Datei unter gleichem Namen ersetzt, lädt der Browser die neue Fassung
+  const versions = Object.fromEntries(
+    files.map((name) => [name, createHash("sha1").update(readFileSync(join(dir, name))).digest("hex").slice(0, 8)])
+  );
+  writeFileSync(join(dir, "manifest.json"), JSON.stringify({ files, versions }, null, 2) + "\n");
   console.log(`${folder}: ${files.length} Bild(er)`);
 }

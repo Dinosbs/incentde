@@ -1,6 +1,8 @@
 # Partner-Logos („Partner, die uns vertrauen“)
 
-Jede Bilddatei in diesem Ordner erscheint automatisch im Logo-Laufband.
+Jede Bilddatei in diesem Ordner wird automatisch zu einer Kachel im Logo-Laufband – auf allen Seiten.
+Datei hinzufügen → neue Kachel, Datei löschen → Kachel verschwindet, Datei ersetzen → neues Logo.
+Im HTML muss nichts geändert werden.
 
 - **Formate:** PNG, JPG, WebP, SVG (am besten mit transparentem Hintergrund). Rand ist egal: Transparenter oder
   weißer Rand wird automatisch abgeschnitten, und alle Logos werden auf etwa dieselbe Fläche gebracht.
@@ -16,6 +18,5 @@ Nach dem Hochladen in GitHub aktualisiert eine GitHub Action die `manifest.json`
 auf GitHub Pages erzeugt die Liste beim Hochladen ebenfalls frisch.
 Lokal oder bei manuellem Upload: `node tools/update-image-manifests.mjs` ausführen.
 
-Solange ein Partner noch nicht als Datei hier liegt, zeigt die Seite das bisher verlinkte Logo von incent.de
-(Liste in `index.html` unter `data-marquee-track`). Liegt eine Datei mit gleichem Firmennamen hier, ersetzt sie
-den Platzhalter.
+Dateien, die nicht geladen werden können oder leer sind, bekommen keine Kachel. Liegt keine einzige Datei hier,
+wird das Laufband ausgeblendet.

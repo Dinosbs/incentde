@@ -41,6 +41,7 @@
      Ergebnis: Liste der Dateinamen – oder null, wenn weder Manifest noch Listing verfügbar ist. */
   const IMAGE_FILE = /\.(png|jpe?g|webp|svg|gif|avif)$/i;
   const folderCache = new Map();
+  const fileVersions = new Map(); // "ordner/datei" → Inhaltskennung aus manifest.json (gegen veraltete Bilder im Cache)
   const collator = new Intl.Collator("de", { numeric: true, sensitivity: "base" });
 
   const listImageFolder = (folder) => {
@@ -52,6 +53,7 @@
             const res = await fetch(`${folder}manifest.json`, { cache: "no-cache" });
             if (res.ok) {
               const data = await res.json();
+              Object.entries(data.versions || {}).forEach(([f, v]) => fileVersions.set(folder + f, v));
               return (data.files || []).filter((f) => IMAGE_FILE.test(f));
             }
           } catch (err) {
@@ -95,24 +97,10 @@
     if (name === name.toLowerCase()) name = name.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
     return BRAND_NAMES[slugify(name)] || name;
   };
-  const fileUrl = (folder, file) => folder + encodeURIComponent(file);
-
-  /* ---------- Logos: bei Ladefehler sauberer Text-Ersatz ---------- */
-  const attachLogoFallback = (img) => {
-    const swap = () => {
-      if (!img.isConnected || img.dataset.failed) return;
-      img.dataset.failed = "true";
-      const label = document.createElement("span");
-      label.className = "logo-fallback";
-      label.textContent = img.alt;
-      img.replaceWith(label);
-    };
-    if (img.complete && img.naturalWidth === 0 && img.getAttribute("src")) swap();
-    else img.addEventListener("error", swap, { once: true });
+  const fileUrl = (folder, file) => {
+    const v = fileVersions.get(folder + file);
+    return folder + encodeURIComponent(file) + (v ? `?v=${v}` : "");
   };
-  function initLogoFallbacks() {
-    $$("img[data-fallback]").forEach(attachLogoFallback);
-  }
 
   /* ---------- Endlos-Laufband: Inhalt verdoppeln, Tempo an Anzahl anpassen ---------- */
   const startLoop = (track, secondsPerItem) => {
@@ -122,7 +110,6 @@
       const clone = item.cloneNode(true);
       clone.setAttribute("aria-hidden", "true");
       clone.dataset.clone = "";
-      $$("img[data-fallback]", clone).forEach(attachLogoFallback);
       track.append(clone);
     });
     track.style.setProperty("--marquee-dur", `${Math.max(12, items.length * secondsPerItem)}s`);
@@ -135,11 +122,15 @@
      flacher, kompakte Zeichen höher – so wirkt das Laufband gleichmäßig. Nur für Dateien aus dem eigenen Ordner
      (fremde Bilder lassen sich nicht auslesen). */
   const LOGO_AREA = 2400; // px² sichtbare Logofläche
-  const fitLogo = (img) =>
+  // lädt eine Logo-Datei und liefert { src, h } – src ggf. zugeschnitten (data-URL), h = Anzeigehöhe; null bei Fehler
+  const fitLogo = (url) =>
     new Promise((resolve) => {
-      const apply = () => {
-        if (!img.naturalWidth) return resolve(null);
+      const img = new Image();
+      img.onerror = () => resolve(null);
+      img.onload = () => {
         let { naturalWidth: w, naturalHeight: h } = img;
+        if (!w || !h) return resolve(null);
+        let src = url;
         try {
           const c = document.createElement("canvas");
           c.width = w;
@@ -159,7 +150,9 @@
               if (y > y1) y1 = y;
             }
           }
-          if (x1 >= x0 && y1 >= y0 && (x1 - x0 + 1) * (y1 - y0 + 1) < w * h * 0.9) {
+          // ganz leer (nur Rand): keine Kachel
+          if (x1 < 0) return resolve(null);
+          if ((x1 - x0 + 1) * (y1 - y0 + 1) < w * h * 0.9) {
             const cw = x1 - x0 + 1, ch = y1 - y0 + 1;
             const out = document.createElement("canvas");
             out.width = cw;
@@ -167,80 +160,48 @@
             out.getContext("2d").drawImage(c, x0, y0, cw, ch, 0, 0, cw, ch);
             w = cw;
             h = ch;
-            img.src = out.toDataURL("image/png");
+            src = out.toDataURL("image/png");
           }
         } catch (err) {
-          /* nicht auslesbar – Bild bleibt, wie es ist */
+          /* nicht auslesbar (z. B. SVG ohne feste Größe) – Bild bleibt, wie es ist */
         }
-        const fit = { src: img.src, h: `${Math.round(Math.sqrt(LOGO_AREA / (w / h)))}px` };
-        img.style.setProperty("--logo-h", fit.h);
-        img.classList.add("is-fitted");
-        resolve(fit);
+        resolve({ src, h: `${Math.round(Math.sqrt(LOGO_AREA / (w / h)))}px` });
       };
-      if (img.complete) apply();
-      else {
-        img.addEventListener("load", apply, { once: true });
-        img.addEventListener("error", () => resolve(null), { once: true });
-      }
+      img.src = url;
     });
 
-  /* ---------- Partner-Laufband: Logos aus assets/img/partner-logos/ ---------- */
+  /* ---------- Partner-Laufband: jede Datei in assets/img/partner-logos/ ist eine Kachel ----------
+     Der Ordner ist die einzige Quelle: Datei hinzufügen → neue Kachel, Datei löschen → Kachel weg.
+     Dateien, die nicht laden oder leer sind, bekommen keine Kachel. Ohne Dateien wird das Laufband ausgeblendet. */
   async function initPartnerLogos() {
     const marquee = $("[data-logo-folder]");
     const track = marquee && $("[data-marquee-track]", marquee);
     if (!track) return;
-    startLoop(track, 3.4);
-
-    const files = await listImageFolder(marquee.dataset.logoFolder);
-    if (!files || !files.length) return;
+    const folder = marquee.dataset.logoFolder;
+    const files = (await listImageFolder(folder)) || [];
 
     // ein Logo je Partner (z. B. „Acer.webp“ und „Acer 1.png“ → nur das erste)
     const seen = new Set();
-    const folderItems = files
-      .filter((file) => {
-        const key = slugify(nameFromFile(file));
-        return !seen.has(key) && seen.add(key);
-      })
-      .map((file) => {
-        const li = document.createElement("li");
-        const img = document.createElement("img");
-        img.src = fileUrl(marquee.dataset.logoFolder, file);
-        img.alt = nameFromFile(file);
-        img.dataset.fallback = "";
-        li.append(img);
-        return li;
-      });
-    // Platzhalter aus dem HTML nur behalten, wenn es (noch) keine Datei für den Partner gibt
-    const inFolder = new Set(folderItems.map((li) => slugify(li.firstChild.alt)));
-    const placeholders = Array.from(track.children).filter((li) => {
-      if (li.hasAttribute("data-clone")) return false;
-      const label = $("img", li)?.alt || li.textContent;
-      return !inFolder.has(slugify(label));
+    const unique = files.filter((file) => {
+      const key = slugify(nameFromFile(file));
+      return !seen.has(key) && seen.add(key);
     });
-
-    track.replaceChildren(...folderItems, ...placeholders);
-    folderItems.forEach((li) => attachLogoFallback(li.firstChild));
-    startLoop(track, 3.4);
-    // zuschneiden (auch die Kopien im Laufband): die zugeschnittene Fassung wird einmal je Datei erzeugt
-    const fitted = new Map();
-    $$("img", track)
-      .filter((img) => img.src.startsWith(new URL(marquee.dataset.logoFolder, document.baseURI).href))
-      .forEach((img) => {
-        const key = img.src;
-        if (!fitted.has(key)) fitted.set(key, []);
-        fitted.get(key).push(img);
-      });
-    fitted.forEach(([first, ...copies]) =>
-      fitLogo(first).then(
-        (fit) =>
-          fit &&
-          copies.forEach((img) => {
-            img.src = fit.src;
-            img.style.setProperty("--logo-h", fit.h);
-            img.classList.add("is-fitted");
-          })
-      )
+    const logos = await Promise.all(
+      unique.map((file) => fitLogo(fileUrl(folder, file)).then((fit) => fit && { ...fit, alt: nameFromFile(file) }))
     );
+    const items = logos.filter(Boolean).map(({ src, h, alt }) => {
+      const li = document.createElement("li");
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = alt;
+      img.className = "is-fitted";
+      img.style.setProperty("--logo-h", h);
+      li.append(img);
+      return li;
+    });
+    marquee.hidden = !items.length;
+    track.replaceChildren(...items);
+    if (items.length) startLoop(track, 3.4);
   }
 
   /* ---------- Mini-Deal-Kacheln: Bilder aus assets/img/deal-tiles/ (technik.jpg …) ---------- */
@@ -3045,7 +3006,6 @@
   /* ---------- Start ---------- */
   markScrollSteps();
   initSmoothScroll();
-  initLogoFallbacks();
   initPartnerLogos();
   initDealTiles();
   initNav();
