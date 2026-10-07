@@ -268,7 +268,8 @@
       if (desktop.matches && !mega.contains(e.relatedTarget)) setMega(false);
     });
     document.addEventListener("click", (e) => {
-      if (!mega.contains(e.target)) setMega(false);
+      // nur echte Klicks schließen das Menü – nicht die Klicks, mit denen Demos und Scroll-Stepper Punkte anwählen
+      if (e.isTrusted && !mega.contains(e.target)) setMega(false);
     });
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
@@ -375,7 +376,7 @@
 
     document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
     if (hasIO) {
-      new IntersectionObserver(([entry]) => {
+      new IntersectionObserver((ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
         visible = entry.isIntersecting;
         visible ? start() : stop();
       }).observe(el);
@@ -508,7 +509,7 @@
     if (tilts.length === 1) listenTilts();
     if (hasIO)
       new IntersectionObserver(
-        ([e]) => {
+        (ioEntries, ioObs, e = ioEntries[ioEntries.length - 1]) => {
           t.visible = e.isIntersecting;
           if (t.visible && pointer) tiltAim(t);
         },
@@ -675,7 +676,7 @@
 
     if (autoplay && hasIO) {
       new IntersectionObserver(
-        ([entry]) => {
+        (ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
           inView = entry.isIntersecting;
           restartProgress();
         },
@@ -1156,7 +1157,7 @@
     const next = $("[data-next]", section);
     const toggle = $("[data-autoplay-toggle]", section);
     let index = 0;
-    let playing = !reducedMotion;
+    let playing = !reducedMotion && root.dataset.autoplay !== "false";
     let inView = false;
 
     const restart = () => {
@@ -1212,7 +1213,7 @@
 
     if (hasIO) {
       new IntersectionObserver(
-        ([entry]) => {
+        (ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
           inView = entry.isIntersecting;
           restart();
         },
@@ -1338,7 +1339,7 @@
       };
       root.addEventListener("pointerenter", () => ((hover = true), restart()));
       root.addEventListener("pointerleave", () => ((hover = false), restart()));
-      if (hasIO) new IntersectionObserver(([e]) => ((visible = e.isIntersecting), restart())).observe(root);
+      if (hasIO) new IntersectionObserver((ioEntries, ioObs, e = ioEntries[ioEntries.length - 1]) => ((visible = e.isIntersecting), restart())).observe(root);
       go(0);
     });
   }
@@ -1422,7 +1423,7 @@
       let active = "";
       let demoTimer = 0;
       let autoTimer = 0;
-      let auto = !reducedMotion;
+      let auto = !reducedMotion && root.dataset.autoplay !== "false";
       let visible = false;
 
       const reset = () => {
@@ -1510,7 +1511,7 @@
         s.addEventListener("focus", () => (stopAuto(), activate(s.dataset.spot)));
       });
       pins.forEach((p) => p.addEventListener("click", () => (stopAuto(), activate(p.dataset.pin))));
-      if (hasIO) new IntersectionObserver(([e]) => ((visible = e.isIntersecting), startAuto())).observe(root);
+      if (hasIO) new IntersectionObserver((ioEntries, ioObs, e = ioEntries[ioEntries.length - 1]) => ((visible = e.isIntersecting), startAuto())).observe(root);
       activate(spots[0].dataset.spot);
     });
   }
@@ -1782,9 +1783,9 @@
         btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.earnMode === mode)));
       };
       btns.forEach((b) => b.addEventListener("click", () => ((touched = true), set(b.dataset.earnMode))));
-      if (hasIO && !reducedMotion) {
+      if (hasIO && !reducedMotion && root.dataset.autoplay !== "false") {
         const io = new IntersectionObserver(
-          ([entry]) => {
+          (ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
             if (!entry.isIntersecting) return;
             io.disconnect();
             setTimeout(() => !touched && set("shop"), 1600);
@@ -1812,10 +1813,10 @@
         tweenText(pos, mode === "mit" ? plus : 0, (v) => String(Math.round(v)));
       };
       btns.forEach((b) => b.addEventListener("click", () => ((touched = true), set(b.dataset.tpMode))));
-      // Beim ersten Sichtkontakt einmal von „ohne“ auf „mit“ umschalten
-      if (hasIO && !reducedMotion) {
+      // Beim ersten Sichtkontakt einmal von „ohne“ auf „mit“ umschalten (nicht, wenn das Scrollen steuert)
+      if (hasIO && !reducedMotion && root.dataset.autoplay !== "false") {
         const io = new IntersectionObserver(
-          ([entry]) => {
+          (ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
             if (!entry.isIntersecting) return;
             io.disconnect();
             setTimeout(() => !touched && set("mit"), 1400);
@@ -1989,7 +1990,7 @@
       // Beim ersten Sichtkontakt tippt die Demo den Gutscheincode selbst ein
       if (hasIO && !reducedMotion) {
         const io = new IntersectionObserver(
-          ([entry]) => {
+          (ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
             if (!entry.isIntersecting) return;
             io.disconnect();
             setTimeout(() => !touched && redeem(), 700);
@@ -2043,8 +2044,11 @@
       const bar = dock && $(".dock__bar", dock);
       return Math.round(Math.max(navBottom, 70) + (bar ? bar.offsetHeight : 0) + 18);
     };
-    const scrollToEl = (el, behavior) =>
+    const scrollToEl = (el, behavior) => {
+      // Ziele in einem Scroll-Stepper (z. B. ein Reiter) landen auf ihrem Schritt
+      if (!document.dispatchEvent(new CustomEvent("stepper:target", { cancelable: true, detail: { el, behavior } }))) return;
       window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - offset()), behavior });
+    };
 
     // gleitende Markierung unter dem aktiven Bereich
     const placeInd = (host) => {
@@ -2319,7 +2323,7 @@
       const shown = inView && !panel.hidden;
       if (shown !== last) fn((last = shown));
     };
-    if (hasIO) new IntersectionObserver(([e]) => ((inView = e.isIntersecting), check()), { threshold: 0.3 }).observe(el);
+    if (hasIO) new IntersectionObserver((ioEntries, ioObs, e = ioEntries[ioEntries.length - 1]) => ((inView = e.isIntersecting), check()), { threshold: 0.3 }).observe(el);
     new MutationObserver(check).observe(panel, { attributes: true, attributeFilter: ["hidden"] });
     check();
   };
@@ -2563,7 +2567,239 @@
     $$("[data-pv-ci]").forEach(initCiPreview);
   }
 
+  /* ---------- Scroll-Stepper: klickbare Elemente beim Scrollen durchschalten ----------
+     Reiter, Vorteile (Umschalter × Akkordeon), Akkordeons, Hotspots, Plattform-Features, Kundenstimmen,
+     Kontaktkalender, Pakete, Einnahmen und Anlass-Finder: Am Desktop bleibt der Bereich stehen (sticky),
+     das Scrollen wählt die Punkte nacheinander an, danach geht die Seite normal weiter – rückwärts genauso.
+     Gewählt wird der größte umgebende Block, der ins Fenster passt (z. B. Überschrift + Reiter).
+     Passt nichts, bleibt alles wie gehabt (z. B. auf dem Handy). Ein Klick auf einen Punkt stellt die
+     Scrollposition passend ein; Links auf einen Punkt (z. B. #sc-panel-3) landen genau dort. */
+  const stepDesktop = window.matchMedia("(min-width: 981px)");
+  // Hinweis: IntersectionObserver liefern bei schnellem Scrollen/Umhängen mehrere Einträge auf einmal –
+  // überall gilt der letzte (ioEntries[ioEntries.length - 1]), nicht der erste.
+  const stepOf = (ctrls, go, ids = []) => ({ ctrls: ctrls.filter(Boolean), go, ids: ids.filter(Boolean) });
+  const accSteps = (acc) =>
+    $$(".acc__item", acc).map((item) => {
+      const btn = $(".acc__btn", item);
+      return stepOf([btn], () => !item.classList.contains("is-open") && btn.click(), [btn.id, btn.getAttribute("aria-controls")]);
+    });
+  const tabSteps = (root) =>
+    $$('[role="tab"]', $('[role="tablist"]', root)).map((tab) =>
+      stepOf([tab], () => tab.getAttribute("aria-selected") !== "true" && tab.click(), [tab.id, tab.getAttribute("aria-controls")])
+    );
+  const pressSteps = (btns, attr) => btns.map((b) => stepOf([b], () => b.getAttribute(attr) !== "true" && b.click()));
+  const STEPPERS = [
+    {
+      sel: ".adv",
+      steps: (root) => {
+        const tabs = $$('[role="tab"]', root);
+        if (!tabs.length) return $("[data-acc]", root) ? accSteps($("[data-acc]", root)) : [];
+        return tabs.flatMap((tab) => {
+          const panel = document.getElementById(tab.getAttribute("aria-controls"));
+          const acc = panel && $("[data-acc]", panel);
+          if (!acc) return [];
+          const pick = () => tab.getAttribute("aria-selected") !== "true" && tab.click();
+          return accSteps(acc).map((st, i) =>
+            stepOf(i === 0 ? [tab, ...st.ctrls] : st.ctrls, () => (pick(), st.go()), i === 0 ? [tab.id, panel.id, ...st.ids] : st.ids)
+          );
+        });
+      },
+    },
+    { sel: ".showcase[data-tabs], .tabs[data-tabs], .explorer[data-tabs]", steps: tabSteps },
+    { sel: "[data-acc]", skip: (el) => !!el.closest(".adv"), steps: accSteps },
+    { sel: "[data-hotspots]", steps: (root) => pressSteps($$("[data-spot]", root), "aria-pressed") },
+    {
+      sel: "[data-features]",
+      steps: (root) =>
+        $$("[data-feature]", root).map((f) => {
+          const b = $("button", f);
+          return stepOf([b], () => !f.classList.contains("is-open") && b.click(), [b.id, b.getAttribute("aria-controls")]);
+        }),
+    },
+    { sel: "[data-carousel]", steps: (root) => pressSteps($$("[data-dots] button", root), "aria-current") },
+    { sel: "[data-touchpoints]", steps: (root) => pressSteps($$("[data-tp-mode]", root), "aria-pressed") },
+    { sel: "[data-earn]", steps: (root) => pressSteps($$("[data-earn-mode]", root), "aria-pressed") },
+    { sel: "[data-packages]", steps: (root) => pressSteps($$(".pk", root), "aria-checked") },
+    {
+      sel: "[data-finder]",
+      steps: (root) =>
+        $$("[data-motif]", root)
+          .filter((el) => !el.matches("[data-v-card]"))
+          // Kacheln sind Links: Auswahl wie beim Darüberfahren, ohne Navigation
+          .map((c) => stepOf([], () => !c.classList.contains("is-on") && c.dispatchEvent(new PointerEvent("pointerenter", { pointerType: "mouse" })))),
+    },
+  ];
+  const stepRoots = () =>
+    STEPPERS.flatMap((def) => $$(def.sel).filter((el) => !(def.skip && def.skip(el))).map((el) => ({ el, def })));
+
+  // früh: Bereiche, die das Scrollen steuert, spielen nicht mehr von selbst ab
+  function markScrollSteps() {
+    if (reducedMotion || !stepDesktop.matches) return;
+    stepRoots().forEach(({ el }) => (el.dataset.autoplay = "false"));
+  }
+
+  function initScrollSteps() {
+    const nav = $("[data-nav]");
+    const roots = stepRoots();
+    const rootEls = roots.map((r) => r.el);
+    const hud = document.createElement("div");
+    hud.className = "sstep-hud";
+    hud.setAttribute("aria-hidden", "true");
+    hud.innerHTML = '<span class="sstep-hud__dots"></span><span class="sstep-hud__hint">Weiterscrollen</span>';
+    document.body.append(hud);
+    let hudFor = null;
+
+    const steppers = roots
+      .map(({ el, def }) => ({ root: el, steps: def.steps(el), spacer: null, pin: null, on: false, top: 0, len: 0, h: 0, index: -1 }))
+      .filter((st) => st.steps.length > 1);
+
+    // umgebende Blöcke, die man einpacken kann (Elternteil im Blockfluss, kein weiterer Stepper darin)
+    const candidates = (root) => {
+      const out = [];
+      const section = root.closest("section");
+      for (let el = root; el && el.parentElement && el !== section; el = el.parentElement) {
+        if (rootEls.some((r) => r !== root && el.contains(r))) break;
+        const d = getComputedStyle(el.parentElement).display;
+        if (d === "block" || d === "flow-root") out.push(el);
+      }
+      return out;
+    };
+    const navBottom = () => (nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0);
+    const outerH = (el) => {
+      const cs = getComputedStyle(el);
+      return el.getBoundingClientRect().height + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
+    };
+
+    const travel = (st) => (st.steps.length - 1) * st.len + st.len * 0.75;
+    const layout = (st) => {
+      const vh = window.innerHeight;
+      const base = navBottom() + 16;
+      const avail = vh - base - 16;
+      if (!st.pin) {
+        if (!st.root.offsetHeight) return;
+        const pick = candidates(st.root).reverse().find((el) => outerH(el) <= avail);
+        if (!pick) return;
+        st.spacer = document.createElement("div");
+        st.spacer.className = "sstep";
+        pick.before(st.spacer);
+        st.spacer.append(pick);
+        pick.classList.add("sstep__pin");
+        st.pin = pick;
+        new ResizeObserver(() => layout(st)).observe(pick);
+      }
+      // die Höhe schwankt je nach geöffnetem Punkt – reserviert wird die größte, damit darunter nichts springt
+      const h = outerH(st.pin);
+      st.h = Math.max(st.h || 0, h);
+      const ok = stepDesktop.matches && !reducedMotion && h > 0 && st.h <= avail;
+      const n = st.steps.length;
+      st.len = Math.round(clamp(vh * 0.42, 260, 440) * (n > 6 ? 0.72 : 1));
+      // solange der Bereich steht, bleibt seine Lage fest (die Höhe schwankt je nach Punkt leicht)
+      const pinned = st.on && st.top && (() => {
+        const dist = st.top - st.spacer.getBoundingClientRect().top;
+        return dist >= -2 && dist <= travel(st) + 2;
+      })();
+      if (!pinned) st.top = Math.round(base + Math.max(0, (avail - st.h) / 2));
+      st.on = ok;
+      st.spacer.classList.toggle("is-on", ok);
+      st.spacer.style.setProperty("--sstep-top", `${st.top}px`);
+      st.spacer.style.setProperty("--sstep-h", `${Math.round(st.h + (n - 1) * st.len + st.len * 0.75)}px`);
+    };
+    const posOf = (st, k) => st.spacer.getBoundingClientRect().top + window.scrollY - st.top + (k + 0.25) * st.len;
+
+    const showHud = (st) => {
+      if (hudFor !== st) {
+        hudFor = st;
+        $(".sstep-hud__dots", hud).innerHTML = st ? st.steps.map(() => "<i></i>").join("") : "";
+      }
+      hud.classList.toggle("is-on", !!st);
+      if (!st) return;
+      $$(".sstep-hud__dots i", hud).forEach((d, i) => d.classList.toggle("is-on", i === st.index));
+      hud.classList.toggle("is-last", st.index === st.steps.length - 1);
+    };
+
+    const update = () => {
+      let active = null;
+      steppers.forEach((st) => {
+        if (!st.on) return;
+        const dist = st.top - st.spacer.getBoundingClientRect().top;
+        const index = clamp(Math.floor(dist / st.len + 0.25), 0, st.steps.length - 1);
+        if (dist >= -2 && dist <= travel(st) + 2) active = st;
+        // während eines Sprungs zu einem Punkt die Zwischenschritte nicht anwählen
+        if (st.lock) {
+          if (index === st.lock.k || performance.now() > st.lock.until) st.lock = null;
+          else return;
+        }
+        if (index === st.index) return;
+        st.index = index;
+        st.steps[index].go();
+      });
+      showHud(active);
+    };
+
+    const refresh = () => {
+      steppers.forEach((st) => (st.h = 0));
+      steppers.forEach(layout);
+      update();
+    };
+    steppers.forEach(layout);
+    scrollTasks.push(update);
+    window.addEventListener("resize", refresh);
+    stepDesktop.addEventListener("change", refresh);
+
+    // Klick auf einen Punkt, während der Bereich steht: Scrollposition passend einstellen
+    document.addEventListener("click", (e) => {
+      if (!e.isTrusted) return;
+      steppers.forEach((st) => {
+        if (!st.on) return;
+        const k = st.steps.findIndex((step) => step.ctrls.some((c) => c.contains(e.target)));
+        if (k < 0) return;
+        const dist = st.top - st.spacer.getBoundingClientRect().top;
+        if (dist < -2 || dist > travel(st) + 2) return;
+        // der Bereich steht ohnehin – Scrollposition ohne sichtbare Bewegung angleichen
+        st.index = k;
+        window.scrollTo({ top: posOf(st, k), behavior: "instant" });
+      });
+    });
+
+    // Sprungziele (z. B. #sc-panel-3): Punkt anwählen und – wenn der Bereich steht – genau dorthin scrollen
+    const find = (el) => {
+      for (const st of steppers) {
+        const k = st.steps.findIndex((step) => step.ids.includes(el.id));
+        if (k >= 0) return { st, k };
+      }
+      return null;
+    };
+    const jump = (el, behavior) => {
+      const hit = el && find(el);
+      if (!hit) return false;
+      const { st, k } = hit;
+      if (!st.pin) layout(st);
+      st.steps[k].go();
+      if (!st.on) return false;
+      st.index = k;
+      st.lock = { k, until: performance.now() + 1800 };
+      window.scrollTo({ top: posOf(st, k), behavior: behavior || "auto" });
+      return true;
+    };
+    document.addEventListener("stepper:target", (e) => {
+      // frisch eingeblendete Bereiche zuerst einrichten, sonst verschieben ihre Abstandshalter das Ziel nachträglich
+      steppers.forEach(layout);
+      if (jump(e.detail.el, e.detail.behavior)) e.preventDefault();
+    });
+    // Seiten ohne Bereichs-Umschaltung: normale Anker
+    if (!$("[data-mb-panels]")) {
+      const fromHash = (behavior) => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (id) jump(document.getElementById(id), behavior);
+      };
+      window.addEventListener("hashchange", () => fromHash("smooth"));
+      if (location.hash) window.addEventListener("load", () => fromHash("auto"), { once: true });
+    }
+    update();
+  }
+
   /* ---------- Start ---------- */
+  markScrollSteps();
   initLogoFallbacks();
   initPartnerLogos();
   initDealTiles();
@@ -2605,5 +2841,6 @@
   initCheckout();
   initMotifLinks();
   initPriceCalc();
+  initScrollSteps();
   runScrollTasks();
 })();
