@@ -1235,6 +1235,23 @@
     });
   }
 
+  /* ---------- Scroll-Parallax: Bilder neben Text driften beim Scrollen leicht hinter der Seite her ----------
+     Setzt --sy (px) auf [data-parallax]; die Bühnen rechnen es in ihr transform ein. Wert = Ausschlag in px. */
+  function initParallax() {
+    const els = $$("[data-parallax]");
+    if (!els.length || reducedMotion) return;
+    scrollTasks.push(() => {
+      const vh = window.innerHeight;
+      els.forEach((el) => {
+        // am unbewegten Elternelement messen, sonst schaukelt sich der Versatz auf
+        const r = el.parentElement.getBoundingClientRect();
+        if (!r.height || r.bottom < -vh * 0.5 || r.top > vh * 1.5) return;
+        const p = clamp((r.top + r.height / 2 - vh / 2) / vh, -1, 1);
+        el.style.setProperty("--sy", `${(-p * (Number(el.dataset.parallax) || 32)).toFixed(1)}px`);
+      });
+    });
+  }
+
   /* ---------- Bild-Karussell mit Überblendung (Screenshots, Kundenportale) ---------- */
   function initShots() {
     $$("[data-shots]").forEach((root) => {
@@ -2213,6 +2230,7 @@
   initCarousel();
   initTiltCards();
   initTagAnims();
+  initParallax();
   initAccordions();
   initTouchpoints();
   initPlacement();
