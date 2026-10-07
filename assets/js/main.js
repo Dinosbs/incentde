@@ -28,6 +28,12 @@
   window.addEventListener("resize", queueScrollTasks);
 
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  // Weiches Scrollen (initSmoothScroll): Wer die Seite selbst scrollt (Sprünge, Stepper), beendet vorher das Gleiten
+  let stopGlide = () => {};
+  const scrollWindow = (opts) => {
+    stopGlide();
+    window.scrollTo(opts);
+  };
 
   /* ---------- Bildordner automatisch auslesen ----------
      1. manifest.json im Ordner (erzeugt von tools/update-image-manifests.mjs bzw. der GitHub Action)
@@ -617,7 +623,9 @@
     const list = $('[role="tablist"]', root);
     const tabs = $$('[role="tab"]', list);
     const panels = tabs.map((tab) => document.getElementById(tab.getAttribute("aria-controls")));
-    let current = Math.max(0, tabs.findIndex((t) => t.getAttribute("aria-selected") === "true"));
+    // aktueller Reiter steht im DOM (der Scroll-Stepper schaltet zum Messen kurz durch und stellt die Attribute zurück)
+    const selected = () => Math.max(0, tabs.findIndex((t) => t.getAttribute("aria-selected") === "true"));
+    let current = selected();
     let autoplay = !reducedMotion && root.dataset.autoplay !== "false";
     let inView = false;
 
@@ -654,7 +662,7 @@
         const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
         if (step) {
           e.preventDefault();
-          select(current + step, { focus: true, byUser: true });
+          select(selected() + step, { focus: true, byUser: true });
         } else if (e.key === "Home" || e.key === "End") {
           e.preventDefault();
           select(e.key === "Home" ? 0 : tabs.length - 1, { focus: true, byUser: true });
@@ -663,7 +671,7 @@
     });
 
     root.addEventListener("animationend", (e) => {
-      if (autoplay && e.animationName === "progress" && e.target.closest("[data-tabs]") === root) select(current + 1);
+      if (autoplay && e.animationName === "progress" && e.target.closest("[data-tabs]") === root) select(selected() + 1);
     });
     // Wer im Inhalt eines Bereichs klickt oder tippt, will dort bleiben: kein automatisches Weiterschalten mehr
     panels.forEach((panel) =>
@@ -2011,7 +2019,7 @@
       if (url.hash || url.href !== location.href.split("#")[0]) return;
       e.preventDefault();
       if (location.hash) history.pushState(null, "", url.pathname + url.search);
-      window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+      scrollWindow({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
     });
   }
 
@@ -2047,7 +2055,7 @@
     const scrollToEl = (el, behavior) => {
       // Ziele in einem Scroll-Stepper (z. B. ein Reiter) landen auf ihrem Schritt
       if (!document.dispatchEvent(new CustomEvent("stepper:target", { cancelable: true, detail: { el, behavior } }))) return;
-      window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - offset()), behavior });
+      scrollWindow({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - offset()), behavior });
     };
 
     // gleitende Markierung unter dem aktiven Bereich
@@ -2093,14 +2101,14 @@
       if (push && location.hash !== `#${id}`) history.pushState(null, "", `#${id}`);
       if (tab === html.dataset.mb) {
         if (target) scrollToEl(target, "smooth");
-        else if (top || isDocked()) window.scrollTo({ top: 0, behavior: "smooth" });
+        else if (top || isDocked()) scrollWindow({ top: 0, behavior: "smooth" });
         return true;
       }
       const swapNow = () => {
         html.dataset.mb = tab;
         sync();
         if (target) scrollToEl(target, "instant");
-        else if (top || isDocked()) window.scrollTo({ top: 0, behavior: "instant" });
+        else if (top || isDocked()) scrollWindow({ top: 0, behavior: "instant" });
         requestAnimationFrame(() => {
           wrap.classList.remove("is-leaving");
           runScrollTasks();
@@ -2274,6 +2282,18 @@
       };
       new MutationObserver(sync).observe(acc, { subtree: true, attributes: true, attributeFilter: ["class"] });
       sync();
+      // Scroll-Stepper: Die Grafik steht oben im Raster (darunter ist Platz für das Durchscrollen der Vorteile).
+      // Der Abstand --bx-mt setzt sie beim Heranscrollen wieder mittig neben Text + Vorteile.
+      const box = viz.closest(".brandx");
+      const copy = box && $(".brandx__copy", box);
+      const side = box && $(".brandx__acc", box);
+      if (!copy || !side || !window.ResizeObserver) return;
+      const fit = () => {
+        const left = copy.offsetHeight + (parseFloat(getComputedStyle(box).rowGap) || 0) + side.getBoundingClientRect().height;
+        viz.style.setProperty("--bx-mt", `${Math.max(0, Math.round((left - viz.offsetHeight) / 2))}px`);
+      };
+      const ro = new ResizeObserver(fit);
+      [copy, side, viz].forEach((el) => ro.observe(el));
     });
   }
 
@@ -2571,10 +2591,14 @@
      Reiter, Vorteile (Umschalter × Akkordeon), Akkordeons, Hotspots, Plattform-Features, Kundenstimmen,
      Kontaktkalender, Pakete, Einnahmen und Anlass-Finder: Am Desktop bleibt der Bereich stehen (sticky),
      das Scrollen wählt die Punkte nacheinander an, danach geht die Seite normal weiter – rückwärts genauso.
-     Gewählt wird der größte umgebende Block, der ins Fenster passt (z. B. Überschrift + Reiter).
-     Passt nichts, bleibt alles wie gehabt (z. B. auf dem Handy). Ein Klick auf einen Punkt stellt die
-     Scrollposition passend ein; Links auf einen Punkt (z. B. #sc-panel-3) landen genau dort. */
+     Gewählt wird der größte umgebende Block, der ins Fenster passt (z. B. Überschrift + Reiter). Ist schon
+     das Element selbst etwas zu hoch, wird es verkleinert (zoom, höchstens auf STEP_ZMIN); passt es auch so
+     nicht, bleibt alles wie gehabt (ebenso auf dem Handy). Bereiche, die erst später sichtbar werden
+     (Bereichswechsel auf den Clusterseiten), richten sich beim Einblenden ein. data-sstep-pin legt den
+     stehenden Block fest, wo der automatisch gewählte nicht passt. Ein Klick auf einen Punkt stellt
+     die Scrollposition passend ein; Links auf einen Punkt (z. B. #sc-panel-3) landen genau dort. */
   const stepDesktop = window.matchMedia("(min-width: 981px)");
+  const STEP_ZMIN = 0.75;
   // Hinweis: IntersectionObserver liefern bei schnellem Scrollen/Umhängen mehrere Einträge auf einmal –
   // überall gilt der letzte (ioEntries[ioEntries.length - 1]), nicht der erste.
   const stepOf = (ctrls, go, ids = []) => ({ ctrls: ctrls.filter(Boolean), go, ids: ids.filter(Boolean) });
@@ -2591,6 +2615,7 @@
   const STEPPERS = [
     {
       sel: ".adv",
+      measure: true,
       steps: (root) => {
         const tabs = $$('[role="tab"]', root);
         if (!tabs.length) return $("[data-acc]", root) ? accSteps($("[data-acc]", root)) : [];
@@ -2605,8 +2630,8 @@
         });
       },
     },
-    { sel: ".showcase[data-tabs], .tabs[data-tabs], .explorer[data-tabs]", steps: tabSteps },
-    { sel: "[data-acc]", skip: (el) => !!el.closest(".adv"), steps: accSteps },
+    { sel: ".showcase[data-tabs], .tabs[data-tabs], .explorer[data-tabs]", measure: true, steps: tabSteps },
+    { sel: "[data-acc]", skip: (el) => !!el.closest(".adv"), measure: true, steps: accSteps },
     { sel: "[data-hotspots]", steps: (root) => pressSteps($$("[data-spot]", root), "aria-pressed") },
     {
       sel: "[data-features]",
@@ -2650,8 +2675,14 @@
     let hudFor = null;
 
     const steppers = roots
-      .map(({ el, def }) => ({ root: el, steps: def.steps(el), spacer: null, pin: null, on: false, top: 0, len: 0, h: 0, index: -1 }))
+      .map(({ el, def }) => ({ root: el, steps: def.steps(el), measure: !!def.measure, spacer: null, pin: null, on: false, top: 0, len: 0, h: 0, nh: 0, mw: 0, z: 1, index: -1 }))
       .filter((st) => st.steps.length > 1);
+    let queued = false;
+    const queueUpdate = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => ((queued = false), update()));
+    };
 
     // umgebende Blöcke, die man einpacken kann (Elternteil im Blockfluss, kein weiterer Stepper darin)
     const candidates = (root) => {
@@ -2664,10 +2695,46 @@
       }
       return out;
     };
-    const navBottom = () => (nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0);
+    // Unterkante der Navigation beim Scrollen – auf den Clusterseiten mit angedockter Bereichsleiste
+    const dock = $("[data-mb-dock]");
+    const dockBar = dock && $(".dock__bar", dock);
+    const navBottom = () => {
+      if (!nav) return 0;
+      const b = nav.getBoundingClientRect().bottom;
+      return Math.max(0, dockBar ? b - dock.offsetHeight + dockBar.offsetHeight : b);
+    };
     const outerH = (el) => {
       const cs = getComputedStyle(el);
       return el.getBoundingClientRect().height + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
+    };
+
+    // größte Höhe über alle Punkte (Reiter, Akkordeons): Punkte kurz ohne Übergänge durchschalten, messen und den
+    // Zustand exakt zurücksetzen – alles in einem Durchlauf, ohne Zwischenbild. So schaltet ein Bereich nicht mitten
+    // im Scrollen ab, nur weil ein späterer Punkt mehr Text hat.
+    const STATE_ATTRS = ["class", "hidden", "tabindex", "aria-selected", "aria-expanded", "aria-pressed", "aria-checked", "aria-current"];
+    const tallest = (st, els) => {
+      const hs = els.map(outerH);
+      if (!st.measure || !stepDesktop.matches || reducedMotion || !hs[0]) return hs;
+      const nodes = [st.root, ...$$("*", st.root)];
+      const saved = nodes.map((n) => STATE_ATTRS.map((a) => n.getAttribute(a)));
+      st.root.classList.add("sstep-measure");
+      st.steps.forEach((step) => {
+        step.go();
+        els.forEach((el, i) => (hs[i] = Math.max(hs[i], outerH(el))));
+      });
+      nodes.forEach((n, j) =>
+        STATE_ATTRS.forEach((a, k) => {
+          const v = saved[j][k];
+          if (v === null) n.removeAttribute(a);
+          else if (n.getAttribute(a) !== v) n.setAttribute(a, v);
+        })
+      );
+      // den zurückgesetzten Zustand noch ohne Übergänge übernehmen, sonst liefe eine Animation zurück
+      st.root.classList.add("sstep-measure");
+      void st.root.offsetHeight;
+      st.root.classList.remove("sstep-measure");
+      st.mw = window.innerWidth;
+      return hs;
     };
 
     const travel = (st) => (st.steps.length - 1) * st.len + st.len * 0.75;
@@ -2677,20 +2744,42 @@
       const avail = vh - base - 16;
       if (!st.pin) {
         if (!st.root.offsetHeight) return;
-        const pick = candidates(st.root).reverse().find((el) => outerH(el) <= avail);
-        if (!pick) return;
+        // data-sstep-pin legt den stehenden Block fest (z. B. nur die Vorteile neben der Grafik)
+        const fixed = st.root.closest("[data-sstep-pin]");
+        const cands = fixed ? [fixed] : candidates(st.root);
+        // am liebsten der größte Block, der ganz passt – sonst der kleinste, verkleinert
+        const hs = tallest(st, cands);
+        let k = hs.length - 1;
+        while (k >= 0 && hs[k] > avail) k--;
+        if (k < 0 && hs.length && hs[0] * STEP_ZMIN <= avail) k = 0;
+        if (k < 0) return;
+        const pick = cands[k];
+        st.nh = hs[k];
         st.spacer = document.createElement("div");
         st.spacer.className = "sstep";
         pick.before(st.spacer);
         st.spacer.append(pick);
         pick.classList.add("sstep__pin");
         st.pin = pick;
-        new ResizeObserver(() => layout(st)).observe(pick);
+        new ResizeObserver(() => (layout(st), queueUpdate())).observe(pick);
       }
-      // die Höhe schwankt je nach geöffnetem Punkt – reserviert wird die größte, damit darunter nichts springt
+      // natürliche Größe messen: eine Verkleinerung kurz aufheben (im selben Durchlauf, ohne Zwischenbild)
+      if (st.z < 1) st.pin.style.zoom = st.pin.style.width = "";
+      if (!st.nh) st.nh = tallest(st, [st.pin])[0];
       const h = outerH(st.pin);
-      st.h = Math.max(st.h || 0, h);
-      const ok = stepDesktop.matches && !reducedMotion && h > 0 && st.h <= avail;
+      const w = st.pin.getBoundingClientRect().width;
+      // die Höhe schwankt je nach geöffnetem Punkt – reserviert wird die größte, damit darunter nichts springt
+      st.nh = Math.max(st.nh, h);
+      const z = Math.min(1, avail / st.nh);
+      const ok = stepDesktop.matches && !reducedMotion && h > 0 && z >= STEP_ZMIN;
+      // verkleinert mit fester Breite: der Inhalt bricht nicht neu um, alles wird nur kleiner
+      st.z = ok && z < 1 ? Math.floor(z * 1000) / 1000 : 1;
+      if (st.z < 1) {
+        st.pin.style.zoom = String(st.z);
+        st.pin.style.width = `${w}px`;
+      }
+      st.pin.classList.toggle("is-zoomed", st.z < 1);
+      st.h = st.nh * st.z;
       const n = st.steps.length;
       st.len = Math.round(clamp(vh * 0.42, 260, 440) * (n > 6 ? 0.72 : 1));
       // solange der Bereich steht, bleibt seine Lage fest (die Höhe schwankt je nach Punkt leicht)
@@ -2721,7 +2810,10 @@
       let active = null;
       steppers.forEach((st) => {
         if (!st.on) return;
-        const dist = st.top - st.spacer.getBoundingClientRect().top;
+        const box = st.spacer.getBoundingClientRect();
+        // Bereich gerade ausgeblendet (anderer Cluster-Bereich)
+        if (!box.height) return;
+        const dist = st.top - box.top;
         const index = clamp(Math.floor(dist / st.len + 0.25), 0, st.steps.length - 1);
         if (dist >= -2 && dist <= travel(st) + 2) active = st;
         // während eines Sprungs zu einem Punkt die Zwischenschritte nicht anwählen
@@ -2737,11 +2829,14 @@
     };
 
     const refresh = () => {
-      steppers.forEach((st) => (st.h = 0));
+      // neu messen nur bei geänderter Breite (Zeilenumbrüche), nicht wenn z. B. nur die Browserleiste ein-/ausfährt
+      steppers.forEach((st) => st.mw !== window.innerWidth && (st.nh = 0));
       steppers.forEach(layout);
       update();
     };
     steppers.forEach(layout);
+    // erst später sichtbare Bereiche (Bereichswechsel) beim Einblenden einrichten
+    steppers.forEach((st) => new ResizeObserver(() => !st.pin && (layout(st), queueUpdate())).observe(st.root));
     scrollTasks.push(update);
     window.addEventListener("resize", refresh);
     stepDesktop.addEventListener("change", refresh);
@@ -2757,7 +2852,7 @@
         if (dist < -2 || dist > travel(st) + 2) return;
         // der Bereich steht ohnehin – Scrollposition ohne sichtbare Bewegung angleichen
         st.index = k;
-        window.scrollTo({ top: posOf(st, k), behavior: "instant" });
+        scrollWindow({ top: posOf(st, k), behavior: "instant" });
       });
     });
 
@@ -2778,7 +2873,7 @@
       if (!st.on) return false;
       st.index = k;
       st.lock = { k, until: performance.now() + 1800 };
-      window.scrollTo({ top: posOf(st, k), behavior: behavior || "auto" });
+      scrollWindow({ top: posOf(st, k), behavior: behavior || "auto" });
       return true;
     };
     document.addEventListener("stepper:target", (e) => {
@@ -2798,8 +2893,75 @@
     update();
   }
 
+  /* ---------- Weiches Scrollen: das Mausrad gleitet statt zu springen ----------
+     Das Rad setzt nur ein Ziel, die Seite zieht zeitbasiert dorthin nach (wie bei Lenis, ohne Abhängigkeit).
+     Beim Browser bleiben: Zoomen (Strg/Cmd + Rad), waagerechtes Scrollen (auch Umschalt + Rad), scrollbare
+     Bereiche im Inhalt (bis sie am Ende sind), Tastatur, Scrollleiste, Touch und alle Sprünge per Link –
+     ein fremder Scroll beendet das Gleiten sofort. Nicht bei „Bewegung reduzieren“. */
+  function initSmoothScroll() {
+    if (reducedMotion) return;
+    const root = document.documentElement;
+    const LERP = 0.1; // Anteil der Reststrecke pro Bild bei 60 fps
+    let target = 0;
+    let pos = 0;
+    let raf = 0;
+    let last = 0;
+    const maxScroll = () => Math.max(0, root.scrollHeight - window.innerHeight);
+    stopGlide = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    // Inhalt, der selbst in Radrichtung scrollen kann (Listen, Menüs, Dialoge)
+    const nativeScroller = (el, dy) => {
+      for (; el && el !== document.body && el !== root; el = el.parentElement) {
+        if (el.hasAttribute("data-native-scroll")) return true;
+        if (el.scrollHeight <= el.clientHeight + 1) continue;
+        const oy = getComputedStyle(el).overflowY;
+        if (oy !== "auto" && oy !== "scroll") continue;
+        if (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true;
+      }
+      return false;
+    };
+    const frame = (now) => {
+      // jemand anders hat gescrollt (Scrollleiste, Tastatur, Code) → dort übernehmen
+      if (Math.abs(window.scrollY - pos) > 1.5) {
+        raf = 0;
+        return;
+      }
+      const dt = last ? Math.min(64, now - last) : 16.7;
+      last = now;
+      target = clamp(target, 0, maxScroll());
+      pos += (target - pos) * (1 - Math.pow(1 - LERP, dt / 16.7));
+      if (Math.abs(target - pos) < 0.4) pos = target;
+      window.scrollTo({ top: pos, behavior: "instant" });
+      raf = pos === target ? 0 : requestAnimationFrame(frame);
+    };
+    window.addEventListener(
+      "wheel",
+      (e) => {
+        if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey) return;
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
+        if (document.body.classList.contains("menu-open")) return;
+        if (nativeScroller(e.target, e.deltaY)) return;
+        e.preventDefault();
+        if (!raf) {
+          pos = target = window.scrollY;
+          last = 0;
+          raf = requestAnimationFrame(frame);
+        }
+        const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+        target = clamp(target + e.deltaY * unit, 0, maxScroll());
+      },
+      { passive: false }
+    );
+    // echter Klick oder Taste: Gleiten anhalten (z. B. Klick auf einen Link, der dann selbst scrollt) –
+    // nicht bei den Klicks, mit denen der Scroll-Stepper selbst weiterschaltet
+    ["pointerdown", "keydown", "click"].forEach((t) => window.addEventListener(t, (e) => e.isTrusted && stopGlide(), true));
+  }
+
   /* ---------- Start ---------- */
   markScrollSteps();
+  initSmoothScroll();
   initLogoFallbacks();
   initPartnerLogos();
   initDealTiles();
