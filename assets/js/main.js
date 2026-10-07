@@ -1258,7 +1258,7 @@
     settings: "spin",
     percent: "turn",
     star: "twinkle", sparkles: "twinkle",
-    trophy: "bounce", award: "bounce", users: "bounce", user: "bounce", coins: "bounce", wallet: "bounce", piggy: "bounce",
+    trophy: "bounce", award: "bounce", users: "bounce", user: "bounce", "user-plus": "bounce", coins: "bounce", wallet: "bounce", piggy: "bounce",
     gift: "jump", cake: "jump",
     heart: "beat",
     target: "pulse",
@@ -2250,6 +2250,42 @@
     });
   }
 
+  /* ---------- Bindung und Recruiting: Visualisierung zeigt den geöffneten Vorteil ----------
+     data-brandviz verweist auf das Akkordeon; data-state = Nummer des offenen Vorteils (0 = keiner).
+     Die Punkte unter der Grafik öffnen den jeweiligen Vorteil im Akkordeon. */
+  function initBrandViz() {
+    $$("[data-brandviz]").forEach((viz) => {
+      const acc = $(viz.dataset.brandviz);
+      if (!acc) return;
+      const items = $$(".acc__item", acc);
+      const dots = $$("[data-bviz-dot]", viz);
+      const text = $(".bviz__text", viz);
+      const title = $("[data-bviz-title]", viz);
+      const line = $("[data-bviz-line]", viz);
+      const fallback = { title: "Bindung und Recruiting", line: "Wählen Sie einen Vorteil – die Grafik zeigt, wie er wirkt." };
+      const sync = () => {
+        const state = items.findIndex((item) => item.classList.contains("is-open")) + 1;
+        if (viz.dataset.state === String(state)) return;
+        viz.dataset.state = String(state);
+        dots.forEach((d, i) => d.setAttribute("aria-pressed", String(i + 1 === state)));
+        const src = dots[state - 1] ? dots[state - 1].dataset : fallback;
+        title.textContent = src.title;
+        line.textContent = src.line;
+        text.classList.remove("is-swap");
+        void text.offsetWidth;
+        text.classList.add("is-swap");
+      };
+      new MutationObserver(sync).observe(acc, { subtree: true, attributes: true, attributeFilter: ["class"] });
+      dots.forEach((dot, i) =>
+        dot.addEventListener("click", () => {
+          if (!items[i].classList.contains("is-open")) $(".acc__btn", items[i]).click();
+        })
+      );
+      viz.dataset.state = "";
+      sync();
+    });
+  }
+
   /* ---------- Start ---------- */
   initLogoFallbacks();
   initPartnerLogos();
@@ -2276,6 +2312,7 @@
   initTagAnims();
   initParallax();
   initAccordions();
+  initBrandViz();
   initTouchpoints();
   initPlacement();
   initPackages();

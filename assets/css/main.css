@@ -2255,6 +2255,191 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 /* Bildflächen sind Deko – Hover und Klicks gehen an die Ebenen davor (siehe schwebende Tags) */
 .tilt-media__frame, .tilt-media--plain > img, .tilt-media--shots .shots__item { pointer-events: none; }
 
+/* ---------- Bindung und Recruiting: „Arbeitgeber-Magnet“ (eigene Visualisierung, Mitarbeiterbindung) ----------
+   Mitte: Ihr Unternehmen. Innen: das Team auf einer Umlaufbahn (Bindung). Außen: Bewerbungen werden
+   angezogen (Recruiting). data-state am <figure> = geöffneter Vorteil (1–5, 0 = keiner) – main.js: initBrandViz. */
+.brandx {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "copy viz" "acc viz";
+  align-items: start; column-gap: clamp(32px, 5vw, 80px); row-gap: 26px;
+}
+/* overflow: hidden des Abschnitts würde sticky verhindern – clip schneidet gleich ab, ohne Scroll-Container */
+.section--inset:has(.brandx) { overflow: clip; }
+.brandx__copy { grid-area: copy; display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+.brandx__acc { grid-area: acc; display: flex; flex-direction: column; gap: 14px; }
+.brandx__acc .sub-h { margin: 0; }
+.brandx__viz {
+  grid-area: viz; position: sticky; top: 158px;
+  justify-self: center; width: min(100%, calc(100vh - 290px)); min-width: min(100%, 420px);
+  margin: 0; container-type: inline-size;
+}
+.bviz { aspect-ratio: 1; }
+/* Feldlinien: pulsieren aus der Mitte nach außen */
+.bviz__field { position: absolute; inset: 0; transform: translateZ(-70px); pointer-events: none; }
+.bviz__field::before {
+  content: ""; position: absolute; inset: 14%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(43, 123, 255, .42), rgba(0, 242, 254, .1) 55%, transparent);
+  filter: blur(10px);
+}
+.bviz__field i {
+  position: absolute; left: 50%; top: 50%; width: 40cqi; aspect-ratio: 1; margin: -20cqi 0 0 -20cqi;
+  border-radius: 50%; border: 1px solid rgba(0, 242, 254, .4);
+  animation: bviz-ripple 4.5s cubic-bezier(.2, .6, .3, 1) infinite;
+}
+.bviz__field i:nth-child(2) { animation-delay: -1.5s; }
+.bviz__field i:nth-child(3) { animation-delay: -3s; }
+@keyframes bviz-ripple { from { scale: .6; opacity: 0; } 20% { opacity: .9; } to { scale: 2.4; opacity: 0; } }
+/* Umlaufbahn mit dem Team */
+.bviz__orbit { position: absolute; inset: 0; pointer-events: none; }
+.bviz__ring {
+  position: absolute; left: 50%; top: 50%; width: 64cqi; aspect-ratio: 1; translate: -50% -50%;
+  border-radius: 50%; border: 1px dashed rgba(255, 255, 255, .2);
+  transition: box-shadow .6s, border-color .6s;
+}
+.bviz__spin { position: absolute; inset: 0; animation: bviz-spin 90s linear infinite; }
+@keyframes bviz-spin { to { rotate: 360deg; } }
+.bviz__member { position: absolute; left: 50%; top: 50%; transform: rotate(calc(var(--a) * 1deg)) translateX(32cqi) rotate(calc(var(--a) * -1deg)); }
+.bviz__face {
+  position: absolute; left: 0; top: 0; translate: -50% -50%;
+  display: grid; place-items: center; width: 11cqi; aspect-ratio: 1; border-radius: 50%;
+  color: #fff; border: max(2px, .45cqi) solid rgba(255, 255, 255, .75);
+  box-shadow: 0 1.6cqi 3.4cqi -1cqi rgba(0, 10, 40, .7);
+  background: var(--grad-btn);
+  animation: bviz-spin 90s linear infinite reverse;
+  transition: box-shadow .5s;
+}
+.bviz__face b { font-family: var(--font-display); font-size: 3.6cqi; font-weight: 700; letter-spacing: .02em; }
+.bviz__member--b .bviz__face { background: linear-gradient(135deg, #ff8a5b, #ff3d7f); }
+.bviz__member--c .bviz__face { background: linear-gradient(135deg, #34d399, #0f9d6b); }
+.bviz__member--d .bviz__face { background: linear-gradient(135deg, #a78bfa, #6d3df5); }
+/* Gruppen (Zustand 5) und Rabatt-Chips (Zustand 4) hängen am Gesicht und bleiben aufrecht */
+.bviz__face em {
+  position: absolute; top: 100%; left: 50%; translate: -50% 4px;
+  padding: .5cqi 1.4cqi; border-radius: 99px; white-space: nowrap;
+  font-style: normal; font-size: max(.66rem, 2.5cqi); font-weight: 600; color: #fff;
+  background: rgba(10, 22, 50, .88); box-shadow: inset 0 0 0 1px rgba(0, 242, 254, .35);
+  opacity: 0; transition: opacity .4s, translate .5s var(--ease-out);
+}
+.bviz__deal {
+  position: absolute; right: -6cqi; top: -2.4cqi;
+  padding: .5cqi 1.3cqi; border-radius: 99px;
+  font-style: normal; font-size: max(.66rem, 2.5cqi); font-weight: 700; white-space: nowrap; color: #fff;
+  background: linear-gradient(135deg, #34d399, #0f9d6b); box-shadow: 0 1cqi 2cqi -.6cqi rgba(0, 0, 0, .5);
+  opacity: 0; scale: .3; transition: opacity .3s, scale .6s cubic-bezier(.3, 1.6, .5, 1);
+}
+/* Herzen fliegen von der Mitte zum Team (Zustand 3) */
+.bviz__heart { position: absolute; left: 50%; top: 50%; width: 5cqi; height: 5cqi; margin: -2.5cqi 0 0 -2.5cqi; color: #ff5a8a; opacity: 0; }
+.bviz__heart .i { width: 100%; height: 100%; fill: currentColor; animation: bviz-spin 90s linear infinite reverse; }
+@keyframes bviz-heart {
+  0% { transform: rotate(calc(var(--a) * 1deg)) translateX(10cqi) rotate(calc(var(--a) * -1deg)) scale(.4); opacity: 0; }
+  15% { opacity: 1; }
+  70% { transform: rotate(calc(var(--a) * 1deg)) translateX(26cqi) rotate(calc(var(--a) * -1deg)) scale(1); opacity: 1; }
+  88%, 100% { transform: rotate(calc(var(--a) * 1deg)) translateX(31cqi) rotate(calc(var(--a) * -1deg)) scale(1.4); opacity: 0; }
+}
+/* Bewerbungen von außen: tauchen auf, werden zur Umlaufbahn gezogen */
+.bviz__flow { position: absolute; inset: 0; transform: translateZ(45px); pointer-events: none; transition: opacity .5s; }
+.bviz__cand {
+  position: absolute; display: flex; align-items: center; gap: 1.6cqi;
+  padding: 1.3cqi 2.4cqi 1.3cqi 1.3cqi; border-radius: 3cqi;
+  font-size: max(.7rem, 2.7cqi); font-weight: 600; line-height: 1.15; white-space: nowrap;
+  color: var(--ink); background: rgba(255, 255, 255, .96);
+  box-shadow: 0 2.4cqi 5cqi -2cqi rgba(0, 10, 40, .8);
+  animation: bviz-cand 9s ease-in-out var(--cd, 0s) infinite;
+}
+.bviz__cand b { display: grid; place-items: center; width: 6.4cqi; aspect-ratio: 1; border-radius: 50%; font-size: max(.62rem, 2.3cqi); color: #fff; background: var(--grad); }
+.bviz__cand small { display: block; font-size: max(.62rem, 2.3cqi); font-weight: 500; color: var(--ink-3); }
+@keyframes bviz-cand {
+  0% { opacity: 0; translate: 0 0; scale: .85; }
+  12% { opacity: 1; scale: 1; }
+  55% { opacity: 1; translate: 0 0; scale: 1; }
+  82%, 100% { opacity: 0; translate: calc(var(--dx) * 15cqi) calc(var(--dy) * 15cqi); scale: .45; }
+}
+/* Ihr Unternehmen in der Mitte */
+.bviz__core {
+  position: absolute; left: 50%; top: 50%; width: 36cqi; translate: -50% -50%; transform: translateZ(80px);
+  display: flex; flex-direction: column; align-items: center; gap: .6cqi;
+  padding: 3.2cqi 2.6cqi 3cqi; border-radius: 4.5cqi; text-align: center;
+  color: var(--ink); background: rgba(255, 255, 255, .97);
+  box-shadow: 0 3cqi 7cqi -3cqi rgba(0, 10, 40, .85), 0 0 9cqi -2cqi rgba(0, 242, 254, .5);
+  transition: box-shadow .6s;
+}
+.bviz__logo { display: grid; place-items: center; width: 8cqi; aspect-ratio: 1; margin-bottom: .6cqi; border-radius: 2.4cqi; color: #fff; background: var(--grad-btn); box-shadow: 0 1.2cqi 2.6cqi -1cqi rgba(26, 77, 255, .7); }
+.bviz__logo .i { width: 4.2cqi; height: 4.2cqi; }
+.bviz__core strong { font-family: var(--font-display); font-size: max(.85rem, 3.7cqi); font-weight: 700; line-height: 1.05; }
+.bviz__core small { font-size: max(.62rem, 2.3cqi); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--royal); }
+.bviz__effort {
+  display: flex; align-items: center; gap: .8cqi; max-height: 0; overflow: hidden; opacity: 0;
+  font-size: max(.66rem, 2.5cqi); font-weight: 600; color: #0f9d6b;
+  transition: max-height .5s var(--ease-out), opacity .4s, margin .5s;
+}
+.bviz__effort .i { width: 3cqi; height: 3cqi; stroke-width: 2.6; }
+/* Einblendungen je Zustand */
+.bviz .chip-float { gap: 1.6cqi; padding: 1.3cqi 2.6cqi 1.3cqi 1.3cqi; border-radius: 3cqi; font-size: max(.74rem, 2.8cqi); }
+.bviz .chip-float__ico { width: 6.6cqi; height: 6.6cqi; border-radius: 2cqi; }
+.bviz .chip-float__ico .i { width: 3.4cqi; height: 3.4cqi; }
+.bviz__state {
+  opacity: 0; scale: .7; pointer-events: none;
+  transition: opacity .4s, scale .6s var(--ease-out), transform .5s var(--ease-out), box-shadow .35s;
+}
+.bviz__service {
+  position: absolute; right: 0; top: 18%; transform: translateZ(110px);
+  display: flex; flex-direction: column; gap: 1.2cqi; padding: 2.4cqi 2.8cqi; border-radius: 3.4cqi;
+  font-size: max(.7rem, 2.6cqi); font-weight: 600; color: #fff;
+  background: rgba(8, 18, 42, .9); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), 0 3cqi 6cqi -2cqi rgba(0, 0, 0, .7);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.bviz__service p { margin-bottom: .4cqi; font-size: max(.6rem, 2.1cqi); letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); }
+.bviz__service span { display: flex; align-items: center; gap: 1.2cqi; opacity: 0; translate: -1.5cqi 0; transition: opacity .35s, translate .5s var(--ease-out); }
+.bviz__service .i { width: 3cqi; height: 3cqi; padding: .5cqi; border-radius: 50%; stroke-width: 3; color: #06281c; background: #34d399; }
+.brandx__viz[data-state="1"] .bviz__state--1,
+.brandx__viz[data-state="2"] .bviz__state--2,
+.brandx__viz[data-state="4"] .bviz__state--4 { opacity: 1; scale: 1; pointer-events: auto; }
+@media (hover: hover) {
+  .brandx__viz[data-state="1"] .bviz__state--1:hover,
+  .brandx__viz[data-state="4"] .bviz__state--4:hover { scale: 1.06; }
+}
+.brandx__viz[data-state="2"] .bviz__service span { opacity: 1; translate: none; }
+.brandx__viz[data-state="2"] .bviz__service span:nth-of-type(1) { transition-delay: .25s; }
+.brandx__viz[data-state="2"] .bviz__service span:nth-of-type(2) { transition-delay: .5s; }
+.brandx__viz[data-state="2"] .bviz__service span:nth-of-type(3) { transition-delay: .75s; }
+.brandx__viz[data-state="2"] .bviz__effort { max-height: 6cqi; opacity: 1; margin-top: .6cqi; }
+.brandx__viz[data-state="1"] .bviz__core { box-shadow: 0 3cqi 7cqi -3cqi rgba(0, 10, 40, .85), 0 0 14cqi 0 rgba(0, 242, 254, .7); }
+.brandx__viz[data-state="1"] .bviz__field i { border-color: rgba(0, 242, 254, .75); }
+.brandx__viz[data-state="3"] .bviz__heart { animation: bviz-heart 2.6s ease-in var(--hd, 0s) infinite; }
+.brandx__viz[data-state="3"] .bviz__face { box-shadow: 0 0 0 1cqi rgba(255, 90, 138, .3), 0 1.6cqi 3.4cqi -1cqi rgba(0, 10, 40, .7); }
+.brandx__viz[data-state="4"] .bviz__deal { opacity: 1; scale: 1; }
+.brandx__viz[data-state="5"] .bviz__face em { opacity: 1; translate: -50% 1cqi; }
+.brandx__viz[data-state="5"] .bviz__ring { border-color: transparent; box-shadow: 0 0 0 max(2px, .4cqi) rgba(0, 242, 254, .55), 0 0 6cqi rgba(0, 242, 254, .35); }
+.brandx__viz[data-state="5"] .bviz__face { box-shadow: 0 0 0 1cqi rgba(0, 242, 254, .28), 0 1.6cqi 3.4cqi -1cqi rgba(0, 10, 40, .7); }
+/* Bewerbungen treten zurück, solange ein anderer Vorteil im Fokus steht */
+.brandx__viz:is([data-state="2"], [data-state="3"], [data-state="4"]) .bviz__flow { opacity: .16; }
+.brandx__viz[data-state="5"] .bviz__flow { opacity: 0; }
+/* Beschriftung mit Punkten zum Umschalten */
+.bviz__cap {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin-top: 18px; padding: 14px 18px; border-radius: 18px;
+  background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1);
+}
+.bviz__text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.bviz__text.is-swap { animation: rise .5s var(--ease-out); }
+.bviz__text b { font-family: var(--font-display); font-size: 1.12rem; font-weight: 600; color: #fff; }
+.bviz__text span { font-size: .93rem; line-height: 1.4; color: var(--on-dark-2); }
+.bviz__dots { display: flex; flex: none; gap: 6px; }
+.bviz__dot { position: relative; width: 10px; height: 10px; border-radius: 6px; background: rgba(255, 255, 255, .24); transition: width .35s var(--ease-out), background-color .3s; }
+.bviz__dot::before { content: ""; position: absolute; inset: -12px -4px; }
+.bviz__dot:hover { background: rgba(255, 255, 255, .5); }
+.bviz__dot[aria-pressed="true"] { width: 28px; background: var(--grad); }
+@media (max-width: 980px) {
+  .brandx { grid-template-columns: 1fr; grid-template-areas: "copy" "viz" "acc"; }
+  .brandx__viz { position: relative; top: 0; width: min(100%, 560px); min-width: 0; }
+}
+@media (max-width: 640px) {
+  .bviz__cap { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bviz__cand { animation: none !important; opacity: 1; }
+  .brandx__viz[data-state="3"] .bviz__heart { animation: none !important; opacity: 1; transform: rotate(calc(var(--a) * 1deg)) translateX(24cqi) rotate(calc(var(--a) * -1deg)); }
+}
+
 /* Lösungs-Navigation unter dem Seitenkopf */
 .cluster {
   display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
