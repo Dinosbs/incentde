@@ -421,51 +421,99 @@
     });
   }
 
-  /* ---------- Cursor-Follow: Portal neigt sich zum Cursor, wandert leicht mit, Lichtreflex ----------
-     area:   Fläche, auf der die Maus beobachtet wird
+  /* ---------- Cursor-Follow ohne Grenzen: Elemente neigen sich zum Cursor, wandern leicht mit, Lichtreflex ----------
+     Beobachtet wird das ganze Fenster, nicht nur die Fläche des Elements. Die Neigung ergibt sich aus der Lage
+     des Cursors zur Mitte des Elements (normiert auf einen Teil der Fenstergröße, „reach“); der Lichtreflex sitzt
+     unter dem Cursor und wird mit Abstand schwächer. Verlässt die Maus das Fenster, richtet sich alles auf.
      stage:  Element, das gekippt wird (bekommt --rx, --ry, --tx, --ty, --gx, --gy, --glare)
-     origin: () => Rect, relativ zu dem die Cursorposition normiert wird
-     Pro Frame weich nachgeführt (lerp) statt starrer CSS-Transition. */
-  function createTilt({ area, stage, origin, rx = 7, ry = 11, tx = 22, ty = 12, onMove }) {
-    if (!finePointer || reducedMotion || !area || !stage) return;
-    const target = { x: 0, y: 0, glare: 0 };
-    const current = { x: 0, y: 0, glare: 0 };
-    let frame = 0;
-    const tick = () => {
-      current.x += (target.x - current.x) * 0.09;
-      current.y += (target.y - current.y) * 0.09;
-      current.glare += (target.glare - current.glare) * 0.08;
-      stage.style.setProperty("--ry", `${(current.x * ry).toFixed(2)}deg`);
-      stage.style.setProperty("--rx", `${(-current.y * rx).toFixed(2)}deg`);
-      stage.style.setProperty("--tx", `${(current.x * tx).toFixed(1)}px`);
-      stage.style.setProperty("--ty", `${(current.y * ty).toFixed(1)}px`);
-      stage.style.setProperty("--gx", `${(50 + current.x * 55).toFixed(1)}%`);
-      stage.style.setProperty("--gy", `${(35 + current.y * 55).toFixed(1)}%`);
-      stage.style.setProperty("--glare", current.glare.toFixed(3));
-      const moving =
-        Math.abs(target.x - current.x) > 0.0005 ||
-        Math.abs(target.y - current.y) > 0.0005 ||
-        Math.abs(target.glare - current.glare) > 0.002;
-      frame = moving ? requestAnimationFrame(tick) : 0;
+     center: () => {x, y} – Bezugspunkt (Standard: Mitte des Elements)
+     Pro Frame weich nachgeführt (lerp); gerechnet wird nur für sichtbare Elemente. Liegt der Fokus im
+     Element (z. B. beim Tippen im Formular), hält es weitgehend still. */
+  const tilts = [];
+  let pointer = null;
+  const tiltTick = (t) => {
+    const c = t.current;
+    const g = t.target;
+    c.x += (g.x - c.x) * 0.09;
+    c.y += (g.y - c.y) * 0.09;
+    c.glare += (g.glare - c.glare) * 0.08;
+    c.gx += (g.gx - c.gx) * 0.14;
+    c.gy += (g.gy - c.gy) * 0.14;
+    const st = t.stage.style;
+    st.setProperty("--ry", `${(c.x * t.ry).toFixed(2)}deg`);
+    st.setProperty("--rx", `${(-c.y * t.rx).toFixed(2)}deg`);
+    st.setProperty("--tx", `${(c.x * t.tx).toFixed(1)}px`);
+    st.setProperty("--ty", `${(c.y * t.ty).toFixed(1)}px`);
+    st.setProperty("--gx", `${c.gx.toFixed(1)}%`);
+    st.setProperty("--gy", `${c.gy.toFixed(1)}%`);
+    st.setProperty("--glare", c.glare.toFixed(3));
+    const moving =
+      Math.abs(g.x - c.x) > 0.0005 || Math.abs(g.y - c.y) > 0.0005 || Math.abs(g.glare - c.glare) > 0.002 ||
+      Math.abs(g.gx - c.gx) > 0.05 || Math.abs(g.gy - c.gy) > 0.05;
+    t.frame = moving ? requestAnimationFrame(() => tiltTick(t)) : 0;
+  };
+  const tiltAim = (t) => {
+    const g = t.target;
+    if (!pointer) {
+      g.x = g.y = g.glare = 0;
+    } else {
+      const r = t.stage.getBoundingClientRect();
+      // Mitte ohne die eigene Mitbewegung, sonst läuft das Element dem Cursor davon
+      const ctr = t.center
+        ? t.center()
+        : { x: r.left + r.width / 2 - t.current.x * t.tx, y: r.top + r.height / 2 - t.current.y * t.ty };
+      const damp = t.stage.matches(":focus-within") ? 0.3 : 1;
+      g.x = clamp((pointer.x - ctr.x) / (window.innerWidth * t.reach), -1, 1) * damp;
+      g.y = clamp((pointer.y - ctr.y) / (window.innerHeight * t.reach), -1, 1) * damp;
+      const dx = Math.max(r.left - pointer.x, 0, pointer.x - r.right);
+      const dy = Math.max(r.top - pointer.y, 0, pointer.y - r.bottom);
+      g.glare = 1 - 0.75 * clamp(Math.hypot(dx, dy) / 480, 0, 1);
+      g.gx = clamp(((pointer.x - r.left) / (r.width || 1)) * 100, -30, 130);
+      g.gy = clamp(((pointer.y - r.top) / (r.height || 1)) * 100, -30, 130);
+    }
+    if (!t.frame) t.frame = requestAnimationFrame(() => tiltTick(t));
+  };
+  const listenTilts = () => {
+    window.addEventListener(
+      "pointermove",
+      (e) => {
+        if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
+        pointer = { x: e.clientX, y: e.clientY };
+        tilts.forEach((t) => {
+          if (t.onMove) t.onMove(e);
+          if (t.visible) tiltAim(t);
+        });
+      },
+      { passive: true }
+    );
+    const away = () => {
+      pointer = null;
+      tilts.forEach(tiltAim);
     };
-    const kick = () => {
-      if (!frame) frame = requestAnimationFrame(tick);
+    document.documentElement.addEventListener("pointerleave", away);
+    window.addEventListener("blur", away);
+    // beim Scrollen wandern die Elemente unter dem ruhenden Cursor weiter
+    scrollTasks.push(() => pointer && tilts.forEach((t) => t.visible && tiltAim(t)));
+  };
+  function createTilt({ stage, center, rx = 7, ry = 11, tx = 22, ty = 12, reach = 0.42, onMove }) {
+    if (!finePointer || reducedMotion || !stage) return;
+    const t = {
+      stage, center, rx, ry, tx, ty, reach, onMove,
+      visible: !hasIO,
+      frame: 0,
+      target: { x: 0, y: 0, glare: 0, gx: 50, gy: 35 },
+      current: { x: 0, y: 0, glare: 0, gx: 50, gy: 35 },
     };
-    area.addEventListener("pointermove", (e) => {
-      if (onMove) onMove(e);
-      if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
-      const r = origin();
-      target.x = clamp((e.clientX - (r.left + r.width / 2)) / (r.width / 2), -1, 1);
-      target.y = clamp((e.clientY - (r.top + r.height / 2)) / (r.height / 2), -1, 1);
-      target.glare = 1;
-      kick();
-    });
-    area.addEventListener("pointerleave", () => {
-      target.x = 0;
-      target.y = 0;
-      target.glare = 0;
-      kick();
-    });
+    tilts.push(t);
+    if (tilts.length === 1) listenTilts();
+    if (hasIO)
+      new IntersectionObserver(
+        ([e]) => {
+          t.visible = e.isIntersecting;
+          if (t.visible && pointer) tiltAim(t);
+        },
+        { rootMargin: "120px 0px" }
+      ).observe(stage);
   }
 
   /* ---------- Hero: Lichtkegel, Cursor-Follow, Aufrichten beim Scrollen ---------- */
@@ -476,14 +524,19 @@
     const stage = $("[data-tilt-stage]");
     if (!hero) return;
 
-    // Unterseiten: nur der Lichtkegel folgt dem Cursor
+    // Unterseiten: nur der Lichtkegel folgt dem Cursor (im ganzen Fenster)
     if (!visual || !stage) {
       if (finePointer && spot && !reducedMotion) {
-        hero.addEventListener("pointermove", (e) => {
-          const r = hero.getBoundingClientRect();
-          spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
-          spot.style.setProperty("--sy", `${e.clientY - r.top}px`);
-        });
+        window.addEventListener(
+          "pointermove",
+          (e) => {
+            const r = hero.getBoundingClientRect();
+            if (r.bottom < 0) return;
+            spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
+            spot.style.setProperty("--sy", `${e.clientY - r.top}px`);
+          },
+          { passive: true }
+        );
       }
       return;
     }
@@ -494,10 +547,10 @@
     }
 
     createTilt({
-      area: hero,
       stage,
-      // im Hero relativ zum Bildschirm normiert: volle Bewegung über die ganze Seite
-      origin: () => ({ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }),
+      // im Hero relativ zur Fenstermitte: volle Bewegung über die ganze Seite
+      center: () => ({ x: window.innerWidth / 2, y: window.innerHeight / 2 }),
+      reach: 0.5,
       onMove: (e) => {
         const r = hero.getBoundingClientRect();
         spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
@@ -519,14 +572,7 @@
     const stage = $("[data-studio-stage]");
     if (!body || !stage) return;
     createTilt({
-      area: body,
       stage,
-      // relativ zur Vorschau: Cursor im Editor links kippt das Portal nach links
-      origin: () => {
-        const p = stage.parentElement.getBoundingClientRect();
-        const b = body.getBoundingClientRect();
-        return { left: p.left + p.width / 2 - b.width / 2, top: b.top, width: b.width, height: b.height };
-      },
       rx: 6,
       ry: 9,
       tx: 14,
@@ -1196,9 +1242,7 @@
   function initTiltCards() {
     $$("[data-tilt-card]").forEach((card) => {
       createTilt({
-        area: card.closest("[data-tilt-area]") || card.parentElement,
         stage: card,
-        origin: () => card.getBoundingClientRect(),
         rx: Number(card.dataset.rx || 6),
         ry: Number(card.dataset.ry || 9),
         tx: Number(card.dataset.tx || 10),

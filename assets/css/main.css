@@ -1921,6 +1921,11 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   background: #fff;
   box-shadow: 0 40px 80px -40px rgba(0, 10, 60, .55);
 }
+/* Kontaktformular folgt dem Cursor – sanft; liegt der Fokus im Formular, hält es weitgehend still (createTilt) */
+.form[data-tilt-card] {
+  transform: perspective(1400px) translate3d(var(--tx, 0px), var(--ty, 0px), 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  will-change: transform;
+}
 .form__choice { margin: 0; padding: 0; border: 0; min-width: 0; }
 .form__label,
 .form__field label { display: block; margin-bottom: 8px; padding: 0; font-size: .92rem; font-weight: 600; color: var(--ink-2); }
