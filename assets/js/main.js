@@ -1207,6 +1207,34 @@
     });
   }
 
+  /* ---------- Schwebende Tags: passende Icon-Animation beim Darüberfahren (CSS: [data-anim]) ---------- */
+  const TAG_ANIMS = {
+    handshake: "shake", ticket: "shake", megaphone: "shake", chat: "shake",
+    flag: "wave",
+    settings: "spin",
+    percent: "turn",
+    star: "twinkle", sparkles: "twinkle",
+    trophy: "bounce", award: "bounce", users: "bounce", user: "bounce", coins: "bounce", wallet: "bounce", piggy: "bounce",
+    gift: "jump", cake: "jump",
+    heart: "beat",
+    target: "pulse",
+    tag: "swing",
+    check: "draw", trending: "draw", wifi: "draw", activity: "draw",
+    plane: "fly", send: "fly",
+    mail: "slide", car: "slide",
+    calendar: "flip",
+    eye: "blink",
+    zap: "flash",
+  };
+  function initTagAnims() {
+    $$(".chip-float, .float--stat, .float--tag").forEach((tag) => {
+      if (tag.dataset.anim) return;
+      const use = $("use", tag);
+      const icon = use ? (use.getAttribute("href") || "").replace("#i-", "") : "";
+      tag.dataset.anim = TAG_ANIMS[icon] || "pop";
+    });
+  }
+
   /* ---------- Bild-Karussell mit Überblendung (Screenshots, Kundenportale) ---------- */
   function initShots() {
     $$("[data-shots]").forEach((root) => {
@@ -2184,6 +2212,7 @@
   initContactForm();
   initCarousel();
   initTiltCards();
+  initTagAnims();
   initAccordions();
   initTouchpoints();
   initPlacement();

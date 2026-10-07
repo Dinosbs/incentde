@@ -2094,12 +2094,13 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   color: var(--ink);
   background: rgba(255, 255, 255, .95);
   box-shadow: 0 24px 50px -18px rgba(0, 10, 30, .6);
-  transform: translateZ(var(--z, 60px));
+  transform: translateZ(calc(var(--z, 60px) + var(--lift, 0px)));
+  transition: transform .5s var(--ease-out), scale .5s var(--ease-out), box-shadow .35s;
   animation: bob 7s ease-in-out infinite;
   animation-delay: var(--delay, 0s);
 }
 .chip-float small { display: block; font-size: .8rem; font-weight: 500; color: var(--ink-3); }
-.chip-float__ico { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 12px; color: #fff; background: var(--grad-btn); }
+.chip-float__ico { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 12px; overflow: hidden; color: #fff; background: var(--grad-btn); }
 .chip-float__ico--alt { background: linear-gradient(135deg, #ff8a5b, #ff3d7f); }
 .chip-float__ico--ok { background: linear-gradient(135deg, #34d399, #0f9d6b); }
 .chip-float__ico--violet { background: linear-gradient(135deg, #a78bfa, #6d3df5); }
@@ -2126,22 +2127,10 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   -webkit-backdrop-filter: blur(14px) saturate(160%);
   backdrop-filter: blur(14px) saturate(160%);
   box-shadow: 0 26px 50px -22px rgba(0, 30, 90, .5), inset 0 1px 0 #fff;
-  transform: translateZ(calc(var(--z, 60px) + var(--lift, 0px)));
-  transition: transform .5s var(--ease-out), scale .5s var(--ease-out), box-shadow .35s;
 }
 .devices__tag strong { font-weight: 600; }
 .devices__tag .chip-float__ico { width: 44px; height: 44px; border-radius: 14px; box-shadow: 0 8px 18px -8px rgba(0, 20, 60, .55); }
 .devices__tag .chip-float__ico .i { width: 22px; height: 22px; }
-.devices__tag:hover { --lift: 40px; scale: 1.06; box-shadow: 0 34px 60px -22px rgba(0, 30, 90, .6), 0 0 0 1px rgba(26, 120, 255, .18), inset 0 1px 0 #fff; }
-/* Icon-Bewegung je Tag beim Darüberfahren */
-.devices__tag[data-anim="shake"]:hover .i { animation: ico-shake .7s ease-in-out; }
-.devices__tag[data-anim="wave"]:hover .i { animation: ico-wave .9s ease-in-out; transform-origin: 18% 100%; }
-.devices__tag[data-anim="spin"]:hover .i { animation: ico-spin .9s var(--ease-out); }
-.devices__tag[data-anim="bounce"]:hover .i { animation: ico-bounce .75s var(--ease-out); }
-@keyframes ico-shake { 20% { rotate: -14deg; } 40% { rotate: 10deg; } 60% { rotate: -7deg; } 80% { rotate: 3deg; } }
-@keyframes ico-wave { 25% { transform: skewY(-9deg) scaleX(.94); } 55% { transform: skewY(6deg); } 80% { transform: skewY(-2deg); } }
-@keyframes ico-spin { to { rotate: 90deg; } }
-@keyframes ico-bounce { 30% { translate: 0 -5px; scale: 1.12; } 55% { translate: 0 1px; scale: .95; } 78% { translate: 0 -1px; scale: 1.02; } }
 /* Tags erscheinen nacheinander, sobald die Geräte im Bild sind */
 .js .devices:not(.is-in) .devices__tag { opacity: 0; }
 .js .devices.is-in .devices__tag {
@@ -2164,6 +2153,57 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   .devices__tag .chip-float__ico .i { width: 18px; height: 18px; }
   .js .devices.is-in .devices__tag { animation: tag-in .7s var(--ease-out) calc(.3s + var(--i, 0) * .1s) backwards; }
 }
+
+/* ---------- Schwebende Tags (alle Seiten): Hover hebt den Tag an, das Icon spielt eine kleine Animation ----------
+   Die passende Animation setzt main.js anhand des Icons (data-anim), z. B. Herz → Herzschlag, Flugzeug → fliegt. */
+/* Chrome sortiert bei starker 3D-Neigung die großen Bildflächen beim Treffertest vor die Tags (Hover flackert).
+   Die Flächen sind reine Deko – Mausereignisse gehen an die Tags bzw. an den umgebenden Kippbereich. */
+.hero__visual .vp-frame, .photo-card__img, .devices__img { pointer-events: none; }
+.float--voucher, .float--stat, .float--tag { transition: scale .5s var(--ease-out), box-shadow .35s; }
+.float__icon { overflow: hidden; }
+@media (hover: hover) {
+  .chip-float:hover { --lift: 40px; scale: 1.06; box-shadow: 0 34px 60px -22px rgba(0, 30, 90, .6), 0 0 0 1px rgba(26, 120, 255, .2); }
+  .devices__tag:hover { box-shadow: 0 34px 60px -22px rgba(0, 30, 90, .6), 0 0 0 1px rgba(26, 120, 255, .18), inset 0 1px 0 #fff; }
+  .float--voucher:hover { scale: 1.05; }
+  .float--stat:hover, .float--tag:hover { scale: 1.07; box-shadow: 0 32px 60px -18px rgba(0, 10, 30, .55), 0 0 0 1px rgba(26, 120, 255, .2); }
+
+  [data-anim="shake"]:hover .i { animation: ico-shake .7s ease-in-out; }
+  [data-anim="wave"]:hover .i { animation: ico-wave .9s ease-in-out; transform-origin: 18% 100%; }
+  [data-anim="spin"]:hover .i { animation: ico-spin .9s var(--ease-out); }
+  [data-anim="turn"]:hover .i { animation: ico-turn .8s var(--ease-out); }
+  [data-anim="twinkle"]:hover .i { animation: ico-twinkle .8s var(--ease-out); }
+  [data-anim="bounce"]:hover .i { animation: ico-bounce .75s var(--ease-out); }
+  [data-anim="jump"]:hover .i { animation: ico-jump .7s ease-in-out; transform-origin: 50% 100%; }
+  [data-anim="beat"]:hover .i { animation: ico-beat .9s ease-in-out; }
+  [data-anim="pulse"]:hover .i { animation: ico-pulse .6s var(--ease-out); }
+  [data-anim="pop"]:hover .i { animation: ico-pop .6s var(--ease-out); }
+  [data-anim="swing"]:hover .i { animation: ico-swing .9s ease-in-out; transform-origin: 30% 30%; }
+  [data-anim="draw"]:hover .i { animation: ico-draw .8s ease-out; }
+  [data-anim="fly"]:hover .i { animation: ico-fly .9s cubic-bezier(.5, 0, .3, 1); }
+  [data-anim="slide"]:hover .i { animation: ico-slide .8s cubic-bezier(.5, 0, .3, 1); }
+  [data-anim="flip"]:hover .i { animation: ico-flip .7s var(--ease-out); }
+  [data-anim="blink"]:hover .i { animation: ico-blink .8s ease-in-out; }
+  [data-anim="flash"]:hover .i { animation: ico-flash .7s linear; }
+}
+@keyframes ico-shake { 20% { rotate: -14deg; } 40% { rotate: 10deg; } 60% { rotate: -7deg; } 80% { rotate: 3deg; } }
+@keyframes ico-wave { 25% { transform: skewY(-9deg) scaleX(.94); } 55% { transform: skewY(6deg); } 80% { transform: skewY(-2deg); } }
+/* Drehungen enden auf einer Symmetrie des Icons (Zahnrad 6 Zähne, Prozent punktsymmetrisch, Stern 5 Zacken) – kein Rücksprung */
+@keyframes ico-spin { to { rotate: 120deg; } }
+@keyframes ico-turn { to { rotate: 180deg; } }
+@keyframes ico-twinkle { 50% { scale: 1.25; } to { rotate: 72deg; } }
+@keyframes ico-bounce { 30% { translate: 0 -5px; scale: 1.12; } 55% { translate: 0 1px; scale: .95; } 78% { translate: 0 -1px; scale: 1.02; } }
+@keyframes ico-jump { 25% { translate: 0 -6px; scale: .92 1.1; } 50% { translate: 0 0; scale: 1.12 .86; } 72% { scale: .97 1.04; } }
+@keyframes ico-beat { 15% { scale: 1.25; } 30% { scale: 1; } 45% { scale: 1.16; } 60% { scale: 1; } }
+@keyframes ico-pulse { 30% { scale: .8; } 65% { scale: 1.18; } }
+@keyframes ico-pop { 40% { scale: 1.22; rotate: -8deg; } 70% { scale: .96; rotate: 3deg; } }
+@keyframes ico-swing { 20% { rotate: 16deg; } 40% { rotate: -11deg; } 60% { rotate: 6deg; } 80% { rotate: -3deg; } }
+/* negativer Versatz: Linien entstehen vom Pfadende her – Haken wie von Hand, Trendlinie von links unten nach rechts oben */
+@keyframes ico-draw { from { stroke-dasharray: 30; stroke-dashoffset: -30; } to { stroke-dasharray: 30; stroke-dashoffset: 0; } }
+@keyframes ico-fly { 42% { translate: 150% -150%; opacity: 0; } 43% { translate: -150% 150%; opacity: 0; } }
+@keyframes ico-slide { 42% { translate: 160% 0; opacity: 0; } 43% { translate: -160% 0; opacity: 0; } }
+@keyframes ico-flip { to { transform: perspective(60px) rotateX(360deg); } }
+@keyframes ico-blink { 25% { scale: 1 .1; } 40% { scale: 1; } 62% { scale: 1 .1; } 78% { scale: 1; } }
+@keyframes ico-flash { 15% { opacity: .2; scale: 1.15; } 30% { opacity: 1; } 45% { opacity: .3; } 62% { opacity: 1; scale: 1; } }
 
 /* Lösungs-Navigation unter dem Seitenkopf */
 .cluster {
