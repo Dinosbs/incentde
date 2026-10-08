@@ -3175,6 +3175,297 @@
     $$("[data-gg-cart]").forEach(initGiftCart);
   }
 
+  /* ---------- Kernbereiche (Über uns): eigene Illustrationen statt Bildern + Netzwerk im Abschluss ----------
+     Jede Szene läuft nur, solange sie zu sehen ist; „Bewegung reduzieren“ zeigt ein ruhiges Standbild. */
+  // Mittelpunkt eines Elements in % der Bühne (unabhängig von Zoom und Skalierung)
+  const centerIn = (stage, el) => {
+    const r = stage.getBoundingClientRect();
+    const t = el.getBoundingClientRect();
+    return [((t.left + t.width / 2 - r.left) / r.width) * 100, ((t.top + t.height / 2 - r.top) / r.height) * 100];
+  };
+  const bump = (el) => {
+    el.classList.remove("is-bump");
+    void el.offsetWidth;
+    el.classList.add("is-bump");
+    clearTimeout(el._bump);
+    el._bump = setTimeout(() => el.classList.remove("is-bump"), 380);
+  };
+  const replay = (el, cls) => {
+    el.classList.remove(cls);
+    void el.offsetWidth;
+    el.classList.add(cls);
+  };
+
+  // 1 · Mitarbeiterbindung: Benefits aus dem Portal gehen reihum ans Team, die Bindungsringe füllen sich
+  function initAreaTeam(root) {
+    const rows = $$("[data-team-row]", root);
+    const avas = $$("[data-team-ava]", root);
+    const kpi = $("[data-team-kpi]", root);
+    const token = $("[data-team-token]", root);
+    const tokenIcon = $("use", token);
+    const icons = rows.map((r) => $("use", r).getAttribute("href"));
+    const level = [1 / 3, 2 / 3, 0, 1 / 3];
+    let row = 0;
+    let next = 2;
+    let timers = [];
+    let shown = false;
+    const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+    const clear = () => (timers.forEach(clearTimeout), (timers = []));
+    const paint = () => {
+      avas.forEach((a, i) => {
+        $(".arv-ring__val", a).style.strokeDashoffset = String(100 - level[i] * 100);
+        a.classList.toggle("is-full", level[i] >= 0.99);
+      });
+      const text = `${Math.round(64 + (level.reduce((sum, v) => sum + v, 0) / level.length) * 34)} %`;
+      if (kpi.textContent !== text) (kpi.textContent = text), bump(kpi);
+    };
+    const send = (i) => {
+      const k = row;
+      row = (row + 1) % rows.length;
+      rows.forEach((r, j) => r.classList.toggle("is-active", j === k));
+      const arrive = () => {
+        level[i] = Math.min(1, level[i] + 1 / 3);
+        replay(avas[i], "is-hit");
+        paint();
+      };
+      if (reducedMotion || !token.animate) return arrive();
+      tokenIcon.setAttribute("href", icons[k]);
+      const [x0, y0] = centerIn(root, $(".i", rows[k]));
+      const [x1, y1] = centerIn(root, avas[i]);
+      const fly = token.animate(
+        [
+          { left: `${x0}%`, top: `${y0}%`, opacity: 0, transform: "scale(.5)" },
+          { opacity: 1, transform: "scale(1)", offset: 0.18 },
+          { left: `${x1}%`, top: `${y1}%`, opacity: 1, transform: "scale(.8)", offset: 0.9 },
+          { left: `${x1}%`, top: `${y1}%`, opacity: 0, transform: "scale(.4)" },
+        ],
+        { duration: 950, easing: "cubic-bezier(.45,0,.2,1)" }
+      );
+      fly.onfinish = arrive;
+    };
+    // reihum; sind alle Ringe voll, leeren sie sich und es beginnt von vorn
+    const step = () => {
+      if (level.every((v) => v >= 0.99)) {
+        later(() => (level.fill(0), paint(), later(step, 1000)), 1800);
+        return;
+      }
+      let i = next % avas.length;
+      while (level[i] >= 0.99) i = ++next % avas.length;
+      next += 1;
+      send(i);
+      later(step, 1500);
+    };
+    avas.forEach((a, i) =>
+      a.addEventListener("click", () => {
+        clear();
+        send(i);
+        if (shown && !reducedMotion) later(step, 3500);
+      })
+    );
+    watchShown(root, (s) => {
+      shown = s;
+      clear();
+      if (s && !reducedMotion) later(step, 700);
+    });
+    rows[0].classList.add("is-active");
+    paint();
+  }
+
+  // 2 · Kundenbindung: die Kundin läuft im Uhrzeigersinn von Kontaktpunkt zu Kontaktpunkt
+  function initAreaLoop(root) {
+    const tps = $$("[data-loop-tp]", root);
+    const walker = $("[data-loop-walker]", root);
+    const count = $("[data-loop-count]", root);
+    const plus = $("[data-loop-plus]", root);
+    const trail = $(".arv-orbit__trail", root);
+    const core = $(".arv-core", root);
+    const ANG = [-90, 0, 90, 180]; // oben, rechts, unten, links
+    const BEFORE = 24; // die Kundin hält kurz vor dem Kontaktpunkt
+    let cur = ANG[3] - BEFORE - 360;
+    let n = 0;
+    let timers = [];
+    let shown = false;
+    let at = 3;
+    const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+    const clear = () => (timers.forEach(clearTimeout), (timers = []));
+    const frac = (a) => (((a + 90) % 360) + 360) % 360 / 360;
+    const setTrail = (from, to, ms) => {
+      if (to < from) {
+        trail.style.transition = "none";
+        trail.style.strokeDashoffset = "100";
+        void trail.getBoundingClientRect();
+      }
+      trail.style.transition = `stroke-dashoffset ${ms}ms ease-in-out`;
+      trail.style.strokeDashoffset = String(100 - to * 100);
+    };
+    const arrive = (k) => {
+      at = k;
+      tps.forEach((t, j) => t.classList.toggle("is-lit", j === k));
+      n = n >= 99 ? 1 : n + 1;
+      count.textContent = String(n);
+      bump(count);
+      core.style.setProperty("--lv", String(Math.min(1, n / 16)));
+      const [x, y] = centerIn(root, tps[k]);
+      plus.style.left = `${x}%`;
+      plus.style.top = `${y - 9}%`;
+      replay(plus, "is-on");
+    };
+    const moveTo = (k) => {
+      const delta = (((ANG[k] - BEFORE - cur) % 360) + 360) % 360;
+      if (!delta) return arrive(k);
+      const ms = Math.round(350 + (delta / 90) * 750);
+      setTrail(frac(cur), frac(cur + delta), ms);
+      cur += delta;
+      walker.style.transitionDuration = `${ms}ms`;
+      walker.style.setProperty("--a", `${cur}deg`);
+      later(() => arrive(k), ms);
+    };
+    const step = () => {
+      moveTo((at + 1) % tps.length);
+      later(step, 2000);
+    };
+    tps.forEach((t, k) =>
+      t.addEventListener("click", () => {
+        clear();
+        if (reducedMotion) {
+          cur = ANG[k] - BEFORE;
+          walker.style.setProperty("--a", `${cur}deg`);
+          return arrive(k);
+        }
+        moveTo(k);
+        if (shown) later(step, 4000);
+      })
+    );
+    watchShown(root, (s) => {
+      shown = s;
+      clear();
+      if (s && !reducedMotion) later(step, 500);
+    });
+    // Standbild: Kundin am Gutschein, Weg bis dorthin markiert
+    walker.style.setProperty("--a", `${cur}deg`);
+    if (reducedMotion) {
+      cur = ANG[2] - BEFORE;
+      walker.style.setProperty("--a", `${cur}deg`);
+      n = 6;
+      setTrail(0, frac(cur), 0);
+      arrive(2);
+    }
+  }
+
+  // 3 · Neukundengewinnung: Nutzer werden über Ihr Angebot zu Neukunden – je besser die Kondition, desto mehr
+  function initAreaReach(root) {
+    const dots = $$("[data-reach-crowd] i", root);
+    const deal = $(".arv-deal", root);
+    const badge = $("[data-reach-badge]", root);
+    const badgeBox = badge.closest(".arv-deal__badge");
+    const count = $("[data-reach-count]", root);
+    const bars = $$("[data-reach-bars] i", root);
+    const rates = $$("[data-reach-rate]", root);
+    const BARS = { 10: [26, 34, 42, 50, 58], 20: [34, 48, 60, 72, 84], 30: [42, 58, 74, 88, 100] };
+    const EVERY = { 10: 1150, 20: 720, 30: 430 };
+    let rate = 20;
+    let n = 0;
+    let timer = 0;
+    let shown = false;
+    const spawn = () => {
+      const free = dots.filter((d) => !d.classList.contains("is-picked"));
+      const d = free[Math.floor(Math.random() * free.length)];
+      if (!d) return;
+      d.classList.add("is-picked");
+      setTimeout(() => d.classList.remove("is-picked"), 2400);
+      const fly = document.createElement("span");
+      fly.className = "arv-fly";
+      root.append(fly);
+      const [x0, y0] = centerIn(root, d);
+      const [x1, y1] = centerIn(root, badgeBox);
+      const [x2, y2] = centerIn(root, count);
+      const anim = fly.animate(
+        [
+          { left: `${x0}%`, top: `${y0}%`, opacity: 0, transform: "scale(.6)" },
+          { opacity: 1, transform: "scale(1)", offset: 0.12 },
+          { left: `${x1}%`, top: `${y1}%`, transform: "scale(1.15)", offset: 0.5 },
+          { left: `${x2}%`, top: `${y2}%`, opacity: 0.1, transform: "scale(.5)" },
+        ],
+        { duration: 1500, easing: "ease-in-out" }
+      );
+      setTimeout(() => replay(deal, "is-hit"), 750);
+      anim.onfinish = () => {
+        fly.remove();
+        n = n >= 9999 ? 1 : n + 1;
+        count.textContent = n.toLocaleString("de-DE");
+        bump(count);
+      };
+    };
+    const schedule = () => {
+      clearInterval(timer);
+      if (shown && !reducedMotion && root.animate) timer = setInterval(spawn, EVERY[rate]);
+    };
+    const setRate = (r) => {
+      rate = r;
+      root.dataset.rate = String(r);
+      setRadio(rates, rates.find((b) => Number(b.dataset.reachRate) === r));
+      if (badge.textContent !== String(r)) (badge.textContent = String(r)), bump(badgeBox);
+      bars.forEach((b, k) => b.style.setProperty("--h", `${BARS[r][k]}%`));
+      schedule();
+    };
+    rates.forEach((b) => b.addEventListener("click", () => setRate(Number(b.dataset.reachRate))));
+    radioKeys(rates, (b) => setRate(Number(b.dataset.reachRate)));
+    watchShown(root, (s) => {
+      shown = s;
+      schedule();
+    });
+    setRate(20);
+  }
+
+  // Abschluss: Netzwerk – Arbeitgeber, Unternehmen und Marken über Vorteile.net mit den Menschen verbunden
+  function initAreaNet(root) {
+    const svg = $("[data-net-svg]", root);
+    const nodes = $$("[data-net-node]", root);
+    const keys = nodes.map((nd) => nd.dataset.netNode);
+    let active = "";
+    let timer = 0;
+    let auto = !reducedMotion;
+    let shown = false;
+    const set = (key) => {
+      active = key;
+      nodes.forEach((nd) => nd.setAttribute("aria-pressed", String(nd.dataset.netNode === key)));
+      $$("[data-net-line]", root).forEach((l) => l.classList.toggle("is-on", l.dataset.netLine === key));
+      $$("[data-net-pulse]", root).forEach((c) => c.classList.toggle("is-on", c.dataset.netPulse === key));
+      $$("[data-net-cap]", root).forEach((c) => c.classList.toggle("is-on", c.dataset.netCap === key));
+    };
+    const start = () => {
+      clearInterval(timer);
+      if (auto && shown) timer = setInterval(() => set(keys[(keys.indexOf(active) + 1) % keys.length]), 2800);
+    };
+    const pick = (key) => {
+      auto = false;
+      clearInterval(timer);
+      set(key);
+    };
+    nodes.forEach((nd) => {
+      nd.addEventListener("click", () => pick(nd.dataset.netNode));
+      nd.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && set(nd.dataset.netNode));
+      nd.addEventListener("focus", () => set(nd.dataset.netNode));
+    });
+    // die Karten darüber: Überfahren zeigt ihren Weg im Netzwerk
+    $$("[data-area]").forEach((card) =>
+      card.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && keys.includes(card.dataset.area) && set(card.dataset.area))
+    );
+    watchShown(root, (s) => {
+      shown = s;
+      if (svg.pauseAnimations) s && !reducedMotion ? svg.unpauseAnimations() : svg.pauseAnimations();
+      start();
+    });
+    set(keys[0]);
+  }
+
+  function initAreas() {
+    $$("[data-arv-team]").forEach(initAreaTeam);
+    $$("[data-arv-loop]").forEach(initAreaLoop);
+    $$("[data-arv-reach]").forEach(initAreaReach);
+    $$("[data-arnet]").forEach(initAreaNet);
+  }
+
   function initPreviews() {
     $$("[data-pv-deal]").forEach(initDealPreview);
     $$("[data-pv-shop]").forEach(initShopPreview);
@@ -3585,6 +3876,7 @@
   initBrandViz();
   initPreviews();
   initGiftReasons();
+  initAreas();
   initTouchpoints();
   initPlacement();
   initPackages();
