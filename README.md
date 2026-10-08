@@ -128,7 +128,7 @@ Link „Deinen Shop in der Live-Demo selbst gestalten“ zum Portal-Builder auf 
 Vergleich „Klassische Brand Deals / Dein Community-Shop“ (`#einnahmen`, schematisch, keine Umsatzprognose) und Ablauf.
 
 **SELECT-Gutschein** (`.selv` in `main.css`): Nachbau der echten Gutscheine. PDF = Hochformat
-mit Motiv, Tabelle (Wert, Code, Gültigkeit), Grußtext, QR-Code und Einlöse-Schritten; Print = Karte im Querformat; CSV = Tabelle.
+mit Motiv, Tabelle (Wert, Code, Gültigkeit), Grußtext, QR-Code und Einlöse-Schritten; Print = Karte im DIN-lang-Format (210 × 99 mm, Seitenverhältnis fest); CSV = Tabelle.
 Im Seitenkopf liegen PDF und Karte übereinander wie auf den Produktbildern. Die Motive sind gezeichnet (Verlauf, Icons) statt
 fotografiert; Texte und Icons je Anlass stehen in `MOTIFS` in `main.js`. SELECT- und SBSCOM-Logo sind als SVG bzw. Schrift
 nachgebaut – liegen die Originale als SVG vor, können sie direkt eingesetzt werden. Alle Maße hängen an der Gutscheinbreite

@@ -2843,7 +2843,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .coupon .selv--card { display: none; border-radius: 2.6% / 5.2%; }
 .coupon[data-format="pdf"] .selv--doc { max-width: 420px; margin-inline: auto; animation: rise .5s var(--ease-out); }
 .coupon[data-format="print"] .selv--doc, .coupon[data-format="csv"] .selv--doc { display: none; }
-.coupon[data-format="print"] .selv--card { display: block; animation: rise .5s var(--ease-out); }
+.coupon[data-format="print"] .selv--card { display: flex; animation: rise .5s var(--ease-out); }
 
 /* Kopf: SELECT-Logo und Platz für das Kundenlogo */
 .selv__head { display: flex; align-items: center; justify-content: space-between; }
@@ -2898,23 +2898,24 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .selv--doc .selv__legal { font-size: 1.12cqi; }
 .selv--doc .sbs-mark { font-size: 3.2cqi; }
 
-/* Print (Karte quer) */
-.selv--card .selv__head { align-items: flex-start; padding: 2.4cqi 6cqi 0 5.5cqi; }
-.selv--card .select-mark { width: 7.6cqi; margin-top: 1cqi; }
-.selv--card .selv__logo { width: 19.5cqi; height: 9.5cqi; font-size: 3cqi; }
-.selv__cols { display: grid; grid-template-columns: 1fr .8fr; gap: 4cqi; padding: 1.2cqi 6cqi 0 5.5cqi; }
-.selv__fields { display: grid; grid-template-columns: auto 1fr; gap: .3cqi 3.4cqi; font-size: 2.25cqi; font-weight: 700; line-height: 1.35; }
+/* Print (Karte quer) – DIN lang (210 × 99 mm) wie die gedruckte Karte; alle Maße in cqi, passt in jeder Größe */
+.selv--card { aspect-ratio: 210 / 99; flex-direction: column; }
+.selv--card .selv__head { align-items: flex-start; padding: 2.2cqi 5cqi 0 5cqi; }
+.selv--card .select-mark { width: 7cqi; margin-top: .4cqi; }
+.selv--card .selv__logo { width: 17cqi; height: 8cqi; font-size: 2.7cqi; }
+.selv__cols { flex: 1; display: grid; grid-template-columns: 1fr 1.05fr; gap: 4cqi; padding: .4cqi 5cqi 0 5cqi; }
+.selv__fields { display: grid; grid-template-columns: auto 1fr; gap: .2cqi 3cqi; font-size: 2.15cqi; font-weight: 700; line-height: 1.32; }
 .selv__fields dt { text-transform: uppercase; }
 .selv__fields dd { margin: 0; font-variant-numeric: tabular-nums; }
-.selv__fields dd:nth-of-type(2) { font-size: 2.5cqi; letter-spacing: .01em; }
-.selv--card .selv__greeting { margin-top: 3.4cqi; font-size: 1.85cqi; line-height: 1.3; overflow-wrap: anywhere; }
+.selv__fields dd:nth-of-type(2) { font-size: 2.4cqi; letter-spacing: .01em; }
+.selv--card .selv__greeting { margin-top: 2.6cqi; font-size: 1.8cqi; line-height: 1.28; overflow-wrap: anywhere; }
 .selv--card .selv__redeem { display: grid; grid-template-columns: 1fr auto; column-gap: 2cqi; align-items: end; align-content: start; }
-.selv--card .selv__redeem b { grid-column: 1 / -1; margin-bottom: 1.2cqi; font-size: 2.3cqi; font-weight: 700; }
-.selv--card .selv__redeem ol { font-size: 1.85cqi; line-height: 1.25; }
-.selv--card .selv__qr { width: 13cqi; }
-.selv--card .selv__foot { padding: 3.4cqi 6cqi 3.2cqi 5.5cqi; }
-.selv--card .selv__legal { max-width: 80cqi; font-size: .98cqi; }
-.selv--card .sbs-mark { font-size: 2.9cqi; }
+.selv--card .selv__redeem b { grid-column: 1 / -1; margin-bottom: 1cqi; font-size: 2.15cqi; font-weight: 700; }
+.selv--card .selv__redeem ol { font-size: 1.72cqi; line-height: 1.24; }
+.selv--card .selv__qr { width: 11.5cqi; }
+.selv--card .selv__foot { padding: 1.6cqi 5cqi 2cqi 5cqi; }
+.selv--card .selv__legal { max-width: 80cqi; font-size: .92cqi; }
+.selv--card .sbs-mark { font-size: 2.7cqi; }
 
 /* gemeinsame Kleinteile */
 .selv ol { margin: 0; padding-left: 1.35em; list-style: decimal; }
@@ -2932,7 +2933,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .coupon[data-format="duo"] { aspect-ratio: 1080 / 660; transform-style: preserve-3d; }
 .coupon[data-format="duo"] .selv { position: absolute; }
 .coupon[data-format="duo"] .selv--doc { right: 0; top: 0; width: 45%; transform: translateZ(0); }
-.coupon[data-format="duo"] .selv--card { display: block; left: 0; bottom: 3%; width: 62.5%; transform: translateZ(50px); }
+.coupon[data-format="duo"] .selv--card { display: flex; left: 0; bottom: 3%; width: 62.5%; transform: translateZ(50px); }
 
 /* CSV */
 .coupon__sheet { display: none; overflow: hidden; border-radius: 14px; background: #fff; box-shadow: 0 40px 80px -30px rgba(0, 10, 40, .55), 0 0 0 1px rgba(0, 10, 30, .08); font-size: .85rem; }
