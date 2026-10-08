@@ -3098,7 +3098,8 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px 
 .deal-card__img--logo { display: grid; place-items: center; background: linear-gradient(135deg, #f4f7fc, #e7edf8); }
 .deal-card__img--logo img { max-width: 60%; max-height: 54px; object-fit: contain; }
 .deal-card__logo { position: absolute; left: 0; top: 12px; display: grid; place-items: center; width: 92px; height: 50px; padding: 6px 8px; border-radius: 0 6px 6px 0; background: #fff; }
-.deal-card__logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+/* feste Höhe: Prozentangaben greifen im Raster nicht, hochformatige Logos ragten sonst aus dem Feld */
+.deal-card__logo img { max-width: 100%; max-height: 38px; object-fit: contain; }
 .deal-card__logo--text { width: auto; padding-inline: 12px; font-weight: 700; font-size: .9rem; color: var(--ink); }
 .deal-card__badge { position: absolute; left: 0; bottom: 12px; padding: 4px 10px; border-radius: 0 4px 4px 0; font-weight: 700; font-size: 1rem; color: #fff; background: #1c87b8; }
 .deal-card__body { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px 14px; }
