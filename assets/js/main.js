@@ -2625,6 +2625,230 @@
     apply(current);
   }
 
+  /* ---------- Ein Gutschein, drei gute Gründe (Mitarbeitergutscheine): eigene Illustrationen ----------
+     1 Formate & Design, 2 Aufladungen über das Jahr, 3 Einlösung im eigenen Shop. Wie die Portal-Vorschauen:
+     beim Einblenden läuft eine kurze Demo, bis jemand selbst wählt. Die Bedienung steht unter der Illustration. */
+  const setRadio = (btns, on) =>
+    btns.forEach((b) => {
+      const k = b === on;
+      b.classList.toggle("is-on", k);
+      b.setAttribute("aria-checked", String(k));
+      b.tabIndex = k ? 0 : -1;
+    });
+  // Pfeiltasten in einer Auswahlgruppe (role="radiogroup")
+  const radioKeys = (btns, pick) =>
+    btns.forEach((b, i) =>
+      b.addEventListener("keydown", (e) => {
+        const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (!d) return;
+        e.preventDefault();
+        const next = btns[(i + d + btns.length) % btns.length];
+        pick(next);
+        next.focus();
+      })
+    );
+
+  function initGiftFormats(root) {
+    const ctrl = root.nextElementSibling;
+    const ORDER = ["pdf", "print", "csv"];
+    const COLORS = ["blau", "gruen", "rot", "gold"];
+    const layers = $$("[data-gg-layer]", root);
+    const fmtBtns = $$("[data-gg-fmt]", ctrl);
+    const colorBtns = $$("[data-gg-color]", ctrl);
+    const logoBtn = $("[data-gg-logo]", ctrl);
+    let fmt = "pdf";
+    let color = "blau";
+    let timer = 0;
+    let user = false;
+    $$("[data-gg-qr]", root).forEach((svg) => drawQR(svg, "SBS0006-4821"));
+    const setFmt = (f) => {
+      fmt = f;
+      root.dataset.fmt = f;
+      const i = ORDER.indexOf(f);
+      layers.forEach((l) => {
+        const k = ORDER.indexOf(l.dataset.ggLayer);
+        l.dataset.slot = k === i ? "front" : k === (i + 2) % 3 ? "left" : "right";
+      });
+      setRadio(fmtBtns, fmtBtns.find((b) => b.dataset.ggFmt === f));
+    };
+    const setColor = (c) => {
+      color = c;
+      root.dataset.color = c;
+      setRadio(colorBtns, colorBtns.find((b) => b.dataset.ggColor === c));
+    };
+    const setLogo = (on) => {
+      root.classList.toggle("has-logo", on);
+      logoBtn.setAttribute("aria-pressed", String(on));
+    };
+    const stop = () => ((user = true), clearInterval(timer));
+    fmtBtns.forEach((b) => b.addEventListener("click", () => (stop(), setFmt(b.dataset.ggFmt))));
+    colorBtns.forEach((b) => b.addEventListener("click", () => (stop(), setColor(b.dataset.ggColor))));
+    radioKeys(fmtBtns, (b) => (stop(), setFmt(b.dataset.ggFmt)));
+    radioKeys(colorBtns, (b) => (stop(), setColor(b.dataset.ggColor)));
+    logoBtn.addEventListener("click", () => (stop(), setLogo(logoBtn.getAttribute("aria-pressed") !== "true")));
+    // die hinteren Formate lassen sich direkt anklicken
+    layers.forEach((l) => l.addEventListener("click", () => l.dataset.slot !== "front" && (stop(), setFmt(l.dataset.ggLayer))));
+    watchShown(root, (shown) => {
+      clearInterval(timer);
+      if (!shown || user || reducedMotion) return;
+      let n = ORDER.indexOf(fmt);
+      timer = setInterval(() => {
+        n += 1;
+        setFmt(ORDER[n % 3]);
+        if (n === 2) setLogo(true);
+        if (n % 3 === 0) setColor(COLORS[(COLORS.indexOf(color) + 1) % COLORS.length]);
+      }, 2200);
+    });
+    setFmt(fmt);
+    setColor(color);
+  }
+
+  function initGiftTopup(root) {
+    const ctrl = root.nextElementSibling;
+    const months = $$(".ggt__m", root);
+    const balance = $("[data-gg-balance]", root);
+    const count = $("[data-gg-count]", root);
+    const total = $("[data-gg-total]", root);
+    const coin = $("[data-gg-coin]", root);
+    const head = $("[data-gg-head]", root);
+    const rBtns = $$("[data-gg-rhythm]", ctrl);
+    const aBtns = $$("[data-gg-amount]", ctrl);
+    // anlassbezogen: Geburtstag im März, Jubiläum im Juni, Weihnachten im Dezember
+    const OCCASIONS = { 2: "cake", 5: "award", 11: "tree" };
+    let rhythm = "monat";
+    let amount = 50;
+    let timer = 0;
+    let shown = false;
+    months.forEach((m, i) => {
+      if (!OCCASIONS[i]) return;
+      $(".ggt__bar", m).insertAdjacentHTML("beforeend", `<svg class="i ggt__occ" aria-hidden="true"><use href="#i-${OCCASIONS[i]}"/></svg>`);
+    });
+    const plan = () => months.map((_, i) => (rhythm === "monat" ? true : rhythm === "quartal" ? i % 3 === 0 : !!OCCASIONS[i]));
+    const render = () => {
+      const p = plan();
+      months.forEach((m, i) => {
+        m.style.setProperty("--h", p[i] ? `${amount}%` : "0%");
+        m.classList.toggle("is-occ", rhythm === "anlass" && p[i]);
+      });
+      const n = p.filter(Boolean).length;
+      count.textContent = `${n} ×`;
+      tweenText(total, n * amount, (v) => euro(Math.round(v), 0));
+    };
+    // Monate bis k sind aufgeladen (k = -1: noch keiner)
+    const fillTo = (k) => {
+      const p = plan();
+      let sum = 0;
+      months.forEach((m, i) => {
+        m.classList.toggle("is-in", i <= k);
+        if (i <= k && p[i]) sum += amount;
+      });
+      head.style.setProperty("--p", String((Math.max(k, 0) + 0.5) / 12));
+      head.classList.toggle("is-on", k >= 0);
+      tweenText(balance, sum, (v) => euro(v), 320);
+      if (k >= 0 && p[k] && !reducedMotion) {
+        coin.textContent = `+${amount} €`;
+        coin.classList.remove("is-pop");
+        void coin.offsetWidth;
+        coin.classList.add("is-pop");
+      }
+    };
+    // ein Jahr durchlaufen, kurz stehen lassen, von vorn
+    const play = () => {
+      clearInterval(timer);
+      if (reducedMotion) return fillTo(11);
+      let k = -1;
+      fillTo(-1);
+      timer = setInterval(() => {
+        k += 1;
+        if (k > 15) {
+          k = -1;
+          fillTo(-1);
+        } else if (k <= 11) fillTo(k);
+      }, 420);
+    };
+    const set = (r, a) => {
+      rhythm = r;
+      amount = a;
+      setRadio(rBtns, rBtns.find((b) => b.dataset.ggRhythm === r));
+      setRadio(aBtns, aBtns.find((b) => Number(b.dataset.ggAmount) === a));
+      render();
+      if (shown) play();
+    };
+    rBtns.forEach((b) => b.addEventListener("click", () => set(b.dataset.ggRhythm, amount)));
+    aBtns.forEach((b) => b.addEventListener("click", () => set(rhythm, Number(b.dataset.ggAmount))));
+    radioKeys(rBtns, (b) => set(b.dataset.ggRhythm, amount));
+    radioKeys(aBtns, (b) => set(rhythm, Number(b.dataset.ggAmount)));
+    watchShown(root, (s) => {
+      shown = s;
+      if (s) play();
+      else clearInterval(timer);
+    });
+    set(rhythm, amount);
+  }
+
+  function initGiftShop(root) {
+    const ctrl = root.nextElementSibling;
+    const mBtns = $$("[data-gg-mode]", ctrl);
+    const redeemBtn = $("[data-gg-redeem]", ctrl);
+    const chip = $(".ggs__voucher", root);
+    const pay = $("[data-gg-pay]", root);
+    let timers = [];
+    let user = false;
+    const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+    const clear = () => {
+      timers.forEach(clearTimeout);
+      timers = [];
+    };
+    const reset = () => {
+      root.classList.remove("is-redeemed");
+      chip.classList.remove("is-fly", "is-used");
+      pay.dataset.value = "50";
+      pay.textContent = euro(50);
+    };
+    const setMode = (m) => {
+      root.dataset.mode = m;
+      setRadio(mBtns, mBtns.find((b) => b.dataset.ggMode === m));
+      reset();
+    };
+    const redeem = () => {
+      reset();
+      const done = () => {
+        root.classList.add("is-redeemed");
+        // der Gutschein taucht blass wieder auf (eingelöst), ohne zwischendurch voll aufzublitzen
+        later(() => (chip.classList.remove("is-fly"), chip.classList.add("is-used")), reducedMotion ? 0 : 500);
+        tweenText(pay, 0, (v) => euro(v));
+      };
+      if (reducedMotion) return done();
+      void chip.offsetWidth;
+      chip.classList.add("is-fly");
+      later(done, 950);
+    };
+    // Demo: im eigenen Shop einlösen, dann zum Vergleich in der externen Lösung – und wieder zurück
+    const demo = () => {
+      clear();
+      later(redeem, 700);
+      later(() => setMode("ext"), 3800);
+      later(redeem, 4600);
+      later(() => (setMode("own"), demo()), 7800);
+    };
+    const takeOver = () => ((user = true), clear());
+    mBtns.forEach((b) => b.addEventListener("click", () => (takeOver(), setMode(b.dataset.ggMode))));
+    radioKeys(mBtns, (b) => (takeOver(), setMode(b.dataset.ggMode)));
+    redeemBtn.addEventListener("click", () => (takeOver(), redeem()));
+    watchShown(root, (shown) => {
+      clear();
+      if (!shown) return reset();
+      if (!user && !reducedMotion) demo();
+    });
+    setMode("own");
+  }
+
+  function initGiftReasons() {
+    $$("[data-gg-formats]").forEach(initGiftFormats);
+    $$("[data-gg-topup]").forEach(initGiftTopup);
+    $$("[data-gg-shop]").forEach(initGiftShop);
+  }
+
   function initPreviews() {
     $$("[data-pv-deal]").forEach(initDealPreview);
     $$("[data-pv-shop]").forEach(initShopPreview);
@@ -3032,6 +3256,7 @@
   initAccordions();
   initBrandViz();
   initPreviews();
+  initGiftReasons();
   initTouchpoints();
   initPlacement();
   initPackages();
