@@ -46,7 +46,7 @@ python3 -m http.server 8000
 
 | Bereich | Was passiert |
 | --- | --- |
-| Navigation | Glas-Leiste beim Scrollen, Mega-Menü „Lösungen“, Vollbild-Menü auf Mobilgeräten, Scrollspy. Logo: `assets/img/incent-logo-nav.png` (zentriertes PNG, Schriftzug mittig; oben 48 px hoch, nach dem Scrollen weich auf 40 px verkleinert; Footer und Portal-Vorschauen nutzen weiter `incent-logo-white.png` / `incent-logo-dark.png`) |
+| Navigation | Glas-Leiste beim Scrollen, Mega-Menü „Lösungen“, Vollbild-Menü auf Mobilgeräten, Scrollspy. Logo: `assets/img/incent-logo-nav.png` (zentriertes PNG, Schriftzug mittig; oben 48 px hoch, nach dem Scrollen weich auf 34 px verkleinert; Footer und Portal-Vorschauen nutzen weiter `incent-logo-white.png` / `incent-logo-dark.png`) |
 | Hero | Animierter Verlauf, Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz), Nachbau des echten Vorteilsportals in 3D, der dem Cursor folgt (Neigung, Verschiebung, Lichtreflex). Der Live-Chip darunter ändert die Buttonfarbe direkt und führt zur Live-Vorschau |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
 | Partner | Endlos-Laufband aus `assets/img/partner-logos/` – jede Datei wird automatisch eine Kachel, gelöschte Dateien verschwinden (keine Liste im HTML); Dateien, die nicht laden oder leer sind, bekommen keine Kachel. Tempo passt sich der Anzahl an, pausiert bei Hover. Transparenter oder weißer Rand der Logo-Dateien wird automatisch abgeschnitten, danach bekommen alle Logos etwa dieselbe Fläche (`fitLogo` in `main.js`); pro Partner erscheint nur ein Logo. Markennamen für Kurz-Dateinamen (z. B. „UI“ → „Union Investment“) stehen in `BRAND_NAMES` |
@@ -130,8 +130,9 @@ Vergleich „Klassische Brand Deals / Dein Community-Shop“ (`#einnahmen`, sche
 **SELECT-Gutschein** (`.selv` in `main.css`): Nachbau der echten Gutscheine. PDF = Hochformat
 mit Motiv, Tabelle (Wert, Code, Gültigkeit), Grußtext, QR-Code und Einlöse-Schritten; Print = Karte im DIN-lang-Format (210 × 99 mm, Seitenverhältnis fest); CSV = Tabelle.
 Im Seitenkopf liegen PDF und Karte übereinander wie auf den Produktbildern. Die Motive sind gezeichnet (Verlauf, Icons) statt
-fotografiert; Texte und Icons je Anlass stehen in `MOTIFS` in `main.js`. SELECT- und SBSCOM-Logo sind als SVG bzw. Schrift
-nachgebaut – liegen die Originale als SVG vor, können sie direkt eingesetzt werden. Alle Maße hängen an der Gutscheinbreite
+fotografiert; Texte und Icons je Anlass stehen in `MOTIFS` in `main.js`. Das SELECT-Logo ist als SVG nachgebaut – liegt das
+Original als SVG vor, kann es direkt eingesetzt werden (ein SBSCOM-Logo steht nicht mehr auf den Gutscheinen). Ein eigenes Logo
+aus dem Marken-Profil sitzt oben rechts in einem festen Rechteck und wird darin eingepasst. Alle Maße hängen an der Gutscheinbreite
 (Container-Einheiten `cqi`), der Gutschein sieht daher in jeder Größe gleich aus.
 
 Die Angebote im Rabatt-Explorer sind eine Momentaufnahme (Stand Oktober 2026) und stehen direkt im HTML.
@@ -192,6 +193,8 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   Commit der Bildlisten-Action löst keine neue Veröffentlichung aus (Commits mit dem Standard-Token starten keine
   weiteren Workflows) – sonst wären neue Logos online erst nach dem nächsten Push sichtbar.
   Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
+  Außerdem hängt die Veröffentlichung an `main.css` und `main.js` die Commit-Nummer an (`?v=…`), damit Browser nach
+  einem Update nicht die alte Fassung aus dem Cache nehmen. Im Repository bleiben die Verweise ohne Zusatz.
 - **Unterseiten**: Alle Lösungsseiten (Mitarbeiterbindung, Kundenbindung, Markenplatzierung, Content Creator) liegen in
   diesem Repository (siehe oben). FAQ, Karriere und Rechtliches verlinken noch auf `www.incent.de`.
   Die Spaltenköpfe im Mega-Menü („Mitarbeiterbindung“ usw.) verlinken auf die jeweilige Seite (erster Bereich).

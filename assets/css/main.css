@@ -283,7 +283,7 @@ ul, ol { padding: 0; list-style: none; }
    der Rand darunter liegt im negativen Außenabstand, die Leiste bleibt gleich hoch */
 .brand img { width: auto; height: 48px; margin-block: -7px; transition: height .45s var(--ease-out), margin .45s var(--ease-out); }
 /* nach dem Scrollen etwas kleiner (Schriftzug bleibt mittig, die Leiste behält ihre Höhe) */
-.nav.is-scrolled .brand img { height: 40px; margin-block: -3px; }
+.nav.is-scrolled .brand img { height: 34px; margin-block: 0; }
 .brand--footer img { height: 40px; margin-block: 0; }
 
 .nav__menu { flex: 1; display: flex; justify-content: center; }
@@ -3106,9 +3106,12 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .select-mark .select-mark__sub { font-size: 3.4px; font-weight: 500; letter-spacing: .02em; }
 .selv__logo { display: grid; place-items: center; flex: none; border: 1px solid #23262d; border-radius: 0; font-weight: 400; color: #23262d; }
 /* eigenes Logo aus dem Marken-Profil statt „Ihr Logo“ */
-/* feste Zelle (minmax 0), sonst wächst die Rasterspur auf die Originalgröße des Bildes */
-.selv__logo.has-logo { grid-template: minmax(0, 1fr) / minmax(0, 1fr); font-size: 0 !important; border-color: transparent; }
-.selv__logo img.brand-slot { max-width: 100%; max-height: 100%; object-fit: contain; }
+/* eigenes Logo: sitzt in einem festen Rechteck mit Innenabstand und wird darin eingepasst
+   (absolut positioniert – egal ob breit, quadratisch oder hochkant, es kann den Rahmen nie sprengen) */
+.selv__logo.has-logo { position: relative; overflow: hidden; font-size: 0 !important; border: 1px solid #e1e5ec; border-radius: .5cqi; background: #fff; }
+.selv__logo img.brand-slot { position: absolute; left: 9%; top: 14%; width: 82%; height: 72%; object-fit: contain; }
+.selv--doc .selv__logo.has-logo { width: 25cqi; height: 11.5cqi; margin: 2cqi 3.5cqi 2cqi 0; }
+.selv--card .selv__logo.has-logo { width: 14.5cqi; height: 6.6cqi; margin: .7cqi 0; }
 
 /* PDF (Hochformat) */
 .selv--doc .selv__head { padding: .7cqi .7cqi 1.6cqi 5.5cqi; }
@@ -3154,7 +3157,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .selv--doc .selv__redeem ol { grid-row: 2; grid-column: 2; font-size: 2.3cqi; line-height: 1.35; }
 .selv--doc .selv__foot { margin: 4.5cqi 4cqi 0 5cqi; padding-bottom: 3.5cqi; }
 .selv--doc .selv__legal { font-size: 1.12cqi; }
-.selv--doc .sbs-mark { font-size: 3.2cqi; }
 
 /* Print (Karte quer) – DIN lang (210 × 99 mm) wie die gedruckte Karte; alle Maße in cqi, passt in jeder Größe */
 .selv--card { aspect-ratio: 210 / 99; flex-direction: column; }
@@ -3173,7 +3175,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .selv--card .selv__qr { width: 11.5cqi; }
 .selv--card .selv__foot { padding: 1.6cqi 5cqi 2cqi 5cqi; }
 .selv--card .selv__legal { max-width: 80cqi; font-size: .92cqi; }
-.selv--card .sbs-mark { font-size: 2.7cqi; }
 
 /* gemeinsame Kleinteile */
 .selv ol { margin: 0; padding-left: 1.35em; list-style: decimal; }
@@ -3182,10 +3183,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .selv__qr svg { display: block; width: 100%; height: 100%; fill: #111; }
 .selv__foot { display: flex; align-items: center; justify-content: space-between; gap: 3cqi; }
 .selv__legal { font-weight: 600; line-height: 1.3; color: #2a2e36; }
-.sbs-mark { flex: none; font-family: var(--font-display); line-height: .92; letter-spacing: -.01em; color: #111; }
-.sbs-mark b { font-weight: 800; }
-.sbs-mark span { font-weight: 400; letter-spacing: .02em; }
-.sbs-mark i { font-style: normal; font-weight: 800; }
 
 /* Seitenkopf: PDF hinten, Karte davor – wie auf den Produktbildern */
 .coupon[data-format="duo"] { aspect-ratio: 1080 / 660; transform-style: preserve-3d; }

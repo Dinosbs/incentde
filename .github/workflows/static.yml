@@ -37,6 +37,13 @@ jobs:
       # löst selbst keine Veröffentlichung aus, neue Logos/Kachelbilder wären sonst online nicht gelistet.
       - name: Bildlisten erzeugen
         run: node tools/update-image-manifests.mjs
+      # CSS und JS mit Versionsnummer einbinden (?v=Commit), damit Browser nach einer Veröffentlichung
+      # nicht noch die alte Datei aus dem Cache nehmen (gilt nur für die veröffentlichte Fassung)
+      - name: CSS/JS-Version setzen
+        run: |
+          v="${GITHUB_SHA::8}"
+          sed -i -e "s#assets/css/main.css\"#assets/css/main.css?v=$v\"#" -e "s#assets/js/main.js\"#assets/js/main.js?v=$v\"#" ./*.html
+          grep -c "main.css?v=$v" ./*.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
