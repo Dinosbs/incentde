@@ -30,6 +30,14 @@
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
   // Marken-Profil (createPortalTheme) – wird beim Start angelegt, alle Vorschauen lesen es
   let brand = null;
+  // Zielgruppen (Startseite: „Wer sind Sie?“): Begriff in der Hero-Zeile, Wert im Kontaktformular, Unterseite
+  const AUDIENCES = {
+    arbeitgeber: { name: "Arbeitgeber", word: "Mitarbeiterbindung", form: "Arbeitgeber", page: "mitarbeiterbindung.html" },
+    unternehmen: { name: "Unternehmen", word: "Kundenbindung", form: "Unternehmen", page: "kundenbindung.html" },
+    marken: { name: "Marken", word: "Brand Awareness", form: "Markenpartner", page: "markenplatzierung.html" },
+    creator: { name: "Creator", word: "Social Communities", form: "Creator", page: "content-creator.html" },
+  };
+  const AUD_KEY = "incent-audience";
   // Weiches Scrollen (initSmoothScroll): Wer die Seite selbst scrollt (Sprünge, Stepper), beendet vorher das Gleiten
   let stopGlide = () => {};
   const scrollWindow = (opts) => {
@@ -278,8 +286,8 @@
     const nav = $("[data-nav]");
     if (!nav) return;
     const burger = $("[data-burger]", nav);
-    const mega = $("[data-mega]", nav);
-    const megaToggle = $("[data-mega-toggle]", nav);
+    // je Zielgruppe ein Ausklapp-Menü (Arbeitgeber, Unternehmen, Marken, Creator)
+    const megas = $$("[data-mega]", nav).map((item) => ({ item, toggle: $("[data-mega-toggle]", item), panel: $("[data-mega-panel]", item) }));
     const desktop = window.matchMedia("(min-width: 1121px)");
 
     scrollTasks.push(() => nav.classList.toggle("is-scrolled", window.scrollY > 24));
@@ -290,44 +298,50 @@
       burger.setAttribute("aria-expanded", String(open));
       burger.setAttribute("aria-label", open ? "Menü schließen" : "Menü öffnen");
     };
-    const setMega = (open) => {
-      mega.classList.toggle("is-open", open);
-      megaToggle.setAttribute("aria-expanded", String(open));
+    const setMega = (m, open) => {
+      m.item.classList.toggle("is-open", open);
+      m.toggle.setAttribute("aria-expanded", String(open));
     };
+    const closeAll = (except) => megas.forEach((m) => m !== except && setMega(m, false));
+    const openMega = (m) => (closeAll(m), setMega(m, true));
 
     burger.addEventListener("click", () => setMenu(!nav.classList.contains("is-menu-open")));
 
-    let closeTimer;
-    let lastPointer = "";
-    megaToggle.addEventListener("pointerdown", (e) => (lastPointer = e.pointerType));
-    megaToggle.addEventListener("click", (e) => {
-      // Desktop-Maus: Hover steuert das Menü, ein Klick darf es nicht wieder zuklappen.
-      // Tastatur (detail === 0) und Touch schalten um.
-      const hoverDriven = desktop.matches && lastPointer === "mouse" && e.detail > 0;
-      lastPointer = "";
-      setMega(hoverDriven ? true : !mega.classList.contains("is-open"));
-    });
-    mega.addEventListener("pointerenter", (e) => {
-      if (e.pointerType !== "mouse" || !desktop.matches) return;
-      clearTimeout(closeTimer);
-      setMega(true);
-    });
-    mega.addEventListener("pointerleave", (e) => {
-      if (e.pointerType !== "mouse" || !desktop.matches) return;
-      closeTimer = setTimeout(() => setMega(false), 180);
-    });
-    mega.addEventListener("focusout", (e) => {
-      if (desktop.matches && !mega.contains(e.relatedTarget)) setMega(false);
+    megas.forEach((m) => {
+      let closeTimer;
+      let lastPointer = "";
+      m.toggle.addEventListener("pointerdown", (e) => (lastPointer = e.pointerType));
+      m.toggle.addEventListener("click", (e) => {
+        // Desktop-Maus: Hover steuert das Menü, ein Klick darf es nicht wieder zuklappen.
+        // Tastatur (detail === 0) und Touch schalten um.
+        const hoverDriven = desktop.matches && lastPointer === "mouse" && e.detail > 0;
+        lastPointer = "";
+        if (hoverDriven || !m.item.classList.contains("is-open")) openMega(m);
+        else setMega(m, false);
+      });
+      m.item.addEventListener("pointerenter", (e) => {
+        if (e.pointerType !== "mouse" || !desktop.matches) return;
+        clearTimeout(closeTimer);
+        openMega(m);
+      });
+      m.item.addEventListener("pointerleave", (e) => {
+        if (e.pointerType !== "mouse" || !desktop.matches) return;
+        closeTimer = setTimeout(() => setMega(m, false), 180);
+      });
+      m.item.addEventListener("focusout", (e) => {
+        if (desktop.matches && !m.item.contains(e.relatedTarget)) setMega(m, false);
+      });
     });
     document.addEventListener("click", (e) => {
       // nur echte Klicks schließen das Menü – nicht die Klicks, mit denen Demos und Scroll-Stepper Punkte anwählen
-      if (e.isTrusted && !mega.contains(e.target)) setMega(false);
+      if (e.isTrusted) megas.forEach((m) => !m.item.contains(e.target) && setMega(m, false));
     });
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
-      if (mega.classList.contains("is-open")) {
-        setMega(false);
-        megaToggle.focus();
+      const open = megas.find((m) => m.item.classList.contains("is-open"));
+      if (open) {
+        setMega(open, false);
+        open.toggle.focus();
       } else if (nav.classList.contains("is-menu-open")) {
         setMenu(false);
         burger.focus();
@@ -336,12 +350,12 @@
     $$(".nav__menu a", nav).forEach((link) =>
       link.addEventListener("click", () => {
         setMenu(false);
-        setMega(false);
+        closeAll();
       })
     );
     desktop.addEventListener("change", () => {
       setMenu(false);
-      setMega(false);
+      closeAll();
     });
 
     // Scrollspy für Anker-Links
@@ -360,6 +374,132 @@
       const section = document.getElementById(link.dataset.spy);
       if (section) spy.observe(section);
     });
+  }
+
+  /* ---------- Zielgruppe: Einstieg im Hero, Absprungzone, nur passende Abschnitte ----------
+     Die Wahl wird im Browser gemerkt (localStorage) und lässt sich jederzeit ändern oder aufheben.
+     ?fuer=arbeitgeber|unternehmen|marken|creator in der Adresse wählt direkt (z. B. für Kampagnen).
+     Auf den Unterseiten belegt die Seite selbst das Kontaktformular vor („Ich bin …“). */
+  function initAudience() {
+    const html = document.documentElement;
+    const picker = $("[data-aud-pick]") && $(".aud");
+    const cards = $$("[data-aud-pick]");
+    const zone = $("[data-zone]");
+    const panels = $$("[data-zone-panel]");
+    const allBtn = $("[data-zone-all]");
+    const form = $("[data-contact-form]");
+    const store = {
+      get: () => {
+        try {
+          return localStorage.getItem(AUD_KEY) || "";
+        } catch (err) {
+          return "";
+        }
+      },
+      set: (v) => {
+        try {
+          v ? localStorage.setItem(AUD_KEY, v) : localStorage.removeItem(AUD_KEY);
+        } catch (err) {
+          /* nicht speicherbar – gilt dann nur für diesen Besuch */
+        }
+      },
+    };
+    // Kontaktformular vorbelegen, solange niemand selbst gewählt hat
+    let formTouched = false;
+    if (form) form.addEventListener("change", (e) => e.isTrusted && e.target.name === "sender_type" && (formTouched = true));
+    const preselect = (key) => {
+      if (!form || formTouched) return;
+      const value = (AUDIENCES[key] || {}).form;
+      const radios = $$('input[name="sender_type"]', form);
+      const radio = radios.find((r) => r.value === value);
+      if (!radio) return radios.forEach((r) => (r.checked = false));
+      if (radio.checked) return;
+      radio.checked = true;
+      radio.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+    // Unterseiten: die Seite bestimmt die Zielgruppe des Formulars
+    if (!picker) {
+      const file = location.pathname.split("/").pop();
+      const key = Object.keys(AUDIENCES).find((k) => AUDIENCES[k].page === file);
+      if (key) preselect(key);
+      return;
+    }
+
+    // Layout hat sich geändert: Stepper, Scroll-Aufgaben & Co. neu messen
+    const relayout = () => requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+    const setAll = (on) => {
+      html.toggleAttribute("data-aud-all", on);
+      if (allBtn) {
+        allBtn.setAttribute("aria-pressed", String(on));
+        allBtn.textContent = on ? "Nur Passendes zeigen" : "Alle Inhalte zeigen";
+      }
+      relayout();
+    };
+    const apply = (key) => {
+      const aud = AUDIENCES[key];
+      if (aud) html.dataset.aud = key;
+      else delete html.dataset.aud;
+      cards.forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.audPick === key)));
+      picker.classList.toggle("has-pick", !!aud);
+      zone.hidden = !aud;
+      panels.forEach((p) => (p.hidden = p.dataset.zonePanel !== key));
+      $$("[data-zone-name]", zone).forEach((el) => (el.textContent = aud ? aud.name : ""));
+      document.dispatchEvent(new CustomEvent("incent:audience", { detail: aud ? key : "" }));
+      // ohne Animation (Bewegung reduzieren): den Begriff direkt setzen
+      if (reducedMotion) {
+        const word = $(".rotator__word");
+        if (word && aud) word.textContent = aud.word;
+      }
+      preselect(key);
+      relayout();
+    };
+    const pick = (key, { scroll = true } = {}) => {
+      store.set(key);
+      setAll(false);
+      apply(key);
+      if (scroll) {
+        const top = zone.getBoundingClientRect().top + window.scrollY - 84;
+        scrollWindow({ top, behavior: reducedMotion ? "auto" : "smooth" });
+        // Fokus auf die Überschrift der Zone (Tastatur & Screenreader), ohne erneut zu springen
+        const title = $(`[data-zone-panel="${key}"] .zone__title`, zone);
+        if (title) {
+          title.tabIndex = -1;
+          title.focus({ preventScroll: true });
+        }
+      }
+    };
+    cards.forEach((c) => c.addEventListener("click", () => pick(c.dataset.audPick)));
+    if (allBtn) allBtn.addEventListener("click", () => setAll(!html.hasAttribute("data-aud-all")));
+    $$("[data-zone-reset]", zone).forEach((btn) =>
+      btn.addEventListener("click", () => {
+        store.set("");
+        setAll(false);
+        apply("");
+        const top = picker.getBoundingClientRect().top + window.scrollY - 110;
+        scrollWindow({ top, behavior: reducedMotion ? "auto" : "smooth" });
+        if (cards[0]) cards[0].focus({ preventScroll: true });
+      })
+    );
+    // Sprungziel liegt in einem ausgeblendeten Abschnitt (Link aus Unterseite oder Navigation): alles zeigen
+    const hiddenTarget = (id) => {
+      const el = id && document.getElementById(id);
+      return !!el && !!el.closest("[data-for]") && el.closest("[data-for]").offsetParent === null && !!html.dataset.aud;
+    };
+    document.addEventListener(
+      "click",
+      (e) => {
+        const a = e.target.closest('a[href^="#"]');
+        if (a && hiddenTarget(a.getAttribute("href").slice(1))) setAll(true);
+      },
+      true
+    );
+    window.addEventListener("hashchange", () => hiddenTarget(location.hash.slice(1)) && setAll(true));
+
+    const fromUrl = new URLSearchParams(location.search).get("fuer");
+    const start = AUDIENCES[fromUrl] ? fromUrl : AUDIENCES[store.get()] ? store.get() : "";
+    if (AUDIENCES[fromUrl]) store.set(fromUrl);
+    apply(start);
+    if (hiddenTarget(location.hash.slice(1))) setAll(true);
   }
 
   /* ---------- Scroll-Fortschritt ---------- */
@@ -426,15 +566,34 @@
       timer = setInterval(next, INTERVAL);
     };
 
-    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+    // Zielgruppe gewählt: der passende Begriff bleibt stehen (ohne Wahl wechseln die Begriffe weiter)
+    let fixed = "";
+    const show = (text) => {
+      if (current.textContent === text) return;
+      index = words.indexOf(text) - 1;
+      if (index < -1) {
+        words.push(text);
+        index = words.length - 2;
+      }
+      next();
+    };
+    document.addEventListener("incent:audience", (e) => {
+      fixed = (AUDIENCES[e.detail] || {}).word || "";
+      if (fixed) (stop(), show(fixed));
+      else start();
+    });
+    const startFree = start;
+    const guardedStart = () => !fixed && startFree();
+
+    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : guardedStart()));
     if (hasIO) {
       new IntersectionObserver((ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
         visible = entry.isIntersecting;
-        visible ? start() : stop();
+        visible ? guardedStart() : stop();
       }).observe(el);
     }
     // erster Begriff steht nach dem Laden kurz länger
-    setTimeout(start, 1400);
+    setTimeout(guardedStart, 1400);
   }
 
   /* ---------- Kennzahlen hochzählen ---------- */
@@ -3871,6 +4030,7 @@
   initBrandDrops(brand);
   brand.refresh();
   initContactForm();
+  initAudience();
   initCarousel();
   initTiltCards();
   initTagAnims();

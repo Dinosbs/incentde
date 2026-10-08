@@ -46,11 +46,11 @@ python3 -m http.server 8000
 
 | Bereich | Was passiert |
 | --- | --- |
-| Navigation | Glas-Leiste beim Scrollen, Mega-Menü „Lösungen“, Vollbild-Menü auf Mobilgeräten, Scrollspy. Logo: `assets/img/incent-logo-nav.png` (zentriertes PNG, Schriftzug mittig; oben 48 px hoch, nach dem Scrollen weich auf 34 px verkleinert; Footer und Portal-Vorschauen nutzen weiter `incent-logo-white.png` / `incent-logo-dark.png`) |
-| Hero | Animierter Verlauf, Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz), Nachbau des echten Vorteilsportals in 3D, der dem Cursor folgt (Neigung, Verschiebung, Lichtreflex). Der Live-Chip darunter ändert die Buttonfarbe direkt und führt zur Live-Vorschau |
+| Navigation | Lösungen direkt sichtbar, nach Zielgruppe: „Arbeitgeber“, „Unternehmen“, „Marken“, „Creator“ – je ein Ausklapp-Menü (Überfahren oder Klick) mit dem Bereich und allen Lösungen samt Kurzbeschreibung, dazu „Über uns“ und „Kontakt“; der Bereich der aktuellen Unterseite ist blau markiert. Helle Glas-Leiste beim Scrollen, auf Mobilgeräten Vollbild-Menü mit aufklappbaren Zielgruppen. Logo: `assets/img/incent-logo-nav-dark.png` (dunkle Fassung des zentrierten `incent-logo-nav.png`, gleiche Maße und Lage; oben 48 px hoch, nach dem Scrollen weich auf 34 px verkleinert) |
+| Hero | Heller Verlauf (ohne Gittertextur), Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz). Darunter im ersten Bildschirm die Frage **„Wer sind Sie?“** mit vier Einstiegen – Arbeitgeber, Unternehmen, Marken, Creator – jeweils mit den Lösungen in Kurzform. Die Wahl öffnet direkt darunter die **Absprungzone** (siehe unten). Danach der Nachbau des echten Vorteilsportals in 3D, der dem Cursor folgt; der Live-Chip ändert die Buttonfarbe und führt zur Live-Vorschau |
+| Absprungzone (Startseite) | Nur das Nötige für die gewählte Zielgruppe: Überschrift, ein Satz, drei Kernpunkte, die Lösungen als große Links direkt zu den Bereichen der Unterseite, dazu „Zur …“, „Demo buchen“ / „Kontakt aufnehmen“ und (außer für Marken) „Portal live gestalten“. Abschnitte, die nicht passen, werden ausgeblendet (`data-for="arbeitgeber unternehmen …"` am Abschnitt); „Alle Inhalte zeigen“ blendet sie wieder ein, „Andere Zielgruppe wählen“ hebt die Wahl auf. Die Wahl wird im Browser gemerkt (`localStorage`, `incent-audience`), die Headline zeigt den passenden Begriff, das Kontaktformular ist vorbelegt („Ich bin …“, auf den Unterseiten passend zur Seite). Direktaufruf für Kampagnen: `index.html?fuer=arbeitgeber` (bzw. `unternehmen`, `marken`, `creator`). Links auf ausgeblendete Abschnitte (z. B. `#live-vorschau`) blenden alles ein (`initAudience` in `main.js`) |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
 | Partner | Endlos-Laufband aus `assets/img/partner-logos/` – jede Datei wird automatisch eine Kachel, gelöschte Dateien verschwinden (keine Liste im HTML); Dateien, die nicht laden oder leer sind, bekommen keine Kachel. Tempo passt sich der Anzahl an, pausiert bei Hover. Transparenter oder weißer Rand der Logo-Dateien wird automatisch abgeschnitten, danach bekommen alle Logos etwa dieselbe Fläche (`fitLogo` in `main.js`); pro Partner erscheint nur ein Logo. Markennamen für Kurz-Dateinamen (z. B. „UI“ → „Union Investment“) stehen in `BRAND_NAMES` |
-| Lösungen | Tabs mit Auto-Play und Fortschrittsbalken, Tastatursteuerung mit Pfeiltasten |
 | Versprechen | Text leuchtet Wort für Wort beim Scrollen auf |
 | Plattform | Netzwerk-Grafik reagiert auf das gewählte Feature im Akkordeon |
 | Leistungen | Bento-Karten mit Lichtkante und animierten Mini-Grafiken; Kachelbilder aus `assets/img/deal-tiles/` |
@@ -218,6 +218,12 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 
 ## Gegenüber der alten Seite geändert
 
+- Nutzerführung: Die Startseite fragt zuerst, wer die Seite besucht (Arbeitgeber, Unternehmen, Marken, Creator), und zeigt
+  danach nur die passende Absprungzone und die passenden Abschnitte. Der frühere Block „Eine Plattform. Vier Zielgruppen.“
+  mit Reitern entfällt – Einstieg und Zone ersetzen ihn. Die Lösungen stehen direkt in der Hauptnavigation (nach Zielgruppe)
+  statt in einem gemeinsamen „Lösungen“-Menü; „Unsere Plattform“ und „Vorteile“ sind keine Navigationspunkte mehr.
+- Farben: Die ganze Seite ist hell – Hero, Unterseiten-Köpfe, die früher dunklen Abschnitte (jetzt heller, leicht blauer
+  Grund `--tint`), Navigation, Mega-Menü, Mobilmenü und Footer. Die Gittertextur im Hero ist entfernt.
 - Durchgehend „Sie“-Ansprache (vorher teilweise „du“).
 - Kleine Korrekturen, z. B. „über unser Vorteilsportal“, „ihr Vorteilsprogramm“, „2-in-1-Benefitportal“.
 - Firmenname einheitlich „INCENT Corporate Services GmbH“.
