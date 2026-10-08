@@ -3830,6 +3830,10 @@ a.more-link { display: inline-flex; align-items: center; gap: 8px; margin: 0; fo
 a.more-link .i { transition: transform .3s var(--ease-out); }
 a.more-link:hover .i { transform: translateX(3px); }
 .sc-panel__more { margin-top: 16px; }
+/* zwei Links: zum passenden Bereich + zur Live-Demo auf der Startseite */
+.sc-panel__more--two { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+/* Illustrationen mit cqi-Innenabständen (z. B. Warenkorb) brauchen das Panel als Bezugsgröße */
+.sc-panel:has(> .ggv) { container-type: inline-size; }
 .hotspots__more { margin: 6px 0 0; }
 
 .select-teaser { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: clamp(28px, 5vw, 72px); }

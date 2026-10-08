@@ -20,9 +20,9 @@ assets/img/about/       Teamfoto für „Über uns“ (die Kernbereiche sind gez
 assets/img/partner-logos/  Logos für das Laufband „Partner, die uns vertrauen“ – werden automatisch eingelesen
 assets/img/deal-tiles/     Bilder für die Mini-Deal-Kacheln (technik.jpg, wohnen.jpg …) – werden automatisch eingelesen
 assets/img/testimonials/   Logos für die Kundenstimmen
-assets/img/mitarbeiterbindung/  Fotos, Isometrien und Portal-Screenshots der Mitarbeiterbindung (komprimiert)
+assets/img/mitarbeiterbindung/  Fotos der Mitarbeiterbindung (komprimiert)
 assets/img/mitarbeiterbindung/vorschau/  Bilder und Logos für die Portal-Vorschauen „Drei gute Gründe“ (aus den Portalseiten Deal, Gutscheinwelt, Gutscheinansicht)
-assets/img/kundenbindung/       Fotos und Isometrien der Kundenbindung (Portal-Screenshots kommen aus mitarbeiterbindung/)
+assets/img/kundenbindung/       Fotos und Isometrien der Kundenbindung
 assets/img/markenplatzierung/   Fotos, Isometrien und Screenshots der Markenplatzierung
 assets/img/content-creator/     Fotos, Isometrien und Shop-Screenshots für Creator
 tools/update-image-manifests.mjs  erzeugt die Bildlisten (manifest.json) für die beiden Ordner oben
@@ -101,7 +101,7 @@ tippt die Demo den Gutscheincode ein; Produkte lassen sich entfernen und hinzuf�
 
 | Bereich | Adresse | Interaktive Elemente |
 | --- | --- | --- |
-| Loyalty-Portal | `#loyalty-portal` | Kennzahlen, Tabs „Vier gute Gründe“ mit Illustrationen und Screenshots, Leistungsversprechen (freigestellte Geräte, die dem Mauszeiger folgen, mit vier schwebenden Vorteils-Tags; mobil als Raster unter dem Bild) mit Umschalter „Für Unternehmen / Für Kunden“, Portal-Hotspots (`#portal`) mit Link „Ihr Portal in der Live-Demo selbst gestalten“ (Portal-Builder auf der Startseite, `index.html#live-vorschau`), Verweis auf den SELECT Einkaufsgutschein, Ablauf (`#ablauf`) |
+| Loyalty-Portal | `#loyalty-portal` | Kennzahlen, Tabs „Vier gute Gründe“ mit reduzierten Shop-Demos statt Screenshots (gleiche Bausteine wie im Benefitportal: Deal-Seite mit persönlichem Code und drei Deals, Prämienshop mit Prämien-Guthaben – `data-home="praemienshop"`, `data-balance-label` –, Corporate-Design-Vorschau mit drei Beispielen und „Ihr Design“, Warenkorb-Schleife mit Gutschein-Einlösung); unter jeder Demo ein Link zum passenden Bereich und zur Live-Demo (`index.html#live-vorschau`), alle Demos übernehmen das Marken-Profil, Leistungsversprechen (freigestellte Geräte, die dem Mauszeiger folgen, mit vier schwebenden Vorteils-Tags; mobil als Raster unter dem Bild) mit Umschalter „Für Unternehmen / Für Kunden“, Portal-Hotspots (`#portal`) mit Link „Ihr Portal in der Live-Demo selbst gestalten“ (Portal-Builder auf der Startseite, `index.html#live-vorschau`), Verweis auf den SELECT Einkaufsgutschein, Ablauf (`#ablauf`) |
 | Kundenrabatte | `#kundenrabatte` | Kontaktkalender „Ohne / Mit Kundenrabatten“ (`#anlaesse`, schaltet beim ersten Sichtkontakt selbst um), Branchen-Explorer mit sieben Branchen, Texten und Beispielangeboten (`#branchen`), Verweise auf Portal, Ablauf und Gutscheine |
 | Kundengutscheine | `#kundengutscheine` | Drei Einsatzmöglichkeiten mit Link zum passenden Gutscheinmotiv, Vorteile Unternehmen/Kunden, Gutschein-Gestalter mit Kunden-Anlässen (Treue, Willkommen, Gewinnspiel, Kulanz, Geburtstag; `#gestalten`), Warenkorb-Demo (`#einloesen`), Ablauf |
 

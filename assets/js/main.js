@@ -2701,6 +2701,9 @@
     const note = $("[data-pvs-note]", root);
     const out = (key) => $(`[data-pvs-out="${key}"]`, root);
     const START = 50;
+    // Startseite und Name des Guthabens (Kundenportal: „praemienshop“ / „Prämien-Guthaben“)
+    const HOME = root.dataset.home || "gutscheinwelt";
+    const LABEL = root.dataset.balanceLabel || "Geschenk-Guthaben";
     let balance = START;
     let count = 0;
     let voucher = null;
@@ -2729,7 +2732,7 @@
       const tooMuch = v > balance;
       add.disabled = tooMuch || balance <= 0;
       note.classList.toggle("is-warn", tooMuch && balance > 0);
-      note.textContent = balance <= 0 ? "Ihr Geschenk-Guthaben ist vollständig eingelöst." : tooMuch ? `Ihr Guthaben reicht für diesen Wert nicht aus (noch ${euro(balance)}).` : "";
+      note.textContent = balance <= 0 ? `Ihr ${LABEL} ist vollständig eingelöst.` : tooMuch ? `Ihr Guthaben reicht für diesen Wert nicht aus (noch ${euro(balance)}).` : "";
     };
     const view = (name, slug) => {
       root.dataset.view = name;
@@ -2750,12 +2753,12 @@
       count = 0;
       balanceEl.textContent = euro(balance);
       countEl.textContent = "0";
-      view("list", "gutscheinwelt");
+      view("list", HOME);
     };
     root.addEventListener("click", (e) => {
       const card = e.target.closest("[data-pvs-open]");
       if (card) return open(card.dataset.pvsOpen);
-      if (e.target.closest("[data-pvs-back]")) return view("list", "gutscheinwelt");
+      if (e.target.closest("[data-pvs-back]")) return view("list", HOME);
       const v = e.target.closest("[data-value]");
       if (v) return setValue(Number(v.dataset.value));
       if (e.target.closest("[data-pvs-add]") && !add.disabled) {
@@ -2767,7 +2770,7 @@
         bump(countEl);
         setValue(value);
         if (balance > 0) note.textContent = `✓ Im Warenkorb – verbleibendes Guthaben ${euro(balance)}`;
-        else note.textContent = "✓ Im Warenkorb – Ihr Geschenk-Guthaben ist vollständig eingelöst.";
+        else note.textContent = `✓ Im Warenkorb – Ihr ${LABEL} ist vollständig eingelöst.`;
         note.classList.remove("is-warn");
       }
     });
