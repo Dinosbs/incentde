@@ -279,8 +279,10 @@ ul, ol { padding: 0; list-style: none; }
 }
 
 .brand { display: inline-flex; align-items: center; flex: none; }
-.brand img { width: auto; height: 34px; }
-.brand--footer img { height: 40px; }
+/* Navigation: zentriertes Logo-PNG (446 × 155, Schriftzug mittig) – gleiche Schriftzug-Größe wie vorher,
+   der Rand darunter liegt im negativen Außenabstand, die Leiste bleibt gleich hoch */
+.brand img { width: auto; height: 48px; margin-block: -7px; }
+.brand--footer img { height: 40px; margin-block: 0; }
 
 .nav__menu { flex: 1; display: flex; justify-content: center; }
 .nav__list { display: flex; align-items: center; gap: 2px; }

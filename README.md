@@ -46,7 +46,7 @@ python3 -m http.server 8000
 
 | Bereich | Was passiert |
 | --- | --- |
-| Navigation | Glas-Leiste beim Scrollen, Mega-Menü „Lösungen“, Vollbild-Menü auf Mobilgeräten, Scrollspy |
+| Navigation | Glas-Leiste beim Scrollen, Mega-Menü „Lösungen“, Vollbild-Menü auf Mobilgeräten, Scrollspy. Logo: `assets/img/incent-logo-nav.png` (zentriertes PNG, Schriftzug mittig; Footer und Portal-Vorschauen nutzen weiter `incent-logo-white.png` / `incent-logo-dark.png`) |
 | Hero | Animierter Verlauf, Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz), Nachbau des echten Vorteilsportals in 3D, der dem Cursor folgt (Neigung, Verschiebung, Lichtreflex). Der Live-Chip darunter ändert die Buttonfarbe direkt und führt zur Live-Vorschau |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
 | Partner | Endlos-Laufband aus `assets/img/partner-logos/` – jede Datei wird automatisch eine Kachel, gelöschte Dateien verschwinden (keine Liste im HTML); Dateien, die nicht laden oder leer sind, bekommen keine Kachel. Tempo passt sich der Anzahl an, pausiert bei Hover. Transparenter oder weißer Rand der Logo-Dateien wird automatisch abgeschnitten, danach bekommen alle Logos etwa dieselbe Fläche (`fitLogo` in `main.js`); pro Partner erscheint nur ein Logo. Markennamen für Kurz-Dateinamen (z. B. „UI“ → „Union Investment“) stehen in `BRAND_NAMES` |
