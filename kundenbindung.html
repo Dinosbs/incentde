@@ -674,7 +674,7 @@
                   <div class="vp">
                     <div class="vp__bar">
                       <span class="vp__dots"><i></i><i></i><i></i></span>
-                      <span class="vp__url"><svg class="i"><use href="#i-lock"/></svg>incent.vorteile.net/de/dashboard</span>
+                      <span class="vp__url"><svg class="i"><use href="#i-lock"/></svg><span><span data-portal-host data-default-host="incent">incent</span>.vorteile.net/de/dashboard</span></span>
                       <span class="vp__bar-end"></span>
                     </div>
                     <div class="vp__header">
@@ -1329,6 +1329,21 @@
                   <button type="button" class="pill-btn" role="radio" aria-checked="false" data-v-format="csv" tabindex="-1"><svg class="i" aria-hidden="true"><use href="#i-table"/></svg>CSV</button>
               </div>
             </fieldset>
+            <div class="field">
+              <span class="field__label" id="v-logo-label">Ihr Logo</span>
+              <div class="logo-drop" data-brand-drop="logo">
+                <span class="logo-drop__preview logo-drop__preview--empty"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" data-brand-preview hidden><span data-brand-placeholder>Ihr Logo</span></span>
+                <span class="logo-drop__text"><strong data-brand-file>Noch kein Logo</strong><small>PNG, JPG, SVG oder WebP · oder hierher ziehen. Bleibt auf Ihrem Gerät und erscheint in allen Vorschauen.</small></span>
+                <span class="logo-drop__actions">
+                  <label class="logo-drop__btn">
+                    <svg class="i i--sm" aria-hidden="true"><use href="#i-upload"/></svg>Logo hochladen
+                    <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="sr-only" data-brand-input aria-labelledby="v-logo-label">
+                  </label>
+                  <button type="button" class="logo-drop__reset" data-brand-reset hidden aria-label="Logo entfernen" title="Logo entfernen"><svg class="i i--sm" aria-hidden="true"><use href="#i-reset"/></svg></button>
+                </span>
+              </div>
+              <p class="field__msg" data-brand-msg role="status"></p>
+            </div>
           </div>
           <div class="vconf__stage">
             <div class="coupon-wrap" data-tilt-card data-rx="4" data-ry="7" data-tx="8" data-ty="5">

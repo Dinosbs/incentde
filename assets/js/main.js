@@ -28,6 +28,8 @@
   window.addEventListener("resize", queueScrollTasks);
 
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  // Marken-Profil (createPortalTheme) – wird beim Start angelegt, alle Vorschauen lesen es
+  let brand = null;
   // Weiches Scrollen (initSmoothScroll): Wer die Seite selbst scrollt (Sprünge, Stepper), beendet vorher das Gleiten
   let stopGlide = () => {};
   const scrollWindow = (opts) => {
@@ -862,45 +864,308 @@
   const toneOf = (hex) => (1.05 / (luminance(hex) + 0.05) >= 3 ? "dark" : "light");
   const sameColor = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
 
+  /* ---------- Eigene Gestaltung (Marken-Profil) ----------
+     Logo, Unternehmensname, Button- und Navigationsfarbe und Hintergrund (Standardbild, eigenes Bild, einfarbig,
+     Verlauf) aus der Live-Demo oder dem Gutschein-Gestalter. Gespeichert wird nur im Browser (localStorage, Bilder
+     vorher verkleinert als data-URL) – nichts wird hochgeladen. Alle Vorschauen auf allen Seiten übernehmen es:
+     Portal-Nachbauten (.vp-theme), Logos in Portal-Köpfen (BRAND_IMGS), „Ihr Logo“-Felder (BRAND_SLOTS),
+     [data-portal-name] und die Buttonfarbe (--brand-btn). */
+  const BRAND_KEY = "incent-brand";
+  const BRAND_DEFAULTS = { btn: "#1c87b8", nav: "#ffffff", bg: "image", solid: "#e8f3f9", g1: "#1c87b8", g2: "#0a2540", name: "", logo: "", bgImg: "", bgTone: "light" };
+  const BRAND_IMGS = ".pv__logo, .pwin__head img, [data-brand-img]";
+  const BRAND_SLOTS = ".selv__logo, [data-brand-slot]";
+  const HEX = /^#[0-9a-f]{6}$/i;
+  const DATA_IMG = /^data:image\/(png|jpeg|webp);base64,[a-z0-9+/=]+$/i;
+  // gespeicherte Werte nur übernehmen, wenn sie gültig sind
+  const readBrand = () => {
+    let raw = {};
+    try {
+      raw = JSON.parse(localStorage.getItem(BRAND_KEY) || "{}") || {};
+    } catch (err) {
+      return {};
+    }
+    const out = {};
+    ["btn", "nav", "solid", "g1", "g2"].forEach((k) => HEX.test(raw[k]) && (out[k] = raw[k]));
+    if (["image", "solid", "gradient"].includes(raw.bg)) out.bg = raw.bg;
+    if (typeof raw.name === "string") out.name = raw.name.slice(0, 40);
+    ["logo", "bgImg"].forEach((k) => typeof raw[k] === "string" && DATA_IMG.test(raw[k]) && (out[k] = raw[k]));
+    if (raw.bgTone === "dark") out.bgTone = "dark";
+    return out;
+  };
+  const isDefaultBrand = (state) => Object.keys(BRAND_DEFAULTS).every((k) => state[k] === BRAND_DEFAULTS[k]);
+
+  // Begrenzungsrahmen ohne leeren Rand (transparent oder in der Farbe der linken oberen Ecke); null = alles leer
+  const trimBox = (ctx, w, h) => {
+    const px = ctx.getImageData(0, 0, w, h).data;
+    const [r, g, b, a] = px;
+    const empty = (i) =>
+      a < 12 ? px[i + 3] < 12 : Math.abs(px[i] - r) + Math.abs(px[i + 1] - g) + Math.abs(px[i + 2] - b) < 36 && Math.abs(px[i + 3] - a) < 40;
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        if (empty((y * w + x) * 4)) continue;
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+    return x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+  };
+
+  // Bild aus einer Datei verkleinert als Data-URL (bleibt im Browser) + Helligkeit; trim: leeren Rand abschneiden (Logos)
+  const readImage = (file, { max = 640, type = "image/png", quality = 0.9, trim = false } = {}) =>
+    new Promise((resolve, reject) => {
+      if (!file || !/^image\/(png|jpe?g|svg\+xml|webp|gif)$/.test(file.type)) return reject(new Error("type"));
+      if (file.size > 12 * 1024 * 1024) return reject(new Error("size"));
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        let sw = img.naturalWidth || 600;
+        let sh = img.naturalHeight || 300;
+        let sx = 0;
+        let sy = 0;
+        if (trim && img.naturalWidth && img.naturalHeight) {
+          try {
+            const k0 = Math.min(1, 1200 / Math.max(sw, sh));
+            const m = document.createElement("canvas");
+            m.width = Math.max(1, Math.round(sw * k0));
+            m.height = Math.max(1, Math.round(sh * k0));
+            const mx = m.getContext("2d", { willReadFrequently: true });
+            mx.drawImage(img, 0, 0, m.width, m.height);
+            const box = trimBox(mx, m.width, m.height);
+            if (box && box.w * box.h < m.width * m.height * 0.92) {
+              // ein Pixel Luft, damit Kantenglättung nicht abgeschnitten wird
+              sx = Math.max(0, (box.x - 1) / k0);
+              sy = Math.max(0, (box.y - 1) / k0);
+              sw = Math.min(img.naturalWidth - sx, (box.w + 2) / k0);
+              sh = Math.min(img.naturalHeight - sy, (box.h + 2) / k0);
+            }
+          } catch (err) {
+            /* nicht auslesbar – ungeschnitten weiter */
+          }
+        }
+        const k = Math.min(1, max / Math.max(sw, sh));
+        const c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(sw * k));
+        c.height = Math.max(1, Math.round(sh * k));
+        const ctx = c.getContext("2d");
+        if (sx || sy || sw !== (img.naturalWidth || 600) || sh !== (img.naturalHeight || 300)) ctx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+        else ctx.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        // mittlere Helligkeit aus einer Miniatur
+        const t = document.createElement("canvas");
+        t.width = t.height = 16;
+        const tx = t.getContext("2d", { willReadFrequently: true });
+        tx.drawImage(c, 0, 0, 16, 16);
+        const d = tx.getImageData(0, 0, 16, 16).data;
+        let sum = 0;
+        let n = 0;
+        for (let i = 0; i < d.length; i += 4) {
+          if (d[i + 3] < 40) continue;
+          sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+          n += 1;
+        }
+        resolve({ src: c.toDataURL(type, quality), tone: n && sum / n < 140 ? "dark" : "light" });
+      };
+      img.onerror = () => (URL.revokeObjectURL(url), reject(new Error("read")));
+      img.src = url;
+    });
+
+  // Helligkeit der Bühne (Text darauf hell oder dunkel)
+  const stageToneOf = (st) =>
+    st.bg === "solid" ? toneOf(st.solid) : st.bg === "gradient" ? toneOf(mixHex(st.g1, st.g2)) : st.bgImg ? st.bgTone : "light";
+  // ein Portal-Mockup (.vp-theme) in den Farben/dem Hintergrund eines Profils einfärben
+  const paintTheme = (root, st) => {
+    root.style.setProperty("--btn", st.btn);
+    root.style.setProperty("--nav", st.nav);
+    root.style.setProperty("--bg-solid", st.solid);
+    root.style.setProperty("--bg-g1", st.g1);
+    root.style.setProperty("--bg-g2", st.g2);
+    if (st.bgImg) root.style.setProperty("--bg-img", `url("${st.bgImg}")`);
+    else root.style.removeProperty("--bg-img");
+    root.dataset.btnTone = toneOf(st.btn);
+    root.dataset.navTone = toneOf(st.nav);
+    root.dataset.bg = st.bg;
+    root.dataset.stageTone = stageToneOf(st);
+    root.dataset.logo = st.logo ? "custom" : "default";
+  };
+
   function createPortalTheme() {
     const roots = $$(".vp-theme:not([data-theme-local])");
-    const state = { btn: "#1c87b8", nav: "#ffffff", bg: "image", solid: "#e8f3f9", g1: "#1c87b8", g2: "#0a2540", name: "", logo: "" };
+    const state = { ...BRAND_DEFAULTS, ...readBrand() };
     const listeners = [];
+    const html = document.documentElement;
 
     const apply = () => {
-      const stageTone =
-        state.bg === "solid" ? toneOf(state.solid) : state.bg === "gradient" ? toneOf(mixHex(state.g1, state.g2)) : "light";
-      roots.forEach((root) => {
-        root.style.setProperty("--btn", state.btn);
-        root.style.setProperty("--nav", state.nav);
-        root.style.setProperty("--bg-solid", state.solid);
-        root.style.setProperty("--bg-g1", state.g1);
-        root.style.setProperty("--bg-g2", state.g2);
-        root.dataset.btnTone = toneOf(state.btn);
-        root.dataset.navTone = toneOf(state.nav);
-        root.dataset.bg = state.bg;
-        root.dataset.stageTone = stageTone;
-        root.dataset.logo = state.logo ? "custom" : "default";
-      });
+      roots.forEach((root) => paintTheme(root, state));
+      // für alle übrigen Vorschauen (Portal-Köpfe, Warenkorb, Deal-Seite, Geschenkeshop …)
+      html.style.setProperty("--brand-btn", state.btn);
+      html.style.setProperty("--brand-btn-ink", toneOf(state.btn) === "dark" ? "#ffffff" : "#111111");
+      html.style.setProperty("--brand-nav", state.nav);
+      html.style.setProperty("--brand-nav-ink", toneOf(state.nav) === "dark" ? "#ffffff" : "#222222");
+      // Hintergrund der Live-Demo für Banner in anderen Vorschauen (ohne eigenes Bild: Standardbild aus dem CSS)
+      const stageBg =
+        state.bg === "solid"
+          ? state.solid
+          : state.bg === "gradient"
+            ? `linear-gradient(150deg, ${state.g1}, ${state.g2})`
+            : state.bgImg
+              ? `url("${state.bgImg}") center / cover no-repeat`
+              : "";
+      if (stageBg) html.style.setProperty("--brand-stage", stageBg);
+      else html.style.removeProperty("--brand-stage");
+      html.dataset.brandStage = stageToneOf(state);
       $$("[data-portal-name]").forEach((el) => (el.textContent = state.name || el.dataset.defaultName));
-      $$(".vp__logo-custom").forEach((img) => {
-        img.dataset.empty = img.dataset.empty || img.getAttribute("src");
-        const src = state.logo || img.dataset.empty;
+      $$("[data-portal-host]").forEach((el) => (el.textContent = slugHost(state.name) || el.dataset.defaultHost));
+      // nur in den Portalen, die der Live-Demo folgen (eigene Beispiel-Themes steuern ihr Logo selbst)
+      roots.forEach((root) =>
+        $$(".vp__logo-custom", root).forEach((img) => {
+          img.dataset.empty = img.dataset.empty || img.getAttribute("src");
+          const src = state.logo || img.dataset.empty;
+          if (img.getAttribute("src") !== src) img.src = src;
+        })
+      );
+      $$(BRAND_IMGS).forEach((img) => {
+        if (!img.dataset.defaultSrc) img.dataset.defaultSrc = img.getAttribute("src");
+        const src = state.logo || img.dataset.defaultSrc;
         if (img.getAttribute("src") !== src) img.src = src;
+        img.classList.toggle("is-brand", !!state.logo);
+      });
+      $$(BRAND_SLOTS).forEach((slot) => {
+        let img = $(":scope > img.brand-slot", slot);
+        if (state.logo) {
+          if (!img) {
+            img = document.createElement("img");
+            img.className = "brand-slot";
+            img.alt = "";
+            slot.append(img);
+          }
+          if (img.getAttribute("src") !== state.logo) img.src = state.logo;
+        } else if (img) img.remove();
+        slot.classList.toggle("has-logo", !!state.logo);
       });
     };
 
+    // speichern (verzögert – Farbregler feuern sehr oft); false, wenn der Speicher voll oder gesperrt ist
+    let saveTimer = 0;
+    const persist = () => {
+      clearTimeout(saveTimer);
+      try {
+        if (isDefaultBrand(state)) localStorage.removeItem(BRAND_KEY);
+        else localStorage.setItem(BRAND_KEY, JSON.stringify(state));
+        return true;
+      } catch (err) {
+        return false;
+      }
+    };
+    const notify = () => listeners.forEach((fn) => fn(state));
+    // in einem anderen Tab geändert: übernehmen
+    window.addEventListener("storage", (e) => {
+      if (e.key !== BRAND_KEY) return;
+      Object.assign(state, BRAND_DEFAULTS, readBrand());
+      apply();
+      notify();
+    });
+
     return {
       state,
-      set(patch) {
+      set(patch, { save = "later" } = {}) {
         Object.assign(state, patch);
         apply();
-        listeners.forEach((fn) => fn(state));
+        notify();
+        if (save === "now") return persist();
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(persist, 300);
+        return true;
       },
+      reset() {
+        Object.assign(state, BRAND_DEFAULTS);
+        apply();
+        notify();
+        persist();
+      },
+      refresh: apply,
+      isCustom: () => !isDefaultBrand(state),
       onChange(fn) {
         listeners.push(fn);
       },
     };
+  }
+  // „Nordwerk GmbH“ → „nordwerk-gmbh“ (für die Adresszeile der Vorschauen)
+  const slugHost = (name) =>
+    String(name || "")
+      .toLowerCase()
+      .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 28);
+
+  /* ---------- Logo- und Bild-Upload (Live-Demo, Gutschein-Gestalter) ----------
+     [data-brand-drop="logo"|"bg"]: Datei wählen oder hineinziehen → verkleinert ins Marken-Profil. */
+  function initBrandDrops(theme) {
+    $$("[data-brand-drop]").forEach((drop) => {
+      const kind = drop.dataset.brandDrop === "bg" ? "bg" : "logo";
+      const field = drop.closest(".field, .bg-panel__inner") || drop.parentElement;
+      const input = $("[data-brand-input]", drop);
+      const reset = $("[data-brand-reset]", drop);
+      const preview = $("[data-brand-preview]", drop);
+      const placeholder = $("[data-brand-placeholder]", drop);
+      const fileName = $("[data-brand-file]", drop);
+      const msg = $("[data-brand-msg]", field);
+      // ohne Standardbild (hidden im HTML): Platzhalter „Ihr Logo“
+      const defaultSrc = preview && !preview.hidden ? preview.getAttribute("src") : "";
+      const defaultName = fileName.textContent;
+      const say = (text) => msg && (msg.textContent = text);
+      const value = () => (kind === "bg" ? theme.state.bgImg : theme.state.logo);
+      const sync = () => {
+        const src = value();
+        if (preview) {
+          if (src || defaultSrc) preview.src = src || defaultSrc;
+          preview.hidden = !src && !defaultSrc;
+        }
+        if (placeholder) placeholder.hidden = !!src;
+        drop.style.setProperty("--thumb", src ? `url("${src}")` : "");
+        drop.classList.toggle("has-file", !!src);
+        fileName.textContent = src ? drop.dataset.brandLabel || "Eigene Datei" : defaultName;
+        reset.hidden = !src;
+      };
+      const use = async (file) => {
+        say("");
+        if (!file) return;
+        try {
+          const img = await readImage(file, kind === "bg" ? { max: 1600, type: "image/jpeg", quality: 0.82 } : { max: 640, type: "image/webp", quality: 0.92, trim: true });
+          const patch = kind === "bg" ? { bgImg: img.src, bgTone: img.tone, bg: "image" } : { logo: img.src };
+          const saved = theme.set(patch, { save: "now" });
+          drop.dataset.brandLabel = file.name;
+          sync();
+          if (!saved) say("Gilt für diese Seite – zum Speichern im Browser ist die Datei zu groß.");
+        } catch (err) {
+          say(err.message === "size" ? "Die Datei ist größer als 12 MB." : "Bitte eine Bilddatei wählen (PNG, JPG, SVG oder WebP).");
+        }
+      };
+      input.addEventListener("change", () => use(input.files[0]));
+      ["dragenter", "dragover"].forEach((type) =>
+        drop.addEventListener(type, (e) => {
+          e.preventDefault();
+          drop.classList.add("is-drag");
+        })
+      );
+      ["dragleave", "drop"].forEach((type) => drop.addEventListener(type, () => drop.classList.remove("is-drag")));
+      drop.addEventListener("drop", (e) => {
+        e.preventDefault();
+        use(e.dataTransfer.files[0]);
+      });
+      reset.addEventListener("click", () => {
+        input.value = "";
+        delete drop.dataset.brandLabel;
+        say("");
+        theme.set(kind === "bg" ? { bgImg: "", bgTone: "light" } : { logo: "" }, { save: "now" });
+        input.focus();
+      });
+      theme.onChange(sync);
+      sync();
+    });
   }
 
   // Radiogruppe mit Pfeiltasten (roving tabindex)
@@ -993,61 +1258,20 @@
     // Unternehmensname
     const nameInput = $("[data-studio-name]", root);
     nameInput.addEventListener("input", () => theme.set({ name: nameInput.value.trim() }));
-
-    // Eigenes Logo: bleibt im Browser (Object-URL), wird nirgendwohin hochgeladen
-    const drop = $("[data-logo-drop]", root);
-    const fileInput = $("[data-logo-input]", root);
-    const resetBtn = $("[data-logo-reset]", root);
-    const preview = $("[data-logo-preview]", root);
-    const fileName = $("[data-logo-name]", root);
-    const msg = $("[data-logo-msg]", root);
-    const defaultSrc = preview.getAttribute("src");
-    const defaultName = fileName.textContent;
-    let objectUrl = "";
-
-    const useFile = (file) => {
-      msg.textContent = "";
-      if (!file) return;
-      if (!/^image\/(png|jpe?g|svg\+xml|webp|gif)$/.test(file.type)) {
-        msg.textContent = "Bitte eine Bilddatei wählen (PNG, JPG, SVG oder WebP).";
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        msg.textContent = "Die Datei ist größer als 5 MB.";
-        return;
-      }
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-      objectUrl = URL.createObjectURL(file);
-      preview.src = objectUrl;
-      fileName.textContent = file.name;
-      resetBtn.hidden = false;
-      theme.set({ logo: objectUrl });
-    };
-    fileInput.addEventListener("change", () => useFile(fileInput.files[0]));
-    ["dragenter", "dragover"].forEach((type) =>
-      drop.addEventListener(type, (e) => {
-        e.preventDefault();
-        drop.classList.add("is-drag");
-      })
-    );
-    ["dragleave", "drop"].forEach((type) => drop.addEventListener(type, () => drop.classList.remove("is-drag")));
-    drop.addEventListener("drop", (e) => {
-      e.preventDefault();
-      useFile(e.dataTransfer.files[0]);
+    syncers.push((state) => {
+      if (document.activeElement !== nameInput) nameInput.value = state.name || nameInput.defaultValue;
     });
-    resetBtn.addEventListener("click", () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-      objectUrl = "";
-      fileInput.value = "";
-      preview.src = defaultSrc;
-      fileName.textContent = defaultName;
-      msg.textContent = "";
-      resetBtn.hidden = true;
-      theme.set({ logo: "" });
-      fileInput.focus();
-    });
+
+    // Alles zurücksetzen (Logo, Name, Farben, Hintergrund – auf allen Seiten)
+    const resetAll = $("[data-brand-reset-all]", root);
+    if (resetAll) {
+      resetAll.addEventListener("click", () => theme.reset());
+      syncers.push(() => (resetAll.hidden = !theme.isCustom()));
+    }
 
     theme.onChange((state) => syncers.forEach((sync) => sync(state)));
+    // gespeicherte Gestaltung beim Laden in die Bedienelemente übernehmen
+    syncers.forEach((sync) => sync(theme.state));
   }
 
   /* ---------- Hero: Live-Chip – Buttonfarbe direkt im Hero ausprobieren ---------- */
@@ -1478,15 +1702,12 @@
       let auto = !reducedMotion && root.dataset.autoplay !== "false";
       let visible = false;
 
+      // Ruhezustand: das Marken-Profil aus der Live-Demo (sonst INCENT-Standard)
       const reset = () => {
         clearInterval(demoTimer);
         if (!theme) return;
-        theme.style.removeProperty("--btn");
-        theme.dataset.btnTone = "dark";
-        theme.dataset.bg = "image";
-        theme.dataset.stageTone = "light";
-        theme.dataset.logo = "default";
-        if (logo) logo.src = emptyLogo;
+        paintTheme(theme, brand.state);
+        if (logo) logo.src = brand.state.logo || emptyLogo;
         theme.classList.remove("is-demo-deals");
         if (theme.classList.contains("is-demo-cats")) {
           theme.classList.remove("is-demo-cats");
@@ -1494,12 +1715,14 @@
         }
       };
       const demos = {
+        // mit eigener Gestaltung aus der Live-Demo: deren Logo und Buttonfarbe zuerst
         logo: () => {
-          logo.src = logoSrc;
+          logo.src = brand.state.logo || logoSrc;
           theme.dataset.logo = "custom";
         },
         farben: () => {
           const colors = ["#e30613", "#00965e", "#7b2cbf", "#ff7a00", "#1c87b8"];
+          if (brand.isCustom()) colors.unshift(brand.state.btn);
           let k = 0;
           const tick = () => {
             const c = colors[k++ % colors.length];
@@ -1515,7 +1738,7 @@
           const tick = () => {
             const bg = bgs[k++ % bgs.length];
             theme.dataset.bg = bg;
-            theme.dataset.stageTone = bg === "gradient" ? "dark" : "light";
+            theme.dataset.stageTone = stageToneOf({ ...brand.state, bg });
           };
           tick();
           demoTimer = setInterval(tick, 1500);
@@ -1565,6 +1788,12 @@
       pins.forEach((p) => p.addEventListener("click", () => (stopAuto(), activate(p.dataset.pin))));
       if (hasIO) new IntersectionObserver((ioEntries, ioObs, e = ioEntries[ioEntries.length - 1]) => ((visible = e.isIntersecting), startAuto())).observe(root);
       activate(spots[0].dataset.spot);
+      // Marken-Profil geändert (z. B. in einem anderen Tab): aktuelle Demo mit den neuen Werten neu starten
+      brand.onChange(() => {
+        const key = active;
+        active = "";
+        activate(key);
+      });
     });
   }
 
@@ -2571,31 +2800,46 @@
   function initCiPreview(root) {
     const theme = $(".vp-theme", root);
     const logo = $(".vp__logo-custom", theme);
-    const dots = $$("[data-ci]", root);
+    const dotsWrap = $(".pvc__dots", root);
     const label = $("[data-ci-label]", root);
+    const labelPrefix = label.previousSibling;
     const portal = $("[data-ci-portal]", theme);
-    const keys = dots.map((d) => d.dataset.ci);
-    let current = keys[0];
+    let dots = $$("[data-ci]", root);
+    let current = dots[0].dataset.ci;
     let timer = 0;
     let user = false;
+    let shown = false;
+    // eigene Gestaltung (Marken-Profil) als erstes Design „Ihr Design“
+    const own = () => {
+      const b = brand.state;
+      return { label: b.name || "Ihr Design", btn: b.btn, nav: b.nav, bg: b.bg, solid: b.solid, g1: b.g1, g2: b.g2, logoSrc: b.logo, bgImg: b.bgImg, bgTone: b.bgTone, own: true };
+    };
+    const ciOf = (key) => (key === "own" ? own() : PV_CI[key]);
     const apply = (key) => {
-      const ci = PV_CI[key];
+      const ci = ciOf(key);
       current = key;
       theme.style.setProperty("--btn", ci.btn);
       theme.style.setProperty("--nav", ci.nav);
       if (ci.solid) theme.style.setProperty("--bg-solid", ci.solid);
       if (ci.g1) theme.style.setProperty("--bg-g1", ci.g1);
       if (ci.g2) theme.style.setProperty("--bg-g2", ci.g2);
+      if (ci.bgImg) theme.style.setProperty("--bg-img", `url("${ci.bgImg}")`);
+      else theme.style.removeProperty("--bg-img");
       theme.dataset.btnTone = toneOf(ci.btn);
       theme.dataset.navTone = toneOf(ci.nav);
       theme.dataset.bg = ci.bg;
-      theme.dataset.stageTone = ci.bg === "solid" ? toneOf(ci.solid) : ci.bg === "gradient" ? toneOf(mixHex(ci.g1, ci.g2)) : "light";
-      if (ci.logo) {
+      theme.dataset.stageTone =
+        ci.bg === "solid" ? toneOf(ci.solid) : ci.bg === "gradient" ? toneOf(mixHex(ci.g1, ci.g2)) : ci.bgImg ? ci.bgTone : "light";
+      if (ci.logoSrc) {
+        logo.src = ci.logoSrc;
+        theme.dataset.logo = "custom";
+      } else if (ci.logo) {
         logo.src = textLogo(ci.logo[0], ci.logo[1]);
         theme.dataset.logo = "custom";
       } else theme.dataset.logo = "default";
       if (portal) portal.textContent = ci.label;
       label.textContent = ci.label;
+      if (labelPrefix) labelPrefix.textContent = ci.own ? "Ihr Design: " : "Beispiel-Design: ";
       dots.forEach((d) => {
         const on = d.dataset.ci === key;
         d.classList.toggle("is-on", on);
@@ -2604,23 +2848,57 @@
       });
     };
     const stop = () => ((user = true), clearInterval(timer));
-    dots.forEach((d, i) => {
-      d.addEventListener("click", () => (stop(), apply(d.dataset.ci)));
-      d.addEventListener("keydown", (e) => {
-        const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
-        if (!step) return;
-        e.preventDefault();
-        stop();
-        const next = dots[(i + step + dots.length) % dots.length];
-        apply(next.dataset.ci);
-        next.focus();
-      });
+    dotsWrap.addEventListener("click", (e) => {
+      const d = e.target.closest("[data-ci]");
+      if (d) (stop(), apply(d.dataset.ci));
     });
-    // Demo: Beispiel-Designs wechseln, solange niemand selbst wählt
-    watchShown(root, (shown) => {
+    dotsWrap.addEventListener("keydown", (e) => {
+      const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      const i = dots.indexOf(e.target);
+      if (!step || i < 0) return;
+      e.preventDefault();
+      stop();
+      const next = dots[(i + step + dots.length) % dots.length];
+      apply(next.dataset.ci);
+      next.focus();
+    });
+    const play = () => {
       clearInterval(timer);
       if (!shown || user || reducedMotion) return;
-      timer = setInterval(() => apply(keys[(keys.indexOf(current) + 1) % keys.length]), 2200);
+      timer = setInterval(() => {
+        const keys = dots.map((d) => d.dataset.ci);
+        apply(keys[(keys.indexOf(current) + 1) % keys.length]);
+      }, 2200);
+    };
+    // Punkt „Ihr Design“ ein-/ausblenden, sobald es eine eigene Gestaltung gibt
+    const syncOwn = () => {
+      let dot = $('[data-ci="own"]', dotsWrap);
+      if (brand.isCustom()) {
+        if (!dot) {
+          dot = document.createElement("button");
+          dot.type = "button";
+          dot.className = "pvc__dot pvc__dot--own";
+          dot.setAttribute("role", "radio");
+          dot.setAttribute("aria-label", "Ihr Design aus der Live-Demo");
+          dot.dataset.ci = "own";
+          dotsWrap.prepend(dot);
+          dots = $$("[data-ci]", root);
+          if (!user) current = "own";
+        }
+        dot.style.setProperty("--c", brand.state.btn);
+        if (current === "own") apply("own");
+      } else if (dot) {
+        dot.remove();
+        dots = $$("[data-ci]", root);
+        if (current === "own") apply(dots[0].dataset.ci);
+      }
+    };
+    brand.onChange(syncOwn);
+    syncOwn();
+    // Demo: Designs wechseln, solange niemand selbst wählt
+    watchShown(root, (s) => {
+      shown = s;
+      play();
     });
     apply(current);
   }
@@ -2688,6 +2966,21 @@
     logoBtn.addEventListener("click", () => (stop(), setLogo(logoBtn.getAttribute("aria-pressed") !== "true")));
     // die hinteren Formate lassen sich direkt anklicken
     layers.forEach((l) => l.addEventListener("click", () => l.dataset.slot !== "front" && (stop(), setFmt(l.dataset.ggLayer))));
+    // eigenes Logo aus dem Marken-Profil statt des Beispiel-Logos „NORDWERK“ – und gleich eingeblendet
+    const logoMarks = $$(".ggf__logo b", root);
+    const syncBrand = () => {
+      logoMarks.forEach((b) => {
+        if (brand.state.logo) {
+          const img = $("img", b) || b.appendChild(document.createElement("img"));
+          img.alt = "";
+          img.src = brand.state.logo;
+          if (b.firstChild !== img) b.replaceChildren(img);
+        } else if (b.textContent !== "NORDWERK") b.textContent = "NORDWERK";
+      });
+      if (brand.state.logo) setLogo(true);
+    };
+    brand.onChange(syncBrand);
+    syncBrand();
     watchShown(root, (shown) => {
       clearInterval(timer);
       if (!shown || user || reducedMotion) return;
@@ -2786,67 +3079,100 @@
     set(rhythm, amount);
   }
 
-  function initGiftShop(root) {
-    const ctrl = root.nextElementSibling;
-    const mBtns = $$("[data-gg-mode]", ctrl);
-    const redeemBtn = $("[data-gg-redeem]", ctrl);
-    const chip = $(".ggs__voucher", root);
-    const pay = $("[data-gg-pay]", root);
+  // Einlösung im hauseigenen Warenkorb (Logo, Name, Farben aus dem Marken-Profil) – als Endlosschleife:
+  // Code eintippen → einlösen → Gesamtsumme sinkt → bezahlen → Danke, dann von vorn
+  function initGiftCart(root) {
+    const CODE = ["SBS0", "006A", "4821", "K7QX"];
+    const PRICE = 57.95;
+    const VOUCHER = 50;
+    const segs = $$("[data-k-seg]", root);
+    const redeemBtn = $("[data-k-redeem]", root);
+    const payBtn = $("[data-k-paybtn]", root);
+    const total = $("[data-k-pay]", root);
+    const cursor = $("[data-k-cursor]", root);
+    const steps = $$("[data-k-step]", root);
     let timers = [];
-    let user = false;
     const later = (fn, ms) => timers.push(setTimeout(fn, ms));
     const clear = () => {
       timers.forEach(clearTimeout);
       timers = [];
     };
+    const setStep = (n) =>
+      steps.forEach((st) => {
+        const i = Number(st.dataset.kStep);
+        st.classList.toggle("is-done", i < n);
+        st.classList.toggle("is-current", i === n);
+      });
+    const focusSeg = (i) => segs.forEach((sg, j) => sg.classList.toggle("is-focus", j === i));
+    // Zeiger auf die Mitte eines Elements setzen (in % der Bühne, damit Zoom/Skalierung egal sind)
+    const point = (el, dx = 0.5, dy = 0.55) => {
+      const r = root.getBoundingClientRect();
+      const t = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      root.style.setProperty("--cx", `${((t.left + t.width * dx - r.left) / r.width) * 100}%`);
+      root.style.setProperty("--cy", `${((t.top + t.height * dy - r.top) / r.height) * 100}%`);
+    };
+    const park = () => (root.style.setProperty("--cx", "78%"), root.style.setProperty("--cy", "112%"));
+    const press = (el) => {
+      cursor.classList.add("is-press");
+      el.classList.add("is-press");
+      later(() => (cursor.classList.remove("is-press"), el.classList.remove("is-press")), 180);
+    };
+    const showTotal = (v, tween) => (tween ? tweenText(total, v, (x) => euro(x), 900) : ((total.dataset.value = String(v)), (total.textContent = euro(v))));
     const reset = () => {
-      root.classList.remove("is-redeemed");
-      chip.classList.remove("is-fly", "is-used");
-      pay.dataset.value = "50";
-      pay.textContent = euro(50);
+      root.classList.remove("is-redeemed", "is-paid");
+      segs.forEach((sg) => (sg.textContent = ""));
+      focusSeg(-1);
+      setStep(2);
+      showTotal(PRICE, false);
     };
-    const setMode = (m) => {
-      root.dataset.mode = m;
-      setRadio(mBtns, mBtns.find((b) => b.dataset.ggMode === m));
+    const finalState = () => {
       reset();
+      segs.forEach((sg, i) => (sg.textContent = CODE[i]));
+      root.classList.add("is-redeemed");
+      showTotal(PRICE - VOUCHER, false);
     };
-    const redeem = () => {
-      reset();
-      const done = () => {
-        root.classList.add("is-redeemed");
-        // der Gutschein taucht blass wieder auf (eingelöst), ohne zwischendurch voll aufzublitzen
-        later(() => (chip.classList.remove("is-fly"), chip.classList.add("is-used")), reducedMotion ? 0 : 500);
-        tweenText(pay, 0, (v) => euro(v));
-      };
-      if (reducedMotion) return done();
-      void chip.offsetWidth;
-      chip.classList.add("is-fly");
-      later(done, 950);
-    };
-    // Demo: im eigenen Shop einlösen, dann zum Vergleich in der externen Lösung – und wieder zurück
-    const demo = () => {
+    const loop = () => {
       clear();
-      later(redeem, 700);
-      later(() => setMode("ext"), 3800);
-      later(redeem, 4600);
-      later(() => (setMode("own"), demo()), 7800);
+      reset();
+      park();
+      let t = 500;
+      later(() => point(segs[0]), t);
+      t += 950;
+      later(() => (press(segs[0]), focusSeg(0)), t);
+      // Code Zeichen für Zeichen, Feld für Feld
+      CODE.forEach((part, i) => {
+        if (i) later(() => focusSeg(i), t);
+        [...part].forEach((_, k) => {
+          t += 95;
+          later(() => (segs[i].textContent = part.slice(0, k + 1)), t);
+        });
+        t += 120;
+      });
+      later(() => (focusSeg(-1), point(redeemBtn)), (t += 150));
+      t += 950;
+      later(() => (press(redeemBtn), root.classList.add("is-redeemed"), showTotal(PRICE - VOUCHER, true)), t);
+      later(() => point(payBtn), (t += 1300));
+      t += 950;
+      later(() => (press(payBtn), setStep(3)), t);
+      later(() => (root.classList.add("is-paid"), setStep(4), park()), (t += 450));
+      later(loop, (t += 3200));
     };
-    const takeOver = () => ((user = true), clear());
-    mBtns.forEach((b) => b.addEventListener("click", () => (takeOver(), setMode(b.dataset.ggMode))));
-    radioKeys(mBtns, (b) => (takeOver(), setMode(b.dataset.ggMode)));
-    redeemBtn.addEventListener("click", () => (takeOver(), redeem()));
+    if (reducedMotion) {
+      cursor.hidden = true;
+      return finalState();
+    }
     watchShown(root, (shown) => {
       clear();
-      if (!shown) return reset();
-      if (!user && !reducedMotion) demo();
+      if (shown) loop();
+      else finalState();
     });
-    setMode("own");
   }
 
   function initGiftReasons() {
     $$("[data-gg-formats]").forEach(initGiftFormats);
     $$("[data-gg-topup]").forEach(initGiftTopup);
-    $$("[data-gg-shop]").forEach(initGiftShop);
+    $$("[data-gg-cart]").forEach(initGiftCart);
   }
 
   function initPreviews() {
@@ -3244,10 +3570,12 @@
   initTabs();
   initWordReveal();
   initNetwork();
-  const portalTheme = createPortalTheme();
+  brand = createPortalTheme();
+  const portalTheme = brand;
   initStudio(portalTheme);
   initLiveChip(portalTheme);
-  portalTheme.set({});
+  initBrandDrops(brand);
+  brand.refresh();
   initContactForm();
   initCarousel();
   initTiltCards();
@@ -3271,6 +3599,7 @@
   initCheckout();
   initMotifLinks();
   initPriceCalc();
+  brand.refresh();
   initScrollSteps();
   runScrollTasks();
 })();

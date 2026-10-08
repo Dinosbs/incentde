@@ -277,7 +277,7 @@
               <div class="vp">
                 <div class="vp__bar">
                   <span class="vp__dots"><i></i><i></i><i></i></span>
-                  <span class="vp__url"><svg class="i"><use href="#i-lock"/></svg>incent.vorteile.net/de/dashboard</span>
+                  <span class="vp__url"><svg class="i"><use href="#i-lock"/></svg><span><span data-portal-host data-default-host="incent">incent</span>.vorteile.net/de/dashboard</span></span>
                   <span class="vp__bar-end"></span>
                 </div>
                 <div class="vp__header">
@@ -782,18 +782,18 @@
 
             <div class="field">
               <span class="field__label" id="logo-label">Logo</span>
-              <div class="logo-drop" data-logo-drop>
-                <span class="logo-drop__preview"><img src="assets/img/incent-logo-dark.png" alt="" data-logo-preview></span>
-                <span class="logo-drop__text"><strong data-logo-name>INCENT-Logo</strong><small>PNG, JPG, SVG oder WebP · oder hierher ziehen. Bleibt auf Ihrem Gerät.</small></span>
+              <div class="logo-drop" data-brand-drop="logo">
+                <span class="logo-drop__preview"><img src="assets/img/incent-logo-dark.png" alt="" data-brand-preview></span>
+                <span class="logo-drop__text"><strong data-brand-file>INCENT-Logo</strong><small>PNG, JPG, SVG oder WebP · oder hierher ziehen. Bleibt auf Ihrem Gerät.</small></span>
                 <span class="logo-drop__actions">
                   <label class="logo-drop__btn">
                     <svg class="i i--sm" aria-hidden="true"><use href="#i-upload"/></svg>Eigenes Logo hochladen
-                    <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="sr-only" data-logo-input aria-labelledby="logo-label">
+                    <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="sr-only" data-brand-input aria-labelledby="logo-label">
                   </label>
-                  <button type="button" class="logo-drop__reset" data-logo-reset hidden aria-label="Logo zurücksetzen" title="Logo zurücksetzen"><svg class="i i--sm" aria-hidden="true"><use href="#i-reset"/></svg></button>
+                  <button type="button" class="logo-drop__reset" data-brand-reset hidden aria-label="Logo zurücksetzen" title="Logo zurücksetzen"><svg class="i i--sm" aria-hidden="true"><use href="#i-reset"/></svg></button>
                 </span>
               </div>
-              <p class="field__msg" data-logo-msg role="status"></p>
+              <p class="field__msg" data-brand-msg role="status"></p>
             </div>
 
             <div class="field">
@@ -839,6 +839,23 @@
                 <button type="button" class="bg-opt" role="radio" aria-checked="false" data-bg-option="solid"><span class="bg-opt__thumb bg-opt__thumb--solid"></span>Einfarbig</button>
                 <button type="button" class="bg-opt" role="radio" aria-checked="false" data-bg-option="gradient"><span class="bg-opt__thumb bg-opt__thumb--gradient"></span>Verlauf</button>
               </div>
+              <div class="bg-panel" data-bg-panel="image">
+                <div class="bg-panel__inner">
+                  <span class="bg-panel__label" id="bg-img-label">Hintergrundbild</span>
+                  <div class="logo-drop logo-drop--bg" data-brand-drop="bg">
+                    <span class="logo-drop__preview logo-drop__preview--bg" aria-hidden="true"></span>
+                    <span class="logo-drop__text"><strong data-brand-file>Standardbild</strong><small>JPG, PNG oder WebP · oder hierher ziehen. Bleibt auf Ihrem Gerät.</small></span>
+                    <span class="logo-drop__actions">
+                      <label class="logo-drop__btn">
+                        <svg class="i i--sm" aria-hidden="true"><use href="#i-upload"/></svg>Eigenes Bild hochladen
+                        <input type="file" accept="image/png,image/jpeg,image/webp" class="sr-only" data-brand-input aria-labelledby="bg-img-label">
+                      </label>
+                      <button type="button" class="logo-drop__reset" data-brand-reset hidden aria-label="Hintergrundbild zurücksetzen" title="Hintergrundbild zurücksetzen"><svg class="i i--sm" aria-hidden="true"><use href="#i-reset"/></svg></button>
+                    </span>
+                  </div>
+                  <p class="field__msg" data-brand-msg role="status"></p>
+                </div>
+              </div>
               <div class="bg-panel" data-bg-panel="solid" inert>
                 <div class="bg-panel__inner">
                   <span class="bg-panel__label">Hintergrundfarbe</span>
@@ -874,6 +891,7 @@
                 </div>
               </div>
             </fieldset>
+            <p class="studio__note"><svg class="i i--sm" aria-hidden="true"><use href="#i-lock"/></svg><span>Ihre Gestaltung wird nur in diesem Browser gespeichert und erscheint auf allen Seiten in den Vorschauen – Portal, Gutscheine, Warenkorb.</span><button type="button" class="studio__reset" data-brand-reset-all hidden>Alles zurücksetzen</button></p>
           </div>
 
           <div class="studio__preview" role="img" aria-label="Vorschau des Vorteilsportals im gewählten Design">
@@ -883,7 +901,7 @@
               <div class="vp">
                 <div class="vp__bar">
                   <span class="vp__dots"><i></i><i></i><i></i></span>
-                  <span class="vp__url"><svg class="i"><use href="#i-lock"/></svg>incent.vorteile.net/de/dashboard</span>
+                  <span class="vp__url"><svg class="i"><use href="#i-lock"/></svg><span><span data-portal-host data-default-host="incent">incent</span>.vorteile.net/de/dashboard</span></span>
                   <span class="vp__bar-end"></span>
                 </div>
                 <div class="vp__header">
