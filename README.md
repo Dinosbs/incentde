@@ -6,11 +6,12 @@ Als Markenfarbe dient nur noch der blaue CI-Verlauf.
 ## Aufbau
 
 ```
-index.html              Startseite (alle Inhalte)
-mitarbeiterbindung.html Mitarbeiterbindung: Benefitportal, Mitarbeiterrabatte, Mitarbeitergutscheine, Geschenkanlässe
-kundenbindung.html      Kundenbindung: Loyalty-Portal, Kundenrabatte, Kundengutscheine
-markenplatzierung.html  Markenplatzierung: Anbieter werden, Newsletter-Platzierung
-content-creator.html    Content Creator: Community-Shop (Du-Ansprache)
+index.html              die ganze Website als One-Pager: Übersicht mit „Wer sind Sie?“ und vier Welten
+                        (Arbeitgeber, Unternehmen, Marken, Creator), siehe „Aufbau der Seite“
+mitarbeiterbindung.html  ┐ frühere Unterseiten, jetzt nur Weiterleitungen auf die passende Welt
+kundenbindung.html       │ (alte Links samt Sprungziel, z. B. kundenbindung.html#gestalten,
+markenplatzierung.html   │ landen an der richtigen Stelle)
+content-creator.html     ┘
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
@@ -26,7 +27,6 @@ assets/img/kundenbindung/       Fotos und Isometrien der Kundenbindung
 assets/img/markenplatzierung/   Fotos, Isometrien und Screenshots der Markenplatzierung
 assets/img/content-creator/     Fotos, Isometrien und Shop-Screenshots für Creator
 tools/update-image-manifests.mjs  erzeugt die Bildlisten (manifest.json) für die beiden Ordner oben
-tools/sync-layout.mjs   überträgt Navigation, Kontakt, Footer usw. aus index.html in alle Unterseiten
 ```
 
 Es gibt keinen Build-Schritt. Die Dateien lassen sich so, wie sie sind, auf jeden Webserver legen.
@@ -42,13 +42,60 @@ python3 -m http.server 8000
 # → http://localhost:8000
 ```
 
+## Aufbau der Seite: ein One-Pager, vier Welten
+
+Die Seite entscheidet von Beginn an, wer sie ansieht, und zeigt dann nur, was für diese Zielgruppe wichtig ist.
+
+1. **Übersicht** (erster Besuch): Hero mit der Frage **„Wer sind Sie?“** und vier großen Karten – Arbeitgeber,
+   Unternehmen, Marken, Creator, jeweils mit den Lösungen in Kurzform. Darunter allgemeine Abschnitte für alle
+   (Partner, Versprechen, Plattform, Kundenstimmen, Über uns, Kontakt).
+2. **Welt** (nach der Wahl): Die Übersicht verschwindet, oben steht die Welt der Zielgruppe – alles für sie unter
+   einem Dach. Ganz oben ein Umschalter „Übersicht | Ansicht für: Arbeitgeber · Unternehmen · Marken · Creator“
+   (große Klickflächen, mobil als 2×2-Raster). Im Seitenkopf die **Absprungzone**: die Leiste mit den Lösungen der
+   Welt (z. B. Benefitportal · Mitarbeiterrabatte · Mitarbeitergutscheine · Geschenkanlässe) tauscht den Inhalt
+   darunter aus, ohne neue Seite und ohne Verschachtelung. Danach folgen die allgemeinen Abschnitte, die zu dieser
+   Zielgruppe passen.
+
+| Abschnitt | Übersicht | Arbeitgeber | Unternehmen | Marken | Creator |
+| --- | :-: | :-: | :-: | :-: | :-: |
+| Welt (Seitenkopf + Lösungen) | – | ✓ | ✓ | ✓ | ✓ |
+| Partner-Laufband | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Versprechen | ✓ | – | – | – | – |
+| Plattform („Was uns einzigartig macht“) | ✓ | – | – | ✓ | – |
+| Leistungsangebot | – | ✓ | ✓ | ✓ | – |
+| Vorteile + **Live-Demo** (Portal selbst gestalten) | – | ✓ | ✓ | – | ✓ |
+| Kundenstimmen | ✓ | ✓ | ✓ | – | – |
+| Über uns, Kontakt | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+Die Zuordnung steht als `data-for="start arbeitgeber …"` am Abschnitt (`start` = Übersicht); Abschnitte ohne `data-for`
+stehen überall. Es gibt keinen Filter und keinen „Alle Inhalte“-Schalter mehr.
+
+**Wechseln:** Navigation (Arbeitgeber, Unternehmen, Marken, Creator als direkte Links, die aktuelle Welt ist blau),
+Umschalter oben in der Welt, Karten in der Übersicht, „Mehr erfahren“ unter „Über uns“. Das Logo und „Übersicht“
+führen zurück zur Wahl. Der Wechsel blendet weich über und springt nach oben, der Seitentitel wechselt mit.
+
+**Merken:** Die gewählte Zielgruppe merkt sich der Browser (`localStorage`, `incent-audience`). Wer wiederkommt, landet
+direkt in seiner Welt; „Übersicht“ vergisst die Wahl. Das Kontaktformular ist passend vorbelegt („Ich bin …“).
+
+**Adressen:** Jeder Bereich hat eine eigene Adresse (`index.html#benefitportal`, `#kundenrabatte`,
+`#newsletter-platzierung`, `#community-shop` …), Abschnitte darin ebenso (`#gestalten`, `#unternehmen-gestalten`);
+die Welt allein geht auch (`#arbeitgeber`, `#unternehmen`, `#marken`, `#creator`). Die Zurück-Taste funktioniert.
+Für Kampagnen: `index.html?fuer=arbeitgeber` (bzw. `unternehmen`, `marken`, `creator`) öffnet die Welt direkt.
+
+**Technik:** Ein kleines Skript im `<head>` setzt Welt und Bereich (`<html data-world="…" data-mb="…">`) schon vor dem
+ersten Zeichnen – aus der Adresse, sonst `?fuer=`, sonst der gemerkten Wahl. Es kennt dafür alle Sprungziele
+(`map`); die passenden CSS-Regeln stehen ebenfalls im `<head>`, so blitzt nichts Falsches auf. Die Logik steckt in
+`initWorlds()` in `main.js`. Jede ID steht nur einmal auf der Seite: Gleichnamige Abschnitte der Welten haben ein
+Präfix (`unternehmen-…`, `marken-…`, `creator-…`; Arbeitgeber behält seine IDs). Ohne JavaScript stehen alle Welten
+untereinander.
+
 ## Interaktive Elemente
 
 | Bereich | Was passiert |
 | --- | --- |
-| Navigation | Lösungen direkt sichtbar, nach Zielgruppe: „Arbeitgeber“, „Unternehmen“, „Marken“, „Creator“ – je ein Ausklapp-Menü (Überfahren oder Klick) mit dem Bereich und allen Lösungen samt Kurzbeschreibung, dazu „Über uns“ und „Kontakt“; der Bereich der aktuellen Unterseite ist blau markiert. Helle Glas-Leiste beim Scrollen, auf Mobilgeräten Vollbild-Menü mit aufklappbaren Zielgruppen. Logo: `assets/img/incent-logo-nav-dark.png` (dunkle Fassung des zentrierten `incent-logo-nav.png`, gleiche Maße und Lage; oben 48 px hoch, nach dem Scrollen weich auf 34 px verkleinert) |
-| Hero | Heller Verlauf (ohne Gittertextur), Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz). Darunter im ersten Bildschirm die Frage **„Wer sind Sie?“** mit vier Einstiegen – Arbeitgeber, Unternehmen, Marken, Creator – jeweils mit den Lösungen in Kurzform. Die Wahl öffnet direkt darunter die **Absprungzone** (siehe unten). Danach der Nachbau des echten Vorteilsportals in 3D, der dem Cursor folgt; der Live-Chip ändert die Buttonfarbe und führt zur Live-Vorschau |
-| Absprungzone (Startseite) | Nur das Nötige für die gewählte Zielgruppe: Überschrift, ein Satz, drei Kernpunkte, die Lösungen als große Links direkt zu den Bereichen der Unterseite, dazu „Zur …“, „Demo buchen“ / „Kontakt aufnehmen“ und (außer für Marken) „Portal live gestalten“. Abschnitte, die nicht passen, werden ausgeblendet (`data-for="arbeitgeber unternehmen …"` am Abschnitt); „Alle Inhalte zeigen“ blendet sie wieder ein, „Andere Zielgruppe wählen“ hebt die Wahl auf. Die Wahl wird im Browser gemerkt (`localStorage`, `incent-audience`), die Headline zeigt den passenden Begriff, das Kontaktformular ist vorbelegt („Ich bin …“, auf den Unterseiten passend zur Seite). Direktaufruf für Kampagnen: `index.html?fuer=arbeitgeber` (bzw. `unternehmen`, `marken`, `creator`). Links auf ausgeblendete Abschnitte (z. B. `#live-vorschau`) blenden alles ein (`initAudience` in `main.js`) |
+| Navigation | Flach und ohne Ausklapp-Menüs: „Arbeitgeber“, „Unternehmen“, „Marken“, „Creator“ führen direkt in ihre Welt, dazu „Über uns“ und „Kontakt“; die aktuelle Welt ist blau markiert. Helle Glas-Leiste beim Scrollen, auf Mobilgeräten Vollbild-Menü mit großen Einträgen. Logo: `assets/img/incent-logo-nav-dark.png` (dunkle Fassung des zentrierten `incent-logo-nav.png`, gleiche Maße und Lage; oben 48 px hoch, nach dem Scrollen weich auf 34 px verkleinert) |
+| Hero | Heller Verlauf (ohne Gittertextur), Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz). Darunter im ersten Bildschirm die Frage **„Wer sind Sie?“** mit vier Einstiegen – Arbeitgeber, Unternehmen, Marken, Creator – jeweils mit den Lösungen in Kurzform. Jede Karte öffnet die Welt dieser Zielgruppe (siehe „Aufbau der Seite“). Danach der Nachbau des echten Vorteilsportals in 3D, der dem Cursor folgt; der Live-Chip ändert die Buttonfarbe |
+| Seitenkopf der Welten | Umschalter „Übersicht · Ansicht für …“, Titel, Text und Bild wechseln mit dem Bereich, Lichtkegel folgt dem Cursor; darunter die Leiste mit den Lösungen der Welt (Absprungzone), die beim Scrollen an die Navigation andockt |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
 | Partner | Endlos-Laufband aus `assets/img/partner-logos/` – jede Datei wird automatisch eine Kachel, gelöschte Dateien verschwinden (keine Liste im HTML); Dateien, die nicht laden oder leer sind, bekommen keine Kachel. Tempo passt sich der Anzahl an, pausiert bei Hover. Transparenter oder weißer Rand der Logo-Dateien wird automatisch abgeschnitten, danach bekommen alle Logos etwa dieselbe Fläche (`fitLogo` in `main.js`); pro Partner erscheint nur ein Logo. Markennamen für Kurz-Dateinamen (z. B. „UI“ → „Union Investment“) stehen in `BRAND_NAMES` |
 | Versprechen | Text leuchtet Wort für Wort beim Scrollen auf |
@@ -64,52 +111,53 @@ python3 -m http.server 8000
 | Scroll-Stepper (alle Seiten) | Alles, was man durchklicken kann (Tabs, Akkordeons, Vorteile mit Umschalter, Hotspots, Karussells, Touchpoints, Pakete, Anlass-Finder …), bleibt am Desktop beim Scrollen stehen und schaltet mit dem Scrollen Punkt für Punkt weiter, erst danach geht die Seite weiter (bei „Warum INCENT?“ erst alle Arbeitgeber-Vorteile, dann alle für Mitarbeitende). Rückwärts scrollen läuft die Punkte rückwärts ab. Rechts zeigt eine kleine Punktleiste, wo man steht. Ein Klick auf einen Punkt springt an die passende Scroll-Stelle; Links und Anker auf einen Punkt (z. B. `#sc-panel-3`) öffnen ihn direkt. Das automatische Weiterschalten dieser Elemente ist am Desktop aus, weil das Scrollen es übernimmt. Die Zuordnung steht in `STEPPERS` in `main.js` (`initScrollSteps`). Vorab wird die Höhe aller Punkte gemessen (unsichtbar, ohne Animation), damit ein Bereich nicht mitten im Scrollen abschaltet, wenn ein späterer Punkt mehr Text hat. Angeheftet wird der größte umgebende Block, der ganz ins Fenster passt (unter Navigation und angedockter Bereichsleiste); ist schon das Element selbst etwas zu hoch (kleine Laptop-Fenster), wird es verkleinert, höchstens auf 75 % (`STEP_ZMIN`), sonst bleibt es normal klickbar. `data-sstep-pin` legt den stehenden Block fest (bei „Bindung und Recruiting“ nur die Vorteile, die Grafik läuft daneben mit). Bereiche, die erst beim Wechsel über die Bereichsleiste sichtbar werden, richten sich dabei ein. Bei den Newsletter-Paketen beginnt der Durchlauf mit „Starter“ (ohne Stepper ist „Business“ vorausgewählt). Geprüft von 1280×720 bis 1920×1080 (alle 24 Bereiche). Nicht auf Mobilgeräten (unter 981 px) und nicht bei „Bewegung reduzieren“. |
 | Weiches Scrollen (alle Seiten) | Das Mausrad gleitet statt zu springen: Ein Radschritt setzt nur das Ziel, die Seite zieht weich nach (`initSmoothScroll` in `main.js`, ohne Bibliothek; Stärke `LERP`). Beim Browser bleiben Zoomen (Strg/Cmd + Rad), waagerechtes Scrollen, scrollbare Bereiche im Inhalt (bis sie am Ende sind, Opt-out per `data-native-scroll`), Tastatur, Scrollleiste, Touch und Sprünge per Link; ein Klick oder eine Taste beendet das Gleiten sofort. Nicht bei „Bewegung reduzieren“. |
 
-### Mitarbeiterbindung: eine Seite, vier Bereiche
+### Welt Arbeitgeber: Mitarbeiterbindung, vier Bereiche
 
-`mitarbeiterbindung.html` enthält alle vier Bereiche. Die Cluster-Leiste unter dem Seitenkopf schaltet um, ohne die Seite
-neu zu laden: Seitenkopf (Titel, Text, Bild) und Inhalt blenden weich über, die Markierung gleitet zum gewählten Bereich.
-Jeder Bereich hat eine eigene Adresse, die Zurück-Taste funktioniert, und der Seitentitel wechselt mit:
+Die Leiste unter dem Seitenkopf schaltet um, ohne die Seite neu zu laden: Seitenkopf (Titel, Text, Bild) und Inhalt
+blenden weich über, die Markierung gleitet zum gewählten Bereich. Jeder Bereich hat eine eigene Adresse, die
+Zurück-Taste funktioniert, und der Seitentitel wechselt mit:
 
 | Bereich | Adresse | Interaktive Elemente |
 | --- | --- | --- |
-| 2-in-1-Benefitportal | `#benefitportal` | Kennzahlen, Tabs „Drei gute Gründe“ mit interaktiven Portal-Vorschauen statt Screenshots (Deal-Seite: „Jetzt sichern!“ zeigt den persönlichen Code, ähnliche Deals wechseln den Inhalt; Geschenkeshop: Gutscheinwelt → Gutscheinansicht mit Wertauswahl, Warenkorb und Geschenk-Guthaben; Corporate Design: Portal-Nachbau mit wechselnden Beispiel-Designs und Link zum Portal-Builder auf der Startseite `index.html#live-vorschau`; jede Vorschau spielt beim Einblenden eine kurze Demo, ein Klick in die Vorschau stoppt das automatische Weiterschalten), Vorteile mit Umschalter „Für Arbeitgeber / Für Mitarbeitende“ (Desktop: Liste und Detailkarte, mobil: Akkordeon); die Links „Im Portal in Ihrem Design“ und „So sieht Ihr Geschenkeshop aus“ springen auf die passende Vorschau oben (`#sc-panel-3`, `#sc-panel-2`), Verweis auf den SELECT Einkaufsgutschein, Ablauf |
+| 2-in-1-Benefitportal | `#benefitportal` | Kennzahlen, Tabs „Drei gute Gründe“ mit interaktiven Portal-Vorschauen statt Screenshots (Deal-Seite: „Jetzt sichern!“ zeigt den persönlichen Code, ähnliche Deals wechseln den Inhalt; Geschenkeshop: Gutscheinwelt → Gutscheinansicht mit Wertauswahl, Warenkorb und Geschenk-Guthaben; Corporate Design: Portal-Nachbau mit wechselnden Beispiel-Designs und Link zum Portal-Builder (`#live-vorschau`, Live-Demo weiter unten in derselben Welt); jede Vorschau spielt beim Einblenden eine kurze Demo, ein Klick in die Vorschau stoppt das automatische Weiterschalten), Vorteile mit Umschalter „Für Arbeitgeber / Für Mitarbeitende“ (Desktop: Liste und Detailkarte, mobil: Akkordeon); die Links „Im Portal in Ihrem Design“ und „So sieht Ihr Geschenkeshop aus“ springen auf die passende Vorschau oben (`#sc-panel-3`, `#sc-panel-2`), Verweis auf den SELECT Einkaufsgutschein, Ablauf |
 | Mitarbeiterrabatte | `#mitarbeiterrabatte` | Rabatt-Explorer „Vielfältige Rabatte für alle Lebensbereiche“ mit den Kategorien des Vorteilsportals (Mobilfunk & Internet, Mobilität, Home & Living, Reisen, Sport, Mode & Accessoires, Freizeit & Familie) und je bis zu vier echten Angeboten aus den Kategorieseiten des Shops (Bilder unter `assets/img/portal/`, Stand Oktober 2026), „Bindung und Recruiting“ (`#arbeitgebermarke`) mit eigener Visualisierung „Arbeitgeber-Magnet“ statt Bild (Team auf einer Umlaufbahn, Bewerbungen werden angezogen; die Grafik zeigt den im Akkordeon geöffneten Vorteil und steht vertikal mittig; am Desktop bleiben beim Durchscrollen der Vorteile Akkordeon und Grafik nebeneinander stehen), Verweise auf Portal, Ablauf und Gutscheine |
 | Mitarbeitergutscheine | `#mitarbeitergutscheine` | „Ein Gutschein, drei gute Gründe“ (`#gutschein-gruende`) als helles Showcase mit eigenen, interaktiven Illustrationen statt Bildern: 1 Formate – PDF, Print (DIN lang) und Excel gefächert, Format, Design-Farbe und Logo wählbar (Klick auf ein hinteres Format holt es nach vorn); 2 Aufladungen – Karte, Kennzahlen und Monatsleiste, Rhythmus (monatlich, quartalsweise, anlassbezogen) und Betrag wählbar, das Jahr läuft durch, Gebühren immer 0,00 €; 3 Einlösung – der hauseigene Warenkorb im Branding aus dem Marken-Profil (Logo, Name, Adresse, Buttonfarbe, Hintergrund als Banner) als Endlosschleife: ein Zeiger tippt den Gutscheincode ein, löst ein, die Gesamtsumme sinkt von 57,95 € auf 7,95 €, Bezahlen, Danke – und von vorn (`initGiftReasons` / `initGiftCart` in `main.js`; Demos 1 und 2 laufen bis zur ersten eigenen Wahl; bei „Bewegung reduzieren“ steht der Warenkorb eingelöst), Vorteile Arbeitgeber/Mitarbeitende, Gutschein-Konfigurator (`#gestalten`, mit Logo-Upload – das Logo landet im Marken-Profil), Vorteile mit SELECT, Preisrechner (`#preise`), Warenkorb-Demo im Look des Portal-Checkouts (`#einloesen`), Ablauf |
 | Geschenkanlässe | `#geschenkanlaesse` | Anlass-Finder mit Gutschein-Vorschau (`#anlaesse`; die Kacheln sind keine Links, Darüberfahren, Antippen oder Tab wechselt das Motiv), Text ohne externe Links |
 
 Links auf einen Abschnitt in einem anderen Bereich (z. B. `#gestalten` aus dem Benefitportal) wechseln erst den Bereich und
 springen dann zum Abschnitt. Jedes Element steht nur einmal auf der Seite; andere Bereiche verweisen darauf.
-Kontakt und Partner-Laufband stehen einmal unter allen Bereichen.
+Kontakt, Partner-Laufband und die passenden allgemeinen Abschnitte stehen einmal unter allen Bereichen.
 
 **Angedockte Leiste:** Sobald die Cluster-Leiste beim Scrollen unter der Hauptnavigation verschwindet, klappt unter der
 Hauptnavigation eine zweite Zeile in derselben Breite auf (Hauptnavigation bleibt sichtbar). Desktop: alle vier Bereiche
 mit gleitender Markierung. Tablet und Handy (bis 1120 px): aktueller Bereich in der Mitte, Pfeile für vorherigen/nächsten
 Bereich, Fortschrittsbalken und eine aufklappbare Liste aller Bereiche.
 
-Technik: Der aktive Bereich steht in `<html data-mb="…">`. Ein kleines Skript im `<head>` setzt ihn schon beim Laden
-aus der Adresse, die passenden CSS-Regeln stehen ebenfalls im `<head>` – so blitzt beim Aufruf von z. B.
-`#mitarbeiterrabatte` nicht erst der erste Bereich auf. Die Logik steckt in `initMb()` in `main.js`.
+Technik: siehe „Aufbau der Seite“ (`data-world`, `data-mb`, `initWorlds()`). Jede Welt hat ihre eigene angedockte Leiste.
 
 **Warenkorb-Demo** (`#einloesen`): Nachbau der Checkout-Seite des Vorteilsportals mit Schritten, Warenkorb und der Box
 „Select-Einkaufsgutschein oder Aktions-Code“ (Maße, Farben und Zahlungslogos aus dem Portal). Beim ersten Sichtkontakt
 tippt die Demo den Gutscheincode ein; Produkte lassen sich entfernen und hinzufügen, der Gutscheinwert umstellen,
 „Bezahlen“ schließt die Demo-Bestellung ab.
 
-### Kundenbindung: eine Seite, drei Bereiche
+### Welt Unternehmen: Kundenbindung, drei Bereiche
 
-`kundenbindung.html` funktioniert genauso wie die Mitarbeiterbindung (Cluster-Leiste, angedockte Leiste, eigene Adressen).
+Funktioniert genauso wie die Welt Arbeitgeber (Leiste, angedockte Leiste, eigene Adressen). Abschnitte, die es auch in der
+Mitarbeiterbindung gibt, haben das Präfix `unternehmen-` (`#unternehmen-gruende`, `#unternehmen-gestalten`, `#unternehmen-einloesen` …).
 
 | Bereich | Adresse | Interaktive Elemente |
 | --- | --- | --- |
-| Loyalty-Portal | `#loyalty-portal` | Kennzahlen, Tabs „Vier gute Gründe“ mit reduzierten Shop-Demos statt Screenshots (gleiche Bausteine wie im Benefitportal: Deal-Seite mit persönlichem Code und drei Deals, Prämienshop mit Prämien-Guthaben – `data-home="praemienshop"`, `data-balance-label` –, Corporate-Design-Vorschau mit drei Beispielen und „Ihr Design“, Warenkorb-Schleife mit Gutschein-Einlösung); unter jeder Demo ein Link zum passenden Bereich und zur Live-Demo (`index.html#live-vorschau`), alle Demos übernehmen das Marken-Profil, Leistungsversprechen (freigestellte Geräte, die dem Mauszeiger folgen, mit vier schwebenden Vorteils-Tags; mobil als Raster unter dem Bild) mit Umschalter „Für Unternehmen / Für Kunden“, Portal-Hotspots (`#portal`) mit Link „Ihr Portal in der Live-Demo selbst gestalten“ (Portal-Builder auf der Startseite, `index.html#live-vorschau`), Verweis auf den SELECT Einkaufsgutschein, Ablauf (`#ablauf`) |
-| Kundenrabatte | `#kundenrabatte` | Kontaktkalender „Ohne / Mit Kundenrabatten“ (`#anlaesse`, schaltet beim ersten Sichtkontakt selbst um), Branchen-Explorer mit sieben Branchen, Texten und Beispielangeboten (`#branchen`), Verweise auf Portal, Ablauf und Gutscheine |
-| Kundengutscheine | `#kundengutscheine` | Drei Einsatzmöglichkeiten mit Link zum passenden Gutscheinmotiv, Vorteile Unternehmen/Kunden, Gutschein-Gestalter mit Kunden-Anlässen (Treue, Willkommen, Gewinnspiel, Kulanz, Geburtstag; `#gestalten`), Warenkorb-Demo (`#einloesen`), Ablauf |
+| Loyalty-Portal | `#loyalty-portal` | Kennzahlen, Tabs „Vier gute Gründe“ mit reduzierten Shop-Demos statt Screenshots (gleiche Bausteine wie im Benefitportal: Deal-Seite mit persönlichem Code und drei Deals, Prämienshop mit Prämien-Guthaben – `data-home="praemienshop"`, `data-balance-label` –, Corporate-Design-Vorschau mit drei Beispielen und „Ihr Design“, Warenkorb-Schleife mit Gutschein-Einlösung); unter jeder Demo ein Link zum passenden Bereich und zur Live-Demo (`#live-vorschau`), alle Demos übernehmen das Marken-Profil, Leistungsversprechen (freigestellte Geräte, die dem Mauszeiger folgen, mit vier schwebenden Vorteils-Tags; mobil als Raster unter dem Bild) mit Umschalter „Für Unternehmen / Für Kunden“, Portal-Hotspots (`#portal`) mit Link „Ihr Portal in der Live-Demo selbst gestalten“ (Portal-Builder, `#live-vorschau`), Verweis auf den SELECT Einkaufsgutschein, Ablauf (`#unternehmen-ablauf`) |
+| Kundenrabatte | `#kundenrabatte` | Kontaktkalender „Ohne / Mit Kundenrabatten“ (`#unternehmen-anlaesse`, schaltet beim ersten Sichtkontakt selbst um), Branchen-Explorer mit sieben Branchen, Texten und Beispielangeboten (`#branchen`), Verweise auf Portal, Ablauf und Gutscheine |
+| Kundengutscheine | `#kundengutscheine` | Drei Einsatzmöglichkeiten mit Link zum passenden Gutscheinmotiv, Vorteile Unternehmen/Kunden, Gutschein-Gestalter mit Kunden-Anlässen (Treue, Willkommen, Gewinnspiel, Kulanz, Geburtstag; `#unternehmen-gestalten`), Warenkorb-Demo (`#unternehmen-einloesen`), Ablauf |
 
 Der Kontaktkalender ist ein Beispiel (welche Anlässe in welchem Monat) und steht direkt im HTML.
 Die Branchen-Angebote sind Beispiele aus dem Vorteilsportal; Konkurrenzangebote (z. B. Vodafone bei Telekommunikation,
 Wechselpilot bei Energieversorgern) sind bewusst nicht als Beispiel gewählt.
 
-### Markenplatzierung: eine Seite, zwei Bereiche
+### Welt Marken: Markenplatzierung, zwei Bereiche
+
+Ohne Live-Demo (für Marken nicht relevant), dafür mit „Was uns einzigartig macht“. Präfix für doppelte Abschnitte: `marken-`.
 
 | Bereich | Adresse | Interaktive Elemente |
 | --- | --- | --- |
@@ -119,12 +167,12 @@ Wechselpilot bei Energieversorgern) sind bewusst nicht als Beispiel gewählt.
 Die Vorschau ist eine reine Demo im Browser (keine Übertragung). Der Zeitplan verteilt die gebuchten Platzierungen gleichmäßig
 und ist als „beispielhafte Verteilung“ gekennzeichnet.
 
-### Content Creator
+### Welt Creator: Content Creator
 
-`content-creator.html` ist eine einzelne Seite (es gibt nur ein Angebot) und durchgehend in Du-Ansprache. Inhalte:
+Ein Bereich (`#community-shop`, es gibt nur ein Angebot), durchgehend in Du-Ansprache, Präfix `creator-`. Inhalte:
 Kennzahlen, Tabs „Vier gute Gründe“, Vorteile, „Dein Shop, Dein Look“ mit Portal-Hotspots (Logo, Creator-Farben,
 Kategorien passend zum Content – wechselnde Beispiel-Kategorien für Fitness, Reisen, Gaming, Beauty –, Hintergrundbild;
-Link „Deinen Shop in der Live-Demo selbst gestalten“ zum Portal-Builder auf der Startseite),
+Link „Deinen Shop in der Live-Demo selbst gestalten“ zum Portal-Builder weiter unten),
 Vergleich „Klassische Brand Deals / Dein Community-Shop“ (`#einnahmen`, schematisch, keine Umsatzprognose) und Ablauf.
 
 **SELECT-Gutschein** (`.selv` in `main.css`): Nachbau der echten Gutscheine. PDF = Hochformat
@@ -138,37 +186,33 @@ aus dem Marken-Profil sitzt oben rechts in einem festen Rechteck und wird darin 
 Die Angebote im Rabatt-Explorer sind eine Momentaufnahme (Stand Oktober 2026) und stehen direkt im HTML.
 Die Geschenkanlässe verlinken nicht mehr auf die Anlass-Unterseiten von `www.incent.de` (weder Kacheln noch Text).
 
-**Gemeinsame Bausteine:** In `index.html` sind Icon-Sprite, Navigation, Partner-Laufband, Kontakt und Footer mit
-`<!-- layout:name -->` … `<!-- /layout:name -->` markiert. Nach einer Änderung an der Startseite
-`node tools/sync-layout.mjs` ausführen: Das Skript kopiert die Blöcke in alle Unterseiten, lenkt Anker, die es nur
-auf der Startseite gibt, auf `index.html#…` um und markiert im Menü die aktuelle Seite (`aria-current="page"`).
-
-**Neue Seite anlegen** (z. B. Kundenbindung): `mitarbeiterbindung.html` kopieren (`kundenbindung.html`), Seitenkopf und
-Bereiche ersetzen, die Markierungen für die Bausteine stehen lassen und `node tools/sync-layout.mjs` ausführen.
-Im Mega-Menü von `index.html` die Links auf `kundenbindung.html#bereich` setzen; das Skript macht daraus auf der Seite
-selbst reine Anker, sodass ein Klick nur den Bereich wechselt.
+**Inhalte pflegen:** Alles steht in `index.html`. Die Welten liegen in `<div class="worlds">` direkt nach dem Hero
+(`<div class="world" id="arbeitgeber">` …), jeder Bereich ist ein `<div class="mb-panel" id="…">` mit `data-title` und
+`data-desc` (Seitentitel und Beschreibung). **Neuer Bereich:** `mb-panel` anlegen, Link in Leiste und angedockter Leiste
+der Welt ergänzen und im `<head>` die ID in `map` (Skript) und eine Zeile wie bei den anderen Bereichen (Stil) eintragen.
+Neue Abschnitte bekommen eindeutige IDs (bei Bedarf mit Präfix der Welt).
 
 **Livegang – bisherige Adressen weiterleiten:** Bei Google sind die Seiten noch unter den alten Adressen bekannt.
-Diese per 301 auf die neue Seite und den passenden Bereich umleiten. Für Apache (`.htaccess`):
+Diese per 301 auf die Startseite und den passenden Bereich umleiten. Für Apache (`.htaccess`):
 
 ```apache
-Redirect 301 /corporate-benefits-fuer-arbeitgeber/ /mitarbeiterbindung.html#benefitportal
-Redirect 301 /mitarbeiterrabatte/ /mitarbeiterbindung.html#mitarbeiterrabatte
-Redirect 301 /mitarbeitergutscheine/ /mitarbeiterbindung.html#mitarbeitergutscheine
-Redirect 301 /steuerfreie-mitarbeitergeschenke/ /mitarbeiterbindung.html#geschenkanlaesse
+Redirect 301 /corporate-benefits-fuer-arbeitgeber/ /#benefitportal
+Redirect 301 /mitarbeiterrabatte/ /#mitarbeiterrabatte
+Redirect 301 /mitarbeitergutscheine/ /#mitarbeitergutscheine
+Redirect 301 /steuerfreie-mitarbeitergeschenke/ /#geschenkanlaesse
 
-Redirect 301 /kundenbindungsprogramm-fuer-unternehmen/ /kundenbindung.html#loyalty-portal
-Redirect 301 /kundenrabatte/ /kundenbindung.html#kundenrabatte
-Redirect 301 /gutscheine-kundenbindung/ /kundenbindung.html#kundengutscheine
+Redirect 301 /kundenbindungsprogramm-fuer-unternehmen/ /#loyalty-portal
+Redirect 301 /kundenrabatte/ /#kundenrabatte
+Redirect 301 /gutscheine-kundenbindung/ /#kundengutscheine
 
-Redirect 301 /reichweite-steigern-markenpartner/ /markenplatzierung.html#anbieter-werden
-Redirect 301 /b2c-e-mail-marketing/ /markenplatzierung.html#newsletter-platzierung
-Redirect 301 /community-benefits/ /content-creator.html
+Redirect 301 /reichweite-steigern-markenpartner/ /#anbieter-werden
+Redirect 301 /b2c-e-mail-marketing/ /#newsletter-platzierung
+Redirect 301 /community-benefits/ /#community-shop
 ```
 
-Für nginx entsprechend `location = /mitarbeiterrabatte/ { return 301 /mitarbeiterbindung.html#mitarbeiterrabatte; }`.
-Soll die Seite unter `/mitarbeiterbindung/` erreichbar sein (so steht es im `canonical`-Tag), liefert der Server dort
-`mitarbeiterbindung.html` aus. (Die Regeln sind nicht auf einem echten Server getestet.)
+Für nginx entsprechend `location = /mitarbeiterrabatte/ { return 301 /#mitarbeiterrabatte; }`. Die früheren
+Unterseiten dieses Relaunchs (`mitarbeiterbindung.html` usw.) bleiben als Weiterleitung liegen (`noindex`).
+(Die Regeln sind nicht auf einem echten Server getestet.)
 
 Bei `prefers-reduced-motion` laufen keine Animationen, und alle Inhalte sind sofort sichtbar.
 Ohne JavaScript bleiben alle Inhalte lesbar.
@@ -195,10 +239,8 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
   Außerdem hängt die Veröffentlichung an `main.css` und `main.js` die Commit-Nummer an (`?v=…`), damit Browser nach
   einem Update nicht die alte Fassung aus dem Cache nehmen. Im Repository bleiben die Verweise ohne Zusatz.
-- **Unterseiten**: Alle Lösungsseiten (Mitarbeiterbindung, Kundenbindung, Markenplatzierung, Content Creator) liegen in
-  diesem Repository (siehe oben). FAQ, Karriere und Rechtliches verlinken noch auf `www.incent.de`.
-  Die Spaltenköpfe im Mega-Menü („Mitarbeiterbindung“ usw.) verlinken auf die jeweilige Seite (erster Bereich).
-  Auf der eigenen Seite lädt der Klick nicht neu, sondern wechselt weich zum ersten Bereich und scrollt nach oben.
+- **Lösungen**: Mitarbeiterbindung, Kundenbindung, Markenplatzierung und Content Creator stehen als Welten in
+  `index.html` (siehe „Aufbau der Seite“). FAQ, Karriere und Rechtliches verlinken noch auf `www.incent.de`.
   „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
 - **Kontaktformular**: Ohne Backend öffnet „Absenden“ das E-Mail-Programm mit einer vorbereiteten Nachricht an
   info@incent.de. Für den echten Versand am `<form data-contact-form>` das Attribut `data-endpoint="https://…"` setzen,
@@ -218,16 +260,17 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 
 ## Gegenüber der alten Seite geändert
 
-- Nutzerführung: Die Startseite fragt zuerst, wer die Seite besucht (Arbeitgeber, Unternehmen, Marken, Creator), und zeigt
-  danach nur die passende Absprungzone und die passenden Abschnitte. Der frühere Block „Eine Plattform. Vier Zielgruppen.“
-  mit Reitern entfällt – Einstieg und Zone ersetzen ihn. Die Lösungen stehen direkt in der Hauptnavigation (nach Zielgruppe)
-  statt in einem gemeinsamen „Lösungen“-Menü; „Unsere Plattform“ und „Vorteile“ sind keine Navigationspunkte mehr.
-- Farben: Die ganze Seite ist hell – Hero, Unterseiten-Köpfe, die früher dunklen Abschnitte (jetzt heller, leicht blauer
-  Grund `--tint`), Navigation, Mega-Menü, Mobilmenü und Footer. Die Gittertextur im Hero ist entfernt.
+- Nutzerführung: Die ganze Website ist ein One-Pager. Sie fragt zuerst, wer sie besucht (Arbeitgeber, Unternehmen,
+  Marken, Creator), und zeigt danach nur die Welt dieser Zielgruppe mit den passenden allgemeinen Abschnitten – kein Filter,
+  keine Unterseiten, keine Ausklapp-Menüs. Die Lösungen einer Zielgruppe tauscht die Leiste im Seitenkopf (Absprungzone).
+  Der frühere Block „Eine Plattform. Vier Zielgruppen.“ mit Reitern entfällt; „Unsere Plattform“ und „Vorteile“ sind keine
+  Navigationspunkte mehr.
+- Farben: Die ganze Seite ist hell – Hero, Seitenköpfe der Welten, die früher dunklen Abschnitte (jetzt heller, leicht blauer
+  Grund `--tint`), Navigation, Mobilmenü und Footer. Die Gittertextur im Hero ist entfernt.
 - Durchgehend „Sie“-Ansprache (vorher teilweise „du“).
 - Kleine Korrekturen, z. B. „über unser Vorteilsportal“, „ihr Vorteilsprogramm“, „2-in-1-Benefitportal“.
 - Firmenname einheitlich „INCENT Corporate Services GmbH“.
-- Unterseiten: Die Rückseiten der Wendekarten (Anlässe, Rabatt-Kategorien) fehlten in den gespeicherten Seiten und sind
+- Lösungen: Die Rückseiten der Wendekarten (Anlässe, Rabatt-Kategorien) fehlten in den gespeicherten Seiten und sind
   durch den Rabatt-Explorer und die Anlass-Kacheln ersetzt. Die Preistabelle rechnet mit den Einzelpreisen (9,90 € × 100 = 990 €, nicht 995 €),
   die Ersparnis ergibt sich daraus (7,7 % statt „rund 10 %“).
 - Mitarbeiterbindung: Die vier bisherigen Seiten sind zu einer Seite zusammengefasst. Was sich bisher doppelte, steht nur noch

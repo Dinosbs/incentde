@@ -30,12 +30,12 @@
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
   // Marken-Profil (createPortalTheme) – wird beim Start angelegt, alle Vorschauen lesen es
   let brand = null;
-  // Zielgruppen (Startseite: „Wer sind Sie?“): Begriff in der Hero-Zeile, Wert im Kontaktformular, Unterseite
+  // Zielgruppen (Welten der Startseite): Wert im Kontaktformular („Ich bin …“); die Wahl merkt sich der Browser
   const AUDIENCES = {
-    arbeitgeber: { name: "Arbeitgeber", word: "Mitarbeiterbindung", form: "Arbeitgeber", page: "mitarbeiterbindung.html" },
-    unternehmen: { name: "Unternehmen", word: "Kundenbindung", form: "Unternehmen", page: "kundenbindung.html" },
-    marken: { name: "Marken", word: "Brand Awareness", form: "Markenpartner", page: "markenplatzierung.html" },
-    creator: { name: "Creator", word: "Social Communities", form: "Creator", page: "content-creator.html" },
+    arbeitgeber: { form: "Arbeitgeber" },
+    unternehmen: { form: "Unternehmen" },
+    marken: { form: "Markenpartner" },
+    creator: { form: "Creator" },
   };
   const AUD_KEY = "incent-audience";
   // Weiches Scrollen (initSmoothScroll): Wer die Seite selbst scrollt (Sprünge, Stepper), beendet vorher das Gleiten
@@ -376,132 +376,6 @@
     });
   }
 
-  /* ---------- Zielgruppe: Einstieg im Hero, Absprungzone, nur passende Abschnitte ----------
-     Die Wahl wird im Browser gemerkt (localStorage) und lässt sich jederzeit ändern oder aufheben.
-     ?fuer=arbeitgeber|unternehmen|marken|creator in der Adresse wählt direkt (z. B. für Kampagnen).
-     Auf den Unterseiten belegt die Seite selbst das Kontaktformular vor („Ich bin …“). */
-  function initAudience() {
-    const html = document.documentElement;
-    const picker = $("[data-aud-pick]") && $(".aud");
-    const cards = $$("[data-aud-pick]");
-    const zone = $("[data-zone]");
-    const panels = $$("[data-zone-panel]");
-    const allBtn = $("[data-zone-all]");
-    const form = $("[data-contact-form]");
-    const store = {
-      get: () => {
-        try {
-          return localStorage.getItem(AUD_KEY) || "";
-        } catch (err) {
-          return "";
-        }
-      },
-      set: (v) => {
-        try {
-          v ? localStorage.setItem(AUD_KEY, v) : localStorage.removeItem(AUD_KEY);
-        } catch (err) {
-          /* nicht speicherbar – gilt dann nur für diesen Besuch */
-        }
-      },
-    };
-    // Kontaktformular vorbelegen, solange niemand selbst gewählt hat
-    let formTouched = false;
-    if (form) form.addEventListener("change", (e) => e.isTrusted && e.target.name === "sender_type" && (formTouched = true));
-    const preselect = (key) => {
-      if (!form || formTouched) return;
-      const value = (AUDIENCES[key] || {}).form;
-      const radios = $$('input[name="sender_type"]', form);
-      const radio = radios.find((r) => r.value === value);
-      if (!radio) return radios.forEach((r) => (r.checked = false));
-      if (radio.checked) return;
-      radio.checked = true;
-      radio.dispatchEvent(new Event("change", { bubbles: true }));
-    };
-    // Unterseiten: die Seite bestimmt die Zielgruppe des Formulars
-    if (!picker) {
-      const file = location.pathname.split("/").pop();
-      const key = Object.keys(AUDIENCES).find((k) => AUDIENCES[k].page === file);
-      if (key) preselect(key);
-      return;
-    }
-
-    // Layout hat sich geändert: Stepper, Scroll-Aufgaben & Co. neu messen
-    const relayout = () => requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
-    const setAll = (on) => {
-      html.toggleAttribute("data-aud-all", on);
-      if (allBtn) {
-        allBtn.setAttribute("aria-pressed", String(on));
-        allBtn.textContent = on ? "Nur Passendes zeigen" : "Alle Inhalte zeigen";
-      }
-      relayout();
-    };
-    const apply = (key) => {
-      const aud = AUDIENCES[key];
-      if (aud) html.dataset.aud = key;
-      else delete html.dataset.aud;
-      cards.forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.audPick === key)));
-      picker.classList.toggle("has-pick", !!aud);
-      zone.hidden = !aud;
-      panels.forEach((p) => (p.hidden = p.dataset.zonePanel !== key));
-      $$("[data-zone-name]", zone).forEach((el) => (el.textContent = aud ? aud.name : ""));
-      document.dispatchEvent(new CustomEvent("incent:audience", { detail: aud ? key : "" }));
-      // ohne Animation (Bewegung reduzieren): den Begriff direkt setzen
-      if (reducedMotion) {
-        const word = $(".rotator__word");
-        if (word && aud) word.textContent = aud.word;
-      }
-      preselect(key);
-      relayout();
-    };
-    const pick = (key, { scroll = true } = {}) => {
-      store.set(key);
-      setAll(false);
-      apply(key);
-      if (scroll) {
-        const top = zone.getBoundingClientRect().top + window.scrollY - 84;
-        scrollWindow({ top, behavior: reducedMotion ? "auto" : "smooth" });
-        // Fokus auf die Überschrift der Zone (Tastatur & Screenreader), ohne erneut zu springen
-        const title = $(`[data-zone-panel="${key}"] .zone__title`, zone);
-        if (title) {
-          title.tabIndex = -1;
-          title.focus({ preventScroll: true });
-        }
-      }
-    };
-    cards.forEach((c) => c.addEventListener("click", () => pick(c.dataset.audPick)));
-    if (allBtn) allBtn.addEventListener("click", () => setAll(!html.hasAttribute("data-aud-all")));
-    $$("[data-zone-reset]", zone).forEach((btn) =>
-      btn.addEventListener("click", () => {
-        store.set("");
-        setAll(false);
-        apply("");
-        const top = picker.getBoundingClientRect().top + window.scrollY - 110;
-        scrollWindow({ top, behavior: reducedMotion ? "auto" : "smooth" });
-        if (cards[0]) cards[0].focus({ preventScroll: true });
-      })
-    );
-    // Sprungziel liegt in einem ausgeblendeten Abschnitt (Link aus Unterseite oder Navigation): alles zeigen
-    const hiddenTarget = (id) => {
-      const el = id && document.getElementById(id);
-      return !!el && !!el.closest("[data-for]") && el.closest("[data-for]").offsetParent === null && !!html.dataset.aud;
-    };
-    document.addEventListener(
-      "click",
-      (e) => {
-        const a = e.target.closest('a[href^="#"]');
-        if (a && hiddenTarget(a.getAttribute("href").slice(1))) setAll(true);
-      },
-      true
-    );
-    window.addEventListener("hashchange", () => hiddenTarget(location.hash.slice(1)) && setAll(true));
-
-    const fromUrl = new URLSearchParams(location.search).get("fuer");
-    const start = AUDIENCES[fromUrl] ? fromUrl : AUDIENCES[store.get()] ? store.get() : "";
-    if (AUDIENCES[fromUrl]) store.set(fromUrl);
-    apply(start);
-    if (hiddenTarget(location.hash.slice(1))) setAll(true);
-  }
-
   /* ---------- Scroll-Fortschritt ---------- */
   function initScrollProgress() {
     const bar = $(".scroll-progress");
@@ -566,34 +440,15 @@
       timer = setInterval(next, INTERVAL);
     };
 
-    // Zielgruppe gewählt: der passende Begriff bleibt stehen (ohne Wahl wechseln die Begriffe weiter)
-    let fixed = "";
-    const show = (text) => {
-      if (current.textContent === text) return;
-      index = words.indexOf(text) - 1;
-      if (index < -1) {
-        words.push(text);
-        index = words.length - 2;
-      }
-      next();
-    };
-    document.addEventListener("incent:audience", (e) => {
-      fixed = (AUDIENCES[e.detail] || {}).word || "";
-      if (fixed) (stop(), show(fixed));
-      else start();
-    });
-    const startFree = start;
-    const guardedStart = () => !fixed && startFree();
-
-    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : guardedStart()));
+    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
     if (hasIO) {
       new IntersectionObserver((ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
         visible = entry.isIntersecting;
-        visible ? guardedStart() : stop();
+        visible ? start() : stop();
       }).observe(el);
     }
     // erster Begriff steht nach dem Laden kurz länger
-    setTimeout(guardedStart, 1400);
+    setTimeout(start, 1400);
   }
 
   /* ---------- Kennzahlen hochzählen ---------- */
@@ -730,28 +585,29 @@
 
   /* ---------- Hero: Lichtkegel, Cursor-Follow, Aufrichten beim Scrollen ---------- */
   function initHero() {
-    const hero = $("[data-hero]");
-    const spot = $("[data-spot]");
-    const visual = $("[data-tilt]");
-    const stage = $("[data-tilt-stage]");
-    if (!hero) return;
-
-    // Unterseiten: nur der Lichtkegel folgt dem Cursor (im ganzen Fenster)
-    if (!visual || !stage) {
-      if (finePointer && spot && !reducedMotion) {
-        window.addEventListener(
-          "pointermove",
-          (e) => {
-            const r = hero.getBoundingClientRect();
-            if (r.bottom < 0) return;
+    // Seitenköpfe der Welten: nur der Lichtkegel folgt dem Cursor (im ganzen Fenster)
+    const subs = $$("[data-subhero]");
+    if (subs.length && finePointer && !reducedMotion) {
+      window.addEventListener(
+        "pointermove",
+        (e) => {
+          subs.forEach((sub) => {
+            const r = sub.getBoundingClientRect();
+            const spot = $("[data-spot]", sub);
+            if (!spot || r.bottom < 0 || !r.height) return;
             spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
             spot.style.setProperty("--sy", `${e.clientY - r.top}px`);
-          },
-          { passive: true }
-        );
-      }
-      return;
+          });
+        },
+        { passive: true }
+      );
     }
+
+    const hero = $("[data-hero]");
+    const spot = hero && $("[data-spot]", hero);
+    const visual = hero && $("[data-tilt]", hero);
+    const stage = visual && $("[data-tilt-stage]", visual);
+    if (!hero || !visual || !stage) return;
 
     if (reducedMotion) {
       stage.style.setProperty("--p", "1");
@@ -2455,33 +2311,86 @@
     });
   }
 
-  /* ---------- Mitarbeiterbindung: Bereiche umschalten, Leiste an die Navigation andocken ---------- */
-  function initMb() {
-    const wrap = $("[data-mb-panels]");
-    if (!wrap) return;
+  /* ---------- Welten: alles für eine Zielgruppe unter einem Dach ----------
+     Die Startseite ist ein One-Pager. Die Wahl („Wer sind Sie?“, Navigation, Umschalter im Seitenkopf) zeigt genau
+     eine Welt (Arbeitgeber, Unternehmen, Marken, Creator). Die Leiste im Seitenkopf der Welt tauscht deren Bereiche
+     und dockt beim Scrollen an die Navigation an. Allgemeine Abschnitte (data-for) erscheinen nur, wo sie passen.
+     Welt und Bereich stehen schon vor dem ersten Zeichnen fest (Skript im <head>), die Wahl merkt sich der Browser.
+     „Übersicht“ (Logo, #top) führt zurück zur Wahl und vergisst sie. */
+  function initWorlds() {
+    const root = $("[data-worlds]");
+    if (!root) return;
     const html = document.documentElement;
-    const ids = $$(".mb-panel", wrap).map((p) => p.id);
+    const main = $("#main");
     const nav = $("[data-nav]");
     const navInner = nav && $(".nav__inner", nav);
-    const cluster = $("[data-cluster]");
-    const dock = $("[data-mb-dock]");
     const meta = $('meta[name="description"]');
-    const hosts = $$("[data-mb-tabs]");
-    if (nav && dock) nav.append(dock);
-    const dockBox = dock && $(".dock", dock);
-    const dockToggle = dock && $("[data-dock-toggle]", dock);
-    const dockMenu = dock && $(".dock__menu", dock);
-
-    const tabOf = (id) => {
-      if (ids.includes(id)) return id;
-      const el = id && document.getElementById(id);
-      const panel = el && el.closest(".mb-panel");
-      return panel ? panel.id : null;
+    const form = $("[data-contact-form]");
+    const home = { title: document.title, desc: meta ? meta.content : "" };
+    const store = (v) => {
+      try {
+        v ? localStorage.setItem(AUD_KEY, v) : localStorage.removeItem(AUD_KEY);
+      } catch (err) {
+        /* nicht speicherbar – gilt dann nur für diesen Besuch */
+      }
     };
+
+    const worlds = $$("[data-world-id]", root).map((el) => {
+      const dock = $("[data-mb-dock]", el);
+      const w = {
+        el,
+        key: el.dataset.worldId,
+        ids: $$(".mb-panel", el).map((p) => p.id),
+        panels: $("[data-mb-panels]", el),
+        cluster: $("[data-cluster]", el),
+        hosts: $$("[data-mb-tabs]", el),
+        texts: $(".subhero__texts", el),
+        dock,
+        dockBox: dock && $(".dock", dock),
+        dockToggle: dock && $("[data-dock-toggle]", dock),
+        dockMenu: dock && $(".dock__menu", dock),
+      };
+      // angeheftete Leiste jeder Welt hängt an der Navigation, sichtbar ist nur die der aktuellen Welt (CSS)
+      if (nav && dock) nav.append(dock);
+      return w;
+    });
+    const byKey = (k) => worlds.find((w) => w.key === k);
+    const worldOf = (panelId) => worlds.find((w) => w.ids.includes(panelId));
+    const cur = () => byKey(html.dataset.world);
+
+    // Sprungziel → Bereich (Bereich selbst, Welt, Abschnitt in einem Bereich, Seitenkopf einer Welt)
+    const tabOf = (id) => {
+      if (!id) return null;
+      if (worldOf(id)) return id;
+      if (byKey(id)) return byKey(id).ids[0];
+      const el = document.getElementById(id);
+      const inWorld = el && el.closest("[data-world-id]");
+      if (!inWorld) return null;
+      const panel = el.closest(".mb-panel");
+      if (panel) return panel.id;
+      const w = byKey(inWorld.dataset.worldId);
+      return w === cur() ? html.dataset.mb : w.ids[0];
+    };
+
+    // Kontaktformular vorbelegen („Ich bin …“), solange niemand selbst gewählt hat
+    let formTouched = false;
+    if (form) form.addEventListener("change", (e) => e.isTrusted && e.target.name === "sender_type" && (formTouched = true));
+    const preselect = (key) => {
+      if (!form || formTouched) return;
+      const value = (AUDIENCES[key] || {}).form;
+      const radios = $$('input[name="sender_type"]', form);
+      const radio = radios.find((r) => r.value === value);
+      if (!radio) return radios.forEach((r) => (r.checked = false));
+      if (radio.checked) return;
+      radio.checked = true;
+      radio.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+
     const isDocked = () => !!nav && nav.classList.contains("is-docked");
     const offset = () => {
       const navBottom = navInner ? navInner.getBoundingClientRect().bottom : 80;
-      const bar = dock && $(".dock__bar", dock);
+      const w = cur();
+      const bar = w && w.dock && $(".dock__bar", w.dock);
       return Math.round(Math.max(navBottom, 70) + (bar ? bar.offsetHeight : 0) + 18);
     };
     const scrollToEl = (el, behavior) => {
@@ -2501,130 +2410,227 @@
       host.style.setProperty("--io", "1");
     };
     // Textblock im Seitenkopf: Höhe weich an den aktiven Bereich anpassen statt an den längsten
-    const texts = $(".subhero__texts");
     const fitTexts = () => {
-      const active = texts && $(`[data-mb-only="${html.dataset.mb}"]`, texts);
-      if (active) texts.style.height = `${active.offsetHeight}px`;
+      const w = cur();
+      const active = w && w.texts && $(`[data-mb-only="${html.dataset.mb}"]`, w.texts);
+      if (active) w.texts.style.height = `${active.offsetHeight}px`;
     };
-    const sync = () => {
-      const cur = html.dataset.mb;
-      const panel = document.getElementById(cur);
-      document.title = panel.dataset.title;
-      if (meta) meta.content = panel.dataset.desc;
-      $$('a[href^="#"]')
-        .filter((a) => ids.includes(a.getAttribute("href").slice(1)) && !a.closest(".crumbs"))
-        .forEach((a) => (a.getAttribute("href") === `#${cur}` ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
-      html.style.setProperty("--mb-i", String(ids.indexOf(cur)));
-      html.style.setProperty("--mb-n", String(ids.length));
-      $$("[data-dock-step]").forEach((b) => {
-        const i = ids.indexOf(cur) + Number(b.dataset.dockStep);
-        b.disabled = i < 0 || i >= ids.length;
-      });
-      hosts.forEach(placeInd);
+    const layoutBars = () => {
+      const w = cur();
+      if (w) w.hosts.forEach(placeInd);
       fitTexts();
       html.style.scrollPaddingTop = `${offset()}px`;
     };
+    const sync = () => {
+      const w = cur();
+      const id = html.dataset.mb;
+      const panel = w && document.getElementById(id);
+      document.title = panel ? panel.dataset.title : home.title;
+      if (meta) meta.content = panel ? panel.dataset.desc : home.desc;
+      worlds.forEach((x) =>
+        x.hosts.forEach((h) =>
+          $$("a", h).forEach((a) => (a.getAttribute("href") === `#${id}` ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")))
+        )
+      );
+      $$("[data-nav-world]").forEach((a) => (w && a.dataset.navWorld === w.key ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")));
+      if (w) {
+        const i = w.ids.indexOf(id);
+        html.style.setProperty("--mb-i", String(i));
+        html.style.setProperty("--mb-n", String(w.ids.length));
+        if (w.dock)
+          $$("[data-dock-step]", w.dock).forEach((b) => {
+            const j = i + Number(b.dataset.dockStep);
+            b.disabled = j < 0 || j >= w.ids.length;
+          });
+      }
+      layoutBars();
+    };
 
+    const setDockMenu = (w, open) => {
+      if (!w.dockBox) return;
+      w.dockBox.classList.toggle("is-open", open);
+      w.dockToggle.setAttribute("aria-expanded", String(open));
+      w.dockMenu.inert = !open;
+    };
+    const closeDockMenus = () => worlds.forEach((w) => setDockMenu(w, false));
+    // Welt gewechselt: Leiste neu andocken, Formular vorbelegen, Stepper & Co. neu messen
+    const worldChanged = () => {
+      if (nav) nav.classList.remove("is-docked");
+      worlds.forEach((w) => w.dock && (w.dock.inert = true));
+      closeDockMenus();
+      preselect(html.dataset.world || "");
+      requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+    };
+
+    // kurz ausblenden, umschalten, einblenden (innerhalb einer Welt nur die Bereiche, sonst der ganze Inhalt)
     let timer = 0;
+    let fading = null;
+    const swap = (fadeEl, fn) => {
+      clearTimeout(timer);
+      if (fading && fading !== fadeEl) fading.classList.remove("is-leaving");
+      const done = () => {
+        fn();
+        requestAnimationFrame(() => {
+          fadeEl.classList.remove("is-leaving");
+          fading = null;
+          runScrollTasks();
+        });
+      };
+      if (reducedMotion) return done();
+      fading = fadeEl;
+      fadeEl.classList.add("is-leaving");
+      timer = setTimeout(done, 230);
+    };
+
     const show = (id, { push = true, top = false } = {}) => {
       const tab = tabOf(id);
       if (!tab) return false;
-      const target = id === tab ? null : document.getElementById(id);
-      if (push && location.hash !== `#${id}`) history.pushState(null, "", `#${id}`);
-      if (tab === html.dataset.mb) {
+      const w = worldOf(tab);
+      const el = document.getElementById(id);
+      const target = id === tab || !el || el.matches("[data-world-id], [data-subhero]") ? null : el;
+      if (push && location.hash !== `#${id}`) history.pushState({ world: w.key, mb: tab }, "", `#${id}`);
+      store(w.key);
+      const sameWorld = w.key === html.dataset.world;
+      if (sameWorld && tab === html.dataset.mb) {
         if (target) scrollToEl(target, "smooth");
         else if (top || isDocked()) scrollWindow({ top: 0, behavior: "smooth" });
         return true;
       }
-      const swapNow = () => {
+      swap(sameWorld ? w.panels : main, () => {
+        html.dataset.world = w.key;
         html.dataset.mb = tab;
         sync();
+        if (!sameWorld) worldChanged();
         if (target) scrollToEl(target, "instant");
-        else if (top || isDocked()) scrollWindow({ top: 0, behavior: "instant" });
-        requestAnimationFrame(() => {
-          wrap.classList.remove("is-leaving");
-          runScrollTasks();
-        });
-      };
-      clearTimeout(timer);
-      if (reducedMotion) return swapNow(), true;
-      wrap.classList.add("is-leaving");
-      timer = setTimeout(swapNow, 230);
+        else if (top || !sameWorld || isDocked()) scrollWindow({ top: 0, behavior: "instant" });
+      });
       return true;
     };
-
-    const setDockMenu = (open) => {
-      if (!dockBox) return;
-      dockBox.classList.toggle("is-open", open);
-      dockToggle.setAttribute("aria-expanded", String(open));
-      dockMenu.inert = !open;
+    // zurück zur Übersicht mit der Wahl „Wer sind Sie?“
+    const showHome = ({ push = true } = {}) => {
+      store("");
+      if (push && (location.hash || location.search)) history.pushState({ world: "", mb: "" }, "", location.pathname);
+      if (!html.dataset.world) return scrollWindow({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+      swap(main, () => {
+        delete html.dataset.world;
+        delete html.dataset.mb;
+        sync();
+        worldChanged();
+        scrollWindow({ top: 0, behavior: "instant" });
+      });
     };
 
-    // Alle Links auf Bereiche oder Abschnitte darin laufen über den weichen Wechsel
+    // Alle Links auf Welten, Bereiche oder Abschnitte darin laufen über den weichen Wechsel
     document.addEventListener("click", (e) => {
       const a = e.target.closest("a[href]");
-      if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target) return;
       const url = new URL(a.href, location.href);
       if (url.href.split("#")[0] !== location.href.split("#")[0]) return;
-      // Link auf die Seite selbst (z. B. Spaltentitel im Mega-Menü): erster Bereich, nach oben
-      if (!url.hash) {
+      const id = decodeURIComponent(url.hash.slice(1));
+      if (!id || id === "top") {
         e.preventDefault();
-        setDockMenu(false);
-        show(ids[0], { top: true });
+        closeDockMenus();
+        showHome();
         return;
       }
-      const id = decodeURIComponent(url.hash.slice(1));
       if (!tabOf(id)) return;
       e.preventDefault();
-      setDockMenu(false);
+      closeDockMenus();
       show(id);
     });
-    window.addEventListener("popstate", () => show(decodeURIComponent(location.hash.slice(1)) || ids[0], { push: false }));
+    // Verlauf: Jeder Eintrag kennt seine Welt (history.state) – auch Sprünge zu allgemeinen Abschnitten wie #kontakt
+    const stamp = () => ({ world: html.dataset.world || "", mb: html.dataset.mb || "" });
+    const restore = (world, mb, id) => {
+      const el = id && id !== "top" ? document.getElementById(id) : null;
+      if ((html.dataset.world || "") === world && (!world || html.dataset.mb === mb)) return;
+      store(world);
+      swap(main, () => {
+        if (world) {
+          html.dataset.world = world;
+          html.dataset.mb = mb;
+        } else {
+          delete html.dataset.world;
+          delete html.dataset.mb;
+        }
+        sync();
+        worldChanged();
+        if (el) scrollToEl(el, "instant");
+        else scrollWindow({ top: 0, behavior: "instant" });
+      });
+    };
+    window.addEventListener("hashchange", () => !history.state && history.replaceState(stamp(), ""));
+    window.addEventListener("popstate", (e) => {
+      const id = decodeURIComponent(location.hash.slice(1));
+      const state = e.state && typeof e.state.world === "string" ? e.state : null;
+      if (tabOf(id)) show(id, { push: false });
+      else if (state) restore(state.world, state.mb, id);
+      else if (!id || id === "top") showHome({ push: false });
+    });
 
-    if (nav && cluster && dock) {
-      dock.inert = true;
+    if (nav && navInner) {
+      worlds.forEach((w) => {
+        if (!w.dock) return;
+        w.dock.inert = true;
+        setDockMenu(w, false);
+        w.dockToggle.addEventListener("click", () => setDockMenu(w, !w.dockBox.classList.contains("is-open")));
+        $$("[data-dock-step]", w.dock).forEach((b) =>
+          b.addEventListener("click", () => {
+            const i = w.ids.indexOf(html.dataset.mb) + Number(b.dataset.dockStep);
+            if (i >= 0 && i < w.ids.length) show(w.ids[i]);
+          })
+        );
+      });
       scrollTasks.push(() => {
-        const docked = cluster.getBoundingClientRect().bottom < navInner.getBoundingClientRect().bottom + 4;
+        const w = cur();
+        const docked = !!(w && w.cluster && w.dock) && w.cluster.getBoundingClientRect().bottom < navInner.getBoundingClientRect().bottom + 4;
         if (docked === isDocked()) return;
         nav.classList.toggle("is-docked", docked);
-        dock.inert = !docked;
-        if (!docked) setDockMenu(false);
-        requestAnimationFrame(() => hosts.forEach(placeInd));
+        worlds.forEach((x) => x.dock && (x.dock.inert = !(docked && x === w)));
+        if (!docked) closeDockMenus();
+        requestAnimationFrame(layoutBars);
       });
-      setDockMenu(false);
-      dockToggle.addEventListener("click", () => setDockMenu(!dockBox.classList.contains("is-open")));
-      $$("[data-dock-step]", dock).forEach((b) =>
-        b.addEventListener("click", () => {
-          const i = ids.indexOf(html.dataset.mb) + Number(b.dataset.dockStep);
-          if (i >= 0 && i < ids.length) show(ids[i]);
-        })
-      );
-      document.addEventListener("click", (e) => !dock.contains(e.target) && setDockMenu(false));
+      document.addEventListener("click", (e) => worlds.forEach((w) => w.dock && !w.dock.contains(e.target) && setDockMenu(w, false)));
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && dockBox.classList.contains("is-open")) {
-          setDockMenu(false);
-          dockToggle.focus();
-        }
+        const w = e.key === "Escape" && worlds.find((x) => x.dockBox && x.dockBox.classList.contains("is-open"));
+        if (!w) return;
+        setDockMenu(w, false);
+        w.dockToggle.focus();
       });
     }
 
+    // Start: ruhendes Sprungziel (Bereich/Welt, siehe Kopf-Skript) wieder in die Adresse; Sprungziel, das das
+    // Kopf-Skript nicht kennt, hier nachziehen; gezeigte Welt merken
+    // (erst nach dem Laden: Chrome springt sonst beim Abschluss des Ladens doch noch zum Sprungziel)
+    const kept = html.dataset.hash;
+    delete html.dataset.hash;
+    if (kept) {
+      const back = () => !location.hash && history.replaceState(stamp(), "", `#${kept}`);
+      if (document.readyState === "complete") back();
+      else window.addEventListener("load", () => setTimeout(back, 0), { once: true });
+    }
+    const first = kept || decodeURIComponent(location.hash.slice(1));
+    const firstTab = tabOf(first);
+    if (firstTab && firstTab !== html.dataset.mb) {
+      html.dataset.world = worldOf(firstTab).key;
+      html.dataset.mb = firstTab;
+    }
+    if (html.dataset.world) {
+      store(html.dataset.world);
+      preselect(html.dataset.world);
+    }
+    history.replaceState(stamp(), "");
     sync();
     // Direktlink auf einen Abschnitt: nach dem Laden (Bilder, Schriften) noch einmal genau ausrichten
-    const first = decodeURIComponent(location.hash.slice(1));
-    const firstEl = first && !ids.includes(first) && tabOf(first) ? document.getElementById(first) : null;
-    if (firstEl) {
+    const firstEl = !kept && firstTab && first !== firstTab ? document.getElementById(first) : null;
+    if (firstEl && !firstEl.matches("[data-world-id], [data-subhero]")) {
       let moved = false;
       ["wheel", "touchstart", "keydown"].forEach((ev) => window.addEventListener(ev, () => (moved = true), { once: true, passive: true }));
       const align = () => !moved && scrollToEl(firstEl, "instant");
       requestAnimationFrame(align);
       window.addEventListener("load", () => setTimeout(align, 60));
     }
-    window.addEventListener("resize", () => {
-      hosts.forEach(placeInd);
-      fitTexts();
-      html.style.scrollPaddingTop = `${offset()}px`;
-    });
-    if (document.fonts) document.fonts.ready.then(() => (hosts.forEach(placeInd), fitTexts()));
+    window.addEventListener("resize", layoutBars);
+    if (document.fonts) document.fonts.ready.then(layoutBars);
   }
 
   /* ---------- Preisvergleich: SELECT vs. Prepaid-Kreditkarte ---------- */
@@ -3743,11 +3749,12 @@
       return out;
     };
     // Unterkante der Navigation beim Scrollen – auf den Clusterseiten mit angedockter Bereichsleiste
-    const dock = $("[data-mb-dock]");
-    const dockBar = dock && $(".dock__bar", dock);
+    const docks = $$("[data-mb-dock]");
     const navBottom = () => {
       if (!nav) return 0;
       const b = nav.getBoundingClientRect().bottom;
+      const dock = docks.find((d) => d.offsetHeight);
+      const dockBar = dock && $(".dock__bar", dock);
       return Math.max(0, dockBar ? b - dock.offsetHeight + dockBar.offsetHeight : b);
     };
     const outerH = (el) => {
@@ -3928,15 +3935,13 @@
       steppers.forEach(layout);
       if (jump(e.detail.el, e.detail.behavior)) e.preventDefault();
     });
-    // Seiten ohne Bereichs-Umschaltung: normale Anker
-    if (!$("[data-mb-panels]")) {
-      const fromHash = (behavior) => {
-        const id = decodeURIComponent(location.hash.slice(1));
-        if (id) jump(document.getElementById(id), behavior);
-      };
-      window.addEventListener("hashchange", () => fromHash("smooth"));
-      if (location.hash) window.addEventListener("load", () => fromHash("auto"), { once: true });
-    }
+    // normale Anker außerhalb der Welten (die Welten springen selbst über stepper:target)
+    const fromHash = (behavior) => {
+      const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if (el && !el.closest("[data-world-id]")) jump(el, behavior);
+    };
+    window.addEventListener("hashchange", () => fromHash("smooth"));
+    if (location.hash) window.addEventListener("load", () => fromHash("auto"), { once: true });
     update();
   }
 
@@ -4007,6 +4012,10 @@
   }
 
   /* ---------- Start ---------- */
+  // weiches Scrollen für Anker erst nach dem Laden (siehe html.is-ready in main.css)
+  const ready = () => setTimeout(() => document.documentElement.classList.add("is-ready"), 120);
+  if (document.readyState === "complete") ready();
+  else window.addEventListener("load", ready, { once: true });
   markScrollSteps();
   initSmoothScroll();
   initPartnerLogos();
@@ -4030,7 +4039,6 @@
   initBrandDrops(brand);
   brand.refresh();
   initContactForm();
-  initAudience();
   initCarousel();
   initTiltCards();
   initTagAnims();
@@ -4044,7 +4052,7 @@
   initPlacement();
   initPackages();
   initEarnings();
-  initMb();
+  initWorlds();
   initSelfLinks();
   initShots();
   initSteps();
