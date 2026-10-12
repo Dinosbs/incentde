@@ -337,26 +337,28 @@ ul, ol { padding: 0; list-style: none; }
   border-radius: 0 0 clamp(28px, 5vw, 56px) clamp(28px, 5vw, 56px);
 }
 .hero__bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.blob { position: absolute; border-radius: 50%; filter: blur(70px); will-change: transform; }
+/* weiche Farbflächen: Verlauf mit sanftem Auslauf statt filter: blur() – ein Weichzeichner auf so großen Flächen
+   muss in jedem Bild neu berechnet werden und bremst die ganze Seite (Desktop ~15 statt 60 fps) */
+.blob { position: absolute; border-radius: 50%; will-change: transform; }
 .blob--1 {
   width: 62vw; height: 62vw; max-width: 940px; max-height: 940px;
   left: -18%; top: -28%;
-  background: radial-gradient(circle, rgba(43, 75, 255, .9) 0%, transparent 65%);
-  opacity: .22;
+  background: radial-gradient(circle, rgba(43, 75, 255, .9) 0%, rgba(43, 75, 255, .66) 20%, rgba(43, 75, 255, .36) 40%, rgba(43, 75, 255, .14) 57%, rgba(43, 75, 255, .04) 68%, rgba(43, 75, 255, 0) 78%);
+  opacity: .17;
   animation: drift-a 22s ease-in-out infinite alternate;
 }
 .blob--2 {
   width: 48vw; height: 48vw; max-width: 760px; max-height: 760px;
   right: -14%; top: 2%;
-  background: radial-gradient(circle, rgba(0, 200, 255, .85) 0%, transparent 65%);
-  opacity: .18;
+  background: radial-gradient(circle, rgba(0, 200, 255, .85) 0%, rgba(0, 200, 255, .62) 20%, rgba(0, 200, 255, .34) 40%, rgba(0, 200, 255, .13) 57%, rgba(0, 200, 255, .04) 68%, rgba(0, 200, 255, 0) 78%);
+  opacity: .13;
   animation: drift-b 26s ease-in-out infinite alternate;
 }
 .blob--3 {
   width: 80vw; height: 46vw;
   left: 10%; top: 42%;
-  background: radial-gradient(ellipse, rgba(26, 109, 255, .8) 0%, transparent 62%);
-  opacity: .12;
+  background: radial-gradient(ellipse, rgba(26, 109, 255, .8) 0%, rgba(26, 109, 255, .58) 19%, rgba(26, 109, 255, .32) 38%, rgba(26, 109, 255, .12) 54%, rgba(26, 109, 255, .04) 65%, rgba(26, 109, 255, 0) 76%);
+  opacity: .1;
   animation: drift-c 30s ease-in-out infinite alternate;
 }
 .hero__spot {
@@ -817,10 +819,9 @@ ul, ol { padding: 0; list-style: none; }
   padding: 8px 8px 8px 16px;
   border-radius: 999px;
   color: var(--ink);
-  background: rgba(255, 255, 255, .94);
+  /* deckend statt backdrop-filter: der Chip kippt mit dem Cursor, ein Weichzeichner dahinter würde jedes Bild neu gerechnet */
+  background: rgba(255, 255, 255, .97);
   box-shadow: 0 24px 50px -18px rgba(0, 10, 30, .6), 0 0 0 1px rgba(255, 255, 255, .6);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
   translate: -50% 0;
   white-space: nowrap;
 }
@@ -1681,9 +1682,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   padding: 18px 22px;
   border-radius: 20px;
   color: #fff;
-  background: rgba(0, 10, 30, .82);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  background: rgba(0, 10, 30, .88); /* ohne backdrop-filter (kippt mit dem Cursor) */
   box-shadow: 0 24px 50px -20px rgba(0, 10, 30, .6);
 }
 .about__since strong {
@@ -2187,9 +2186,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   padding: 10px 20px 10px 10px;
   font-size: 1.04rem; line-height: 1.15;
   border: 1px solid rgba(255, 255, 255, .8);
-  background: rgba(255, 255, 255, .84);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  backdrop-filter: blur(14px) saturate(160%);
+  background: rgba(255, 255, 255, .93); /* ohne backdrop-filter (kippt mit dem Cursor) */
   box-shadow: 0 26px 50px -22px rgba(0, 30, 90, .5), inset 0 1px 0 #fff;
 }
 .devices__tag strong { font-weight: 600; }
@@ -2308,10 +2305,10 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .tilt-media--shots .shots__foot { transform: translateZ(36px); }
 /* Freigestellte Geräte: weicher Lichtschein weit hinter dem Bild verstärkt die Tiefe */
 .tilt-media--plain::before {
-  content: ""; position: absolute; inset: 12% 14%; z-index: -1;
+  content: ""; position: absolute; inset: 8% 10%; z-index: -1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(43, 123, 255, .2), transparent);
-  filter: blur(24px);
+  /* weicher Verlauf statt filter: blur() – das Element kippt mit dem Cursor, ein Filter würde jedes Bild neu gerechnet */
+  background: radial-gradient(closest-side, rgba(43, 123, 255, .2), rgba(43, 123, 255, .08) 55%, rgba(43, 123, 255, 0));
   transform: translateZ(-90px);
   pointer-events: none;
 }
@@ -2339,8 +2336,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .bviz__field { position: absolute; inset: 0; transform: translateZ(-70px); pointer-events: none; }
 .bviz__field::before {
   content: ""; position: absolute; inset: 14%; border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(43, 123, 255, .42), rgba(0, 242, 254, .1) 55%, transparent);
-  filter: blur(10px);
+  background: radial-gradient(closest-side, rgba(43, 123, 255, .42), rgba(0, 242, 254, .1) 55%, rgba(0, 242, 254, 0));
 }
 .bviz__field i {
   position: absolute; left: 50%; top: 50%; width: 40cqi; aspect-ratio: 1; margin: -20cqi 0 0 -20cqi;
@@ -2446,8 +2442,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   position: absolute; right: 0; top: 18%; transform: translateZ(110px);
   display: flex; flex-direction: column; gap: 1.2cqi; padding: 2.4cqi 2.8cqi; border-radius: 3.4cqi;
   font-size: max(.7rem, 2.6cqi); font-weight: 600; color: #fff;
-  background: rgba(8, 18, 42, .9); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), 0 3cqi 6cqi -2cqi rgba(0, 0, 0, .7);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  background: rgba(8, 18, 42, .94); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), 0 3cqi 6cqi -2cqi rgba(0, 0, 0, .7);
 }
 .bviz__service p { margin-bottom: .4cqi; font-size: max(.6rem, 2.1cqi); letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); }
 .bviz__service span { display: flex; align-items: center; gap: 1.2cqi; opacity: 0; translate: -1.5cqi 0; transition: opacity .35s, translate .5s var(--ease-out); }
@@ -4638,8 +4633,10 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
 @keyframes loader-in { from { opacity: 0; scale: .9; } }
 .loader__logo { width: clamp(150px, 16vw, 200px); height: auto; }
 .loader__bar { position: relative; width: 168px; height: 4px; overflow: hidden; border-radius: 4px; background: rgba(43, 75, 255, .12); }
-.loader__bar i { position: absolute; inset: 0 auto 0 0; width: 42%; border-radius: inherit; background: var(--grad); animation: loader-bar 1.05s ease-in-out infinite; }
+.loader__bar i { position: absolute; inset: 0 auto 0 0; width: 42%; border-radius: inherit; background: var(--grad); animation: loader-bar 1.05s ease-in-out 4; } /* endlich: auch ohne Skript (Sicherheitsnetz nach 4 s) läuft nichts weiter */
 @keyframes loader-bar { from { translate: -105% 0; } to { translate: 245% 0; } }
+/* Bereiche außerhalb des Fensters: Animationen pausieren (main.js: initAnimPause) – spart Rechenzeit in jedem Bild */
+[data-anim-off], [data-anim-off] *, [data-anim-off] *::before, [data-anim-off] *::after { animation-play-state: paused !important; }
 /* solange geladen wird, warten die Einblend-Animationen (danach laufen sie sichtbar ab) */
 .js.is-loading [data-reveal].is-in { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {

@@ -603,8 +603,11 @@
       Math.abs(g.gx - c.gx) > 0.05 || Math.abs(g.gy - c.gy) > 0.05;
     t.frame = moving ? requestAnimationFrame(() => tiltTick(t)) : 0;
   };
+  // wirklich zu sehen? (nicht in einem ausgeblendeten Reiter mit opacity/visibility – IntersectionObserver sieht das nicht)
+  const shown = (el) => !el.checkVisibility || el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
   const tiltAim = (t) => {
     const g = t.target;
+    if (pointer && !shown(t.stage)) return;
     if (!pointer) {
       g.x = g.y = g.glare = 0;
     } else {
@@ -3948,6 +3951,19 @@
     ["pointerdown", "keydown", "click"].forEach((t) => window.addEventListener(t, (e) => e.isTrusted && stopGlide(), true));
   }
 
+  /* ---------- Daueranimationen nur im Bild ----------
+     CSS-Animationen (schwebende Chips, Orbit-Ringe, Laufbänder …) laufen sonst auch außerhalb des Fensters weiter und
+     kosten in jedem Bild Rechenzeit. Bereiche außerhalb des Fensters (mit etwas Vorlauf) bekommen data-anim-off –
+     dort pausiert alles (main.css). Ausgeblendete Welten zählen als außerhalb. */
+  function initAnimPause() {
+    if (!hasIO) return;
+    const io = new IntersectionObserver(
+      (ioEntries) => ioEntries.forEach((e) => e.target.toggleAttribute("data-anim-off", !e.isIntersecting)),
+      { rootMargin: "200px 0px" }
+    );
+    $$("main section, .footer").forEach((el) => io.observe(el));
+  }
+
   /* ---------- Start ---------- */
   // Ladeanimation: weg, sobald die Seite geladen ist – mindestens kurz sichtbar, höchstens 2,5 s nach dem Start.
   // Danach weiches Scrollen für Anker (siehe html.is-ready in main.css).
@@ -3960,6 +3976,8 @@
       html.classList.add("is-loaded");
       html.classList.remove("is-loading");
       setTimeout(() => html.classList.add("is-ready"), 120);
+      // nach dem Ausblenden ganz entfernen – ein unsichtbarer Ladebalken liefe sonst endlos weiter
+      setTimeout(() => $(".loader")?.remove(), 700);
     };
     const MIN = reducedMotion ? 0 : 700;
     const onLoad = () => setTimeout(finish, Math.max(0, MIN - performance.now()));
@@ -3968,6 +3986,7 @@
     setTimeout(finish, 2500);
   }
   markScrollSteps();
+  initAnimPause();
   initSmoothScroll();
   initPartnerLogos();
   initDealTiles();

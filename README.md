@@ -244,6 +244,22 @@ Unterseiten dieses Relaunchs (`mitarbeiterbindung.html` usw.) bleiben als Weiter
 Bei `prefers-reduced-motion` laufen keine Animationen, und alle Inhalte sind sofort sichtbar.
 Ohne JavaScript bleiben alle Inhalte lesbar.
 
+### Leistung (flüssig auch auf großen Desktop-Bildschirmen)
+
+Regeln, damit die Seite nicht ruckelt – bitte bei neuen Elementen beibehalten:
+
+- **Kein `filter: blur()` auf großen oder bewegten Flächen.** Die weichen Farbflächen im Hero und in den Seitenköpfen
+  (`.blob`) sind Verläufe mit sanftem Auslauf. Mit Weichzeichner lief die Startseite am Desktop mit ~15 statt 60 fps –
+  der Filter muss in jedem Bild neu gerechnet werden, und die Flächen wachsen mit der Fensterbreite.
+- **Kein `backdrop-filter` in Elementen, die dem Cursor folgen** (Tags, Chips, Etiketten auf gekippten Bildern):
+  dort deckender Hintergrund. Glas-Effekt nur für ruhige Flächen (Navigation, Nach-oben-Knopf).
+- **Daueranimationen nur im Bild:** Abschnitte außerhalb des Fensters bekommen `data-anim-off`, darin pausieren
+  alle CSS-Animationen (`initAnimPause`).
+- **Cursor-Neigung nur für sichtbare Elemente:** ausgeblendete Reiter-Inhalte (opacity/visibility) werden nicht
+  mitgekippt (`checkVisibility`). Die Neigung setzt CSS-Variablen, die sich vererben – jedes gekippte Element kostet
+  eine Stil-Berechnung seines ganzen Inhalts.
+- Die Ladeanimation wird nach dem Ausblenden aus der Seite entfernt.
+
 ## Anpassen
 
 - **CI-Farben**: `--cyan`, `--azure` und `--royal` in `assets/css/main.css` (`:root`). `--grad` ist der CI-Verlauf.
