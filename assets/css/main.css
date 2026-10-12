@@ -4596,7 +4596,7 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
   translate: var(--sx, 0) var(--sy, 0);
   opacity: var(--so, 0);
   box-shadow: 0 0 0 2px #2b6bff, 0 0 0 7px rgba(43, 107, 255, .14), 0 30px 60px -28px rgba(26, 90, 255, .7);
-  transition: translate .5s var(--ease-out), width .5s var(--ease-out), height .5s var(--ease-out), opacity .35s;
+  transition: translate .7s var(--ease-out), width .7s var(--ease-out), height .7s var(--ease-out), opacity .35s;
 }
 .aud__card.is-lit { translate: 0 -4px; border-color: transparent; }
 .aud__card.is-lit .aud__ico { color: #fff; background: var(--grad-btn); }

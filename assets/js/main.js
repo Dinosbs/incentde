@@ -411,7 +411,7 @@
     const el = $("[data-rotator]");
     if (!el || reducedMotion) return;
     const words = JSON.parse(el.dataset.rotator);
-    const INTERVAL = 800;
+    const INTERVAL = 2000; // ruhiger Takt: jeder Begriff (und die passende Karte) steht gut lesbar
     let index = 0;
     let current = $(".rotator__word", el);
     let timer = 0;
@@ -464,7 +464,7 @@
       }).observe(el);
     }
     // erster Begriff steht nach dem Laden kurz länger
-    setTimeout(guarded, 1400);
+    setTimeout(guarded, 1000);
   }
 
   /* ---------- Hero: „Wer sind Sie?“ – Hervorhebung wandert mit den Begriffen der Headline ----------
