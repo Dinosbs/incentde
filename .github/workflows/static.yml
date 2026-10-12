@@ -33,6 +33,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      # Zu große Bilder (z. B. direkt über GitHub hochgeladen) auf Anzeigegröße bringen – nur in der veröffentlichten
+      # Fassung, das Repository bleibt unverändert (Regeln in tools/optimize-images.mjs)
+      - name: Bilder optimieren
+        run: |
+          npm i --no-save --no-audit --no-fund sharp@0.33.5
+          node tools/optimize-images.mjs assets/img
+          rm -rf node_modules package.json package-lock.json
       # Bildlisten (manifest.json) frisch erzeugen: Der Commit der Action „Bildlisten aktualisieren“
       # löst selbst keine Veröffentlichung aus, neue Logos/Kachelbilder wären sonst online nicht gelistet.
       - name: Bildlisten erzeugen

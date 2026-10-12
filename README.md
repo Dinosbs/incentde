@@ -252,8 +252,10 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   alten WordPress); Apple-Touch-Icon `assets/img/apple-touch-icon.png`.
 - Alle Schriftschnitte des ersten Bildschirms werden vorgeladen (400/500/600/700) – die Navigation springt beim
   Laden nicht mehr (CLS).
-- Neue Bilder vor dem Hochladen auf die Anzeigegröße bringen (etwa doppelte Anzeigebreite, WebP): Das Teamfoto in
-  „Über uns“ ist von 2752 px/393 KB auf 1400 px/141 KB verkleinert (sichtbar gleich).
+- **Bilder:** Die Veröffentlichung verkleinert zu große Bilder automatisch (`tools/optimize-images.mjs` mit sharp:
+  breiter als 1600 px oder schwerer als 250 KB → 1600 px, WebP/JPEG Qualität 78; kleine Bilder und Logos bleiben
+  unangetastet, PNG verlustfrei). Hochgeladene Fotos dürfen also groß sein; im Repository sind die beiden neuen
+  Fotos schon verkleinert (Teamfoto „Über uns“ 393 → 139 KB, Arbeitgeber-Foto 685 → 202 KB, sichtbar gleich).
 
 ### Leistung (flüssig auch auf großen Desktop-Bildschirmen)
 
