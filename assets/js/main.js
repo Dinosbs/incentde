@@ -2327,7 +2327,9 @@
     const navInner = nav && $(".nav__inner", nav);
     const meta = $('meta[name="description"]');
     const form = $("[data-contact-form]");
-    const home = { title: document.title, desc: meta ? meta.content : "" };
+    // Titel/Beschreibung der Übersicht stehen am Hero (auf den Bereichs-Seiten hat der <head> die des Bereichs)
+    const heroEl = $("[data-hero]");
+    const home = { title: (heroEl && heroEl.dataset.title) || document.title, desc: (heroEl && heroEl.dataset.desc) || (meta ? meta.content : "") };
     const store = (v) => {
       try {
         v ? localStorage.setItem(AUD_KEY, v) : localStorage.removeItem(AUD_KEY);
@@ -2372,6 +2374,33 @@
       if (panel) return panel.id;
       const w = byKey(inWorld.dataset.worldId);
       return w === cur() ? html.dataset.mb : w.ids[0];
+    };
+
+    // Eigene Seite je Bereich (Kopf-Skript: window.INCENT_PAGES, Seite → Bereich; Dateien von tools/build-pages.mjs):
+    // Navigation und Verlauf zeigen echte Adressen (mitarbeiterrabatte.html) statt #mitarbeiterrabatte – so kann
+    // jeder Bereich mit eigenem Titel, eigener Beschreibung und eigener H1 bei Google gefunden werden.
+    const PAGES = window.INCENT_PAGES || {};
+    const slugOf = Object.fromEntries(Object.entries(PAGES).map(([slug, panel]) => [panel, slug]));
+    const SITE = "https://www.incent.de/";
+    const dirOf = (path) => path.replace(/[^/]*$/, "");
+    const fileOf = (path) => path.split("/").pop().replace(/\.html$/, "");
+    // Adresse für ein Ziel: Bereich/Welt → seine Seite, Abschnitt darin → Seite#Abschnitt, Übersicht → „./“
+    const urlFor = (id) => {
+      const tab = tabOf(id);
+      if (!tab || !slugOf[tab]) return id && id !== "top" ? `#${id}` : "./";
+      const el = document.getElementById(id);
+      // ganze Seite: Bereich, Welt, Seitenkopf – und die Live-Demo auf „Ihr Design“ (sie ist dort der Inhalt)
+      const whole = id === tab || !!byKey(id) || (!!el && (el.matches("[data-subhero]") || (el.matches("[data-pb]") && isDesign(tab))));
+      return `${slugOf[tab]}.html${whole ? "" : `#${encodeURIComponent(id)}`}`;
+    };
+    const go = (url, state, replace = false) => {
+      const href = new URL(url, location.href).href;
+      if (href === location.href) return;
+      try {
+        history[replace ? "replaceState" : "pushState"](state, "", href);
+      } catch (err) {
+        /* lokal geöffnete Datei (file://): andere Adresse nicht erlaubt – Inhalt wechselt trotzdem */
+      }
     };
 
     // Kontaktformular vorbelegen („Ich bin …“), solange niemand selbst gewählt hat
@@ -2427,11 +2456,16 @@
       const panel = w && document.getElementById(id);
       document.title = panel ? panel.dataset.title : home.title;
       if (meta) meta.content = panel ? panel.dataset.desc : home.desc;
+      const here = slugOf[id] ? `${slugOf[id]}.html` : "";
       worlds.forEach((x) =>
         x.hosts.forEach((h) =>
-          $$("a", h).forEach((a) => (a.getAttribute("href") === `#${id}` ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")))
+          $$("a", h).forEach((a) => (here && a.getAttribute("href") === here ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")))
         )
       );
+      // Canonical und og:url passend zur gezeigten Seite (so wie die erzeugte Datei sie hat)
+      const canon = SITE + (w && here ? here : "");
+      $$('link[rel="canonical"]').forEach((l) => (l.href = canon));
+      $$('meta[property="og:url"]').forEach((m) => (m.content = canon));
       $$("[data-nav-world]").forEach((a) => (w && a.dataset.navWorld === w.key ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")));
       layoutBars();
       // z. B. für die Live-Demo: in „Ihr Design“ startet sie mit geöffnetem Builder
@@ -2471,7 +2505,7 @@
       const w = worldOf(tab);
       const el = document.getElementById(id);
       const target = id === tab || !el || el.matches("[data-world-id], [data-subhero]") ? null : el;
-      if (push && location.hash !== `#${id}`) history.pushState({ world: w.key, mb: tab }, "", `#${id}`);
+      if (push) go(urlFor(id), { world: w.key, mb: tab });
       store(w.key);
       const sameWorld = w.key === html.dataset.world;
       const past = sameWorld && pastHead(w);
@@ -2495,7 +2529,7 @@
     // zurück zur Übersicht mit der Wahl „Wer sind Sie?“
     const showHome = ({ push = true } = {}) => {
       store("");
-      if (push && (location.hash || location.search)) history.pushState({ world: "", mb: "" }, "", location.pathname);
+      if (push) go("./", { world: "", mb: "" });
       if (!html.dataset.world) return scrollWindow({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
       swap(main, () => {
         delete html.dataset.world;
@@ -2511,8 +2545,15 @@
       const a = e.target.closest("a[href]");
       if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target) return;
       const url = new URL(a.href, location.href);
-      if (url.href.split("#")[0] !== location.href.split("#")[0]) return;
-      const id = decodeURIComponent(url.hash.slice(1));
+      if (url.origin !== location.origin || dirOf(url.pathname) !== dirOf(location.pathname)) return;
+      const file = fileOf(url.pathname);
+      const hash = decodeURIComponent(url.hash.slice(1));
+      let id;
+      if (!file || file === "index") id = hash; // Startseite (ggf. mit Sprungziel)
+      else if (PAGES[file]) id = hash || PAGES[file]; // Seite eines Bereichs
+      else return; // andere Seiten (Impressum, Datenschutz) normal laden
+      // Startseite mit allgemeinem Abschnitt (z. B. ./#kontakt) von einer Bereichs-Seite aus: normal laden
+      if (hash && !file && fileOf(location.pathname) && PAGES[fileOf(location.pathname)] && !tabOf(hash)) return;
       if (!id || id === "top") {
         e.preventDefault();
         showHome();
@@ -2544,7 +2585,8 @@
     };
     window.addEventListener("hashchange", () => !history.state && history.replaceState(stamp(), ""));
     window.addEventListener("popstate", (e) => {
-      const id = decodeURIComponent(location.hash.slice(1));
+      // Ziel aus der Adresse: Abschnitt (#…), sonst der Bereich der Seite (mitarbeiterrabatte.html), sonst die Übersicht
+      const id = decodeURIComponent(location.hash.slice(1)) || PAGES[fileOf(location.pathname)] || "";
       const state = e.state && typeof e.state.world === "string" ? e.state : null;
       // Ziel in einem Bereich: dieser Bereich; Ziel, das zur ganzen Welt gehört (Seitenkopf, Live-Demo): Stand des Eintrags
       const el = id && document.getElementById(id);
@@ -2554,16 +2596,12 @@
       else if (!id || id === "top") showHome({ push: false });
     });
 
-    // Start: ruhendes Sprungziel (Bereich/Welt, siehe Kopf-Skript) wieder in die Adresse; Sprungziel, das das
-    // Kopf-Skript nicht kennt, hier nachziehen; gezeigte Welt merken
-    // (erst nach dem Laden: Chrome springt sonst beim Abschluss des Ladens doch noch zum Sprungziel)
+    // Start: ruhendes Sprungziel (Bereich/Welt, siehe Kopf-Skript), Sprungziel, das das Kopf-Skript nicht kennt,
+    // hier nachziehen; gezeigte Welt merken; die Adresse zeigt danach die eigene Seite des Bereichs – auch bei alten
+    // Links (index.html#mitarbeiterrabatte) und der gemerkten Zielgruppe auf der Startseite. Abschnitte behalten ihr
+    // Sprungziel (mitarbeitergutscheine.html#preise).
     const kept = html.dataset.hash;
     delete html.dataset.hash;
-    if (kept) {
-      const back = () => !location.hash && history.replaceState(stamp(), "", `#${kept}`);
-      if (document.readyState === "complete") back();
-      else window.addEventListener("load", () => setTimeout(back, 0), { once: true });
-    }
     const first = kept || decodeURIComponent(location.hash.slice(1));
     const firstTab = tabOf(first);
     if (firstTab && firstTab !== html.dataset.mb) {
@@ -2573,6 +2611,7 @@
     if (html.dataset.world) {
       store(html.dataset.world);
       preselect(html.dataset.world);
+      go(urlFor(first && !kept && first !== firstTab ? first : html.dataset.mb), stamp(), true);
     }
     history.replaceState(stamp(), "");
     placeStudio();

@@ -8,10 +8,11 @@ Als Markenfarbe dient nur noch der blaue CI-Verlauf.
 ```
 index.html              die ganze Website als One-Pager: Übersicht mit „Wer sind Sie?“ und vier Welten
                         (Arbeitgeber, Unternehmen, Marken, Creator), siehe „Aufbau der Seite“
-mitarbeiterbindung.html  ┐ frühere Unterseiten, jetzt nur Weiterleitungen auf die passende Welt
-kundenbindung.html       │ (alte Links samt Sprungziel, z. B. kundenbindung.html#gestalten,
-markenplatzierung.html   │ landen an der richtigen Stelle)
-content-creator.html     ┘
+mitarbeiterrabatte.html …  eigene Seite je Bereich – werden aus index.html erzeugt (tools/build-pages.mjs),
+                        nicht eingecheckt (.gitignore), siehe „Adressen“
+impressum.html          Impressum (Entwurf: markierte Angaben ergänzen)
+datenschutz.html        Datenschutzerklärung (Entwurf: markierte Angaben ergänzen, rechtlich prüfen)
+robots.txt, sitemap.xml für Suchmaschinen (sitemap.xml erzeugt tools/build-pages.mjs)
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
@@ -27,13 +28,19 @@ assets/img/kundenbindung/       Fotos und Isometrien der Kundenbindung
 assets/img/markenplatzierung/   Fotos, Isometrien und Screenshots der Markenplatzierung
 assets/img/content-creator/     Fotos, Isometrien und Shop-Screenshots für Creator
 tools/update-image-manifests.mjs  erzeugt die Bildlisten (manifest.json) für die beiden Ordner oben
+tools/build-pages.mjs   erzeugt die Seiten je Bereich und sitemap.xml
+tools/optimize-images.mjs  verkleinert zu große Bilder (nur bei der Veröffentlichung)
 ```
 
-Es gibt keinen Build-Schritt. Die Dateien lassen sich so, wie sie sind, auf jeden Webserver legen.
+Gepflegt wird nur `index.html` (plus CSS/JS). Die GitHub Action (`.github/workflows/static.yml`) erzeugt daraus
+bei jeder Veröffentlichung die Seiten je Bereich, verkleinert Bilder, CSS und JS und lädt alles hoch. Wer die Dateien
+anders hochlädt, führt vorher `node tools/build-pages.mjs` aus.
 
 ## Lokal ansehen
 
-`index.html` per Doppelklick im Browser öffnen genügt – alle Seiten und Links funktionieren auch ohne Server.
+Einmal `node tools/build-pages.mjs` ausführen (erzeugt die Seiten je Bereich), dann `index.html` per Doppelklick im
+Browser öffnen – alle Seiten und Links funktionieren auch ohne Server (ohne Server wechselt die Adresszeile beim
+Umschalten nicht mit, das erlauben Browser für lokale Dateien nicht).
 Einzige Ausnahme: Neue Bilder in `assets/img/partner-logos/` und `assets/img/deal-tiles/` erscheinen lokal nur
 mit einem kleinen Webserver, weil der Browser die Bildliste (`manifest.json`) sonst nicht lesen darf:
 
@@ -210,42 +217,48 @@ aus dem Marken-Profil sitzt oben rechts in einem festen Rechteck und wird darin 
 (Container-Einheiten `cqi`), der Gutschein sieht daher in jeder Größe gleich aus.
 
 Die Angebote im Rabatt-Explorer sind eine Momentaufnahme (Stand Oktober 2026) und stehen direkt im HTML.
-Die Geschenkanlässe verlinken nicht mehr auf die Anlass-Unterseiten von `www.incent.de` (weder Kacheln noch Text).
+Es gibt keine Links mehr auf die alte WordPress-Seite: Impressum und Datenschutz sind eigene Seiten, FAQ und Karriere
+sind aus dem Footer entfernt, „Vorteilsportal live ansehen“ (Über uns) öffnet die Live-Demo.
 
 **Inhalte pflegen:** Alles steht in `index.html`. Die Welten liegen in `<div class="worlds">` direkt nach dem Hero
 (`<div class="world" id="arbeitgeber">` …), jeder Bereich ist ein `<div class="mb-panel" id="…">` mit `data-title` und
 `data-desc` (Seitentitel und Beschreibung). **Neuer Bereich:** `mb-panel` anlegen, Link in der Navigationsliste
-der Welt (`.nav__list--world[data-tabs-world="…"]`) ergänzen und im `<head>` die ID in `map` (Skript) und eine Zeile wie bei den anderen Bereichen (Stil) eintragen.
+der Welt (`.nav__list--world[data-tabs-world="…"]`) ergänzen und im `<head>` die ID in `map` und `world` (Skript), die
+Seitenadresse in `page` (Skript, z. B. `"mitarbeiterrabatte":"mitarbeiterrabatte"`) und eine Zeile wie bei den anderen
+Bereichen (Stil) eintragen. Links auf den Bereich zeigen auf seine Seite (`href="seite.html"`).
 Neue Abschnitte bekommen eindeutige IDs (bei Bedarf mit Präfix der Welt).
 
-**Livegang – bisherige Adressen weiterleiten:** Bei Google sind die Seiten noch unter den alten Adressen bekannt.
-Diese per 301 auf die Startseite und den passenden Bereich umleiten. Für Apache (`.htaccess`):
+### Adressen: eine eigene Seite je Bereich
 
-```apache
-Redirect 301 /corporate-benefits-fuer-arbeitgeber/ /#benefitportal
-Redirect 301 /mitarbeiterrabatte/ /#mitarbeiterrabatte
-Redirect 301 /mitarbeitergutscheine/ /#mitarbeitergutscheine
-Redirect 301 /steuerfreie-mitarbeitergeschenke/ /#geschenkanlaesse
+Jeder Bereich hat eine echte Adresse, damit Google ihn mit eigenem Titel, eigener Beschreibung und eigener H1 findet
+(Sprungziele hinter `#` wertet Google nicht als eigene Seiten):
 
-Redirect 301 /kundenbindungsprogramm-fuer-unternehmen/ /#loyalty-portal
-Redirect 301 /kundenrabatte/ /#kundenrabatte
-Redirect 301 /gutscheine-kundenbindung/ /#kundengutscheine
+| Welt | Seiten |
+|---|---|
+| Übersicht | `/` (index.html) |
+| Arbeitgeber | `mitarbeiterbindung.html` (2-in-1-Benefits), `mitarbeiterrabatte.html`, `mitarbeitergutscheine.html`, `mitarbeitergeschenke.html`, `benefitportal-design.html` (Ihr Design) |
+| Unternehmen | `kundenbindung.html` (Loyalty-Portal), `kundenrabatte.html`, `kundengutscheine.html`, `kundenportal-design.html` |
+| Marken | `markenplatzierung.html` (Anbieter werden), `newsletter-platzierung.html` |
+| Creator | `content-creator.html` (Community-Shop), `community-shop-design.html` (Dein Design) |
 
-Redirect 301 /reichweite-steigern-markenpartner/ /#anbieter-werden
-Redirect 301 /b2c-e-mail-marketing/ /#newsletter-platzierung
-Redirect 301 /community-benefits/ /#community-shop
-```
-
-Für nginx entsprechend `location = /mitarbeiterrabatte/ { return 301 /#mitarbeiterrabatte; }`. Die früheren
-Unterseiten dieses Relaunchs (`mitarbeiterbindung.html` usw.) bleiben als Weiterleitung liegen (`noindex`).
-(Die Regeln sind nicht auf einem echten Server getestet.)
+- Jede Seite ist derselbe One-Pager; `tools/build-pages.mjs` setzt Titel, Beschreibung (aus `data-title`/`data-desc`
+  des Bereichs), Canonical, Social-Media-Angaben, die H1 (Überschrift des Bereichs statt der Startseite) und
+  Brotkrümel (JSON-LD), und schreibt `sitemap.xml`. Welcher Bereich gezeigt wird, liest das Kopf-Skript aus dem Dateinamen.
+- Für Besucher bleibt es ein One-Pager: Navigation und Karten wechseln ohne Neuladen, die Adresszeile zeigt die Seite
+  des Bereichs (`history.pushState`), Zurück/Vor funktionieren. Abschnitte behalten ihr Sprungziel
+  (`mitarbeitergutscheine.html#preise`). Ohne JavaScript sind es normale Links auf die Seiten.
+- Alte Links mit Sprungziel (`index.html#mitarbeiterrabatte`, `?fuer=creator`) funktionieren weiter und zeigen danach
+  die neue Adresse. Weiterleitungen von der alten WordPress-Seite gibt es bewusst nicht.
+- GitHub Pages liefert die Seiten auch ohne Endung aus (`/mitarbeiterrabatte`); die offizielle Adresse (Canonical,
+  Sitemap) ist die mit `.html`, damit sie auf jedem Webserver funktioniert.
 
 Bei `prefers-reduced-motion` laufen keine Animationen, und alle Inhalte sind sofort sichtbar.
 Ohne JavaScript bleiben alle Inhalte lesbar.
 
 ### Suchmaschinen (SEO)
 
-- `robots.txt` und `sitemap.xml` im Hauptordner (Domain `https://www.incent.de/`; neue eigene Seiten dort eintragen).
+- `robots.txt` und `sitemap.xml` im Hauptordner (Domain `https://www.incent.de/`; die Sitemap mit allen Seiten je
+  Bereich erzeugt `tools/build-pages.mjs`).
 - Strukturierte Daten (JSON-LD im `<head>`): Firma (`Organization` mit Adresse, Telefon, E-Mail, LinkedIn/Instagram/
   Facebook) und `WebSite`. Bei geänderten Firmendaten dort mitpflegen.
 - Vorschaubild für Social Media: `assets/img/og-incent.png` (1200 × 630, liegt jetzt auf der eigenen Domain statt im
@@ -310,7 +323,8 @@ jetzt 52–57 fps mit 2–10; Skriptzeit 0,2–0,5 s statt 1,7–4,9 s.
   Außerdem hängt die Veröffentlichung an `main.css` und `main.js` die Commit-Nummer an (`?v=…`), damit Browser nach
   einem Update nicht die alte Fassung aus dem Cache nehmen. Im Repository bleiben die Verweise ohne Zusatz.
 - **Lösungen**: Mitarbeiterbindung, Kundenbindung, Markenplatzierung und Content Creator stehen als Welten in
-  `index.html` (siehe „Aufbau der Seite“). FAQ, Karriere und Rechtliches verlinken noch auf `www.incent.de`.
+  `index.html` (siehe „Aufbau der Seite“), mit eigener Seite je Bereich (siehe „Adressen“). Impressum und
+  Datenschutz sind eigene Seiten (`impressum.html`, `datenschutz.html` – markierte Angaben vor dem Livegang ergänzen).
   „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
 - **Kontaktformular**: Ohne Backend öffnet „Absenden“ das E-Mail-Programm mit einer vorbereiteten Nachricht an
   info@incent.de. Für den echten Versand am `<form data-contact-form>` das Attribut `data-endpoint="https://…"` setzen,

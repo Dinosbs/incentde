@@ -44,6 +44,9 @@ jobs:
       # löst selbst keine Veröffentlichung aus, neue Logos/Kachelbilder wären sonst online nicht gelistet.
       - name: Bildlisten erzeugen
         run: node tools/update-image-manifests.mjs
+      # Eigene Seite je Bereich (mitarbeiterrabatte.html …) aus index.html erzeugen, dazu sitemap.xml
+      - name: Bereichs-Seiten erzeugen
+        run: node tools/build-pages.mjs
       # main.js und main.css verkleinern (Leerzeichen, Kommentare, kurze Namen) – nur in der veröffentlichten
       # Fassung, im Repository bleiben sie lesbar. Komprimiert ~49 → 29 KB (JS) und ~55 → 42 KB (CSS).
       - name: CSS/JS verkleinern

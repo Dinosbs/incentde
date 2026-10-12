@@ -1,0 +1,14 @@
+# Bereichs-Seiten werden aus index.html erzeugt (tools/build-pages.mjs, auch in der GitHub Action)
+/mitarbeiterbindung.html
+/mitarbeiterrabatte.html
+/mitarbeitergutscheine.html
+/mitarbeitergeschenke.html
+/benefitportal-design.html
+/kundenbindung.html
+/kundenrabatte.html
+/kundengutscheine.html
+/kundenportal-design.html
+/markenplatzierung.html
+/newsletter-platzierung.html
+/content-creator.html
+/community-shop-design.html
