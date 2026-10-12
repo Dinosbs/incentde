@@ -4052,6 +4052,11 @@ a.more-link:hover .i { transform: translateX(3px); }
 /* Per Animation statt Transition: so bleiben die Hover-Übergänge der Elemente erhalten */
 .js [data-reveal] { opacity: 0; }
 .js [data-reveal].is-in { animation: reveal 1s var(--ease-out) var(--d, 0s) both; }
+/* erster Bildschirm (Hero, Seitenköpfe der Welten): sofort per CSS einblenden, ohne auf das Skript zu warten, kürzer –
+   und nie ganz unsichtbar (bei Deckkraft 0 zählt Google den Inhalt erst spät als sichtbar, LCP) */
+.js .hero [data-reveal], .js .hero [data-reveal].is-in,
+.js [data-subhero] [data-reveal], .js [data-subhero] [data-reveal].is-in { opacity: 1; animation: reveal-top .6s var(--ease-out) var(--d, 0s) both; }
+@keyframes reveal-top { from { opacity: .01; transform: translateY(18px); } }
 
 /* ==========================================================================
    Keyframes
@@ -4207,7 +4212,7 @@ a.more-link:hover .i { transform: translateX(3px); }
     transition-duration: .001ms !important;
     transition-delay: 0s !important;
   }
-  .js [data-reveal] { opacity: 1; animation: none; }
+  .js [data-reveal], .js .hero [data-reveal], .js [data-subhero] [data-reveal] { opacity: 1; animation: none; }
   .marquee { overflow-x: auto; }
   .typer__caret { display: none; }
 }

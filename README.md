@@ -265,6 +265,11 @@ jetzt 52–57 fps mit 2–10; Skriptzeit 0,2–0,5 s statt 1,7–4,9 s.
   CSS-Animationen (`initAnimPause`). Cursor-Neigung nur für sichtbare Elemente (`checkVisibility`).
 - **Start:** Keine Ladeanimation. Der Scroll-Stepper richtet sich erst nach dem ersten Bild ein, und nur für sichtbare
   Bereiche; ausgeblendete Welten erst beim Öffnen.
+- **Erster Bildschirm sofort sichtbar:** Hero und Seitenköpfe blenden per CSS ein (ohne auf das Skript zu warten,
+  0,6 s, ab Deckkraft 0,01 statt 0 – Inhalte mit Deckkraft 0 zählt Google erst spät als sichtbar). Größtes Element
+  sichtbar (LCP) nach ~0,3 s statt ~2,9 s.
+- **Deko ist kein Scroll-Anker** (`overflow-anchor: none` an `.hero__bg` und der Live-Demo): sonst verschiebt der
+  Browser die Seite, wenn der Hero beim Umschalten Vorschau ⇄ Builder wächst.
 - **Veröffentlichung:** `main.js` und `main.css` werden in der GitHub Action mit esbuild verkleinert (im Repository
   bleiben sie lesbar).
 

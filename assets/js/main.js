@@ -3967,12 +3967,13 @@
   initPriceCalc();
   brand.refresh();
   runScrollTasks();
-  // Scroll-Stepper misst alle Punkte der sichtbaren Bereiche durch – erst nach dem ersten Bild, damit die Seite
-  // sofort erscheint (Sprungziele richten sich danach noch einmal aus, siehe initWorlds)
-  requestAnimationFrame(() =>
-    setTimeout(() => {
-      initScrollSteps();
-      runScrollTasks();
-    }, 0)
-  );
+  // Scroll-Stepper misst alle Punkte der sichtbaren Bereiche durch – ohne Sprungziel erst nach dem ersten Bild, damit
+  // die Seite sofort erscheint. Mit Sprungziel (Direktlink auf einen Abschnitt) sofort: seine Abstandshalter würden
+  // das Ziel sonst nach dem Ausrichten noch verschieben.
+  const startSteps = () => {
+    initScrollSteps();
+    runScrollTasks();
+  };
+  if (location.hash.length > 1) startSteps();
+  else requestAnimationFrame(() => setTimeout(startSteps, 0));
 })();
