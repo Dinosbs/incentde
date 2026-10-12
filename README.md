@@ -53,8 +53,8 @@ Die Seite entscheidet von Beginn an, wer sie ansieht, und zeigt dann nur, was f�
    einem Dach. Ganz oben ein Umschalter „Übersicht | Ansicht für: Arbeitgeber · Unternehmen · Marken · Creator“
    (große Klickflächen, mobil als 2×2-Raster). Im Seitenkopf die **Absprungzone**: die Leiste mit den Lösungen der
    Welt (z. B. Benefitportal · Mitarbeiterrabatte · Mitarbeitergutscheine · Geschenkanlässe) tauscht den Inhalt
-   darunter aus, ohne neue Seite und ohne Verschachtelung. Danach folgen die allgemeinen Abschnitte, die zu dieser
-   Zielgruppe passen.
+   darunter aus, ohne neue Seite und ohne Verschachtelung. Direkt darunter – vor allen Inhalten – die **Live-Demo**
+   (Vorschau ⇄ Builder, siehe unten). Danach folgen die allgemeinen Abschnitte, die zu dieser Zielgruppe passen.
 
 | Abschnitt | Übersicht | Arbeitgeber | Unternehmen | Marken | Creator |
 | --- | :-: | :-: | :-: | :-: | :-: |
@@ -63,7 +63,8 @@ Die Seite entscheidet von Beginn an, wer sie ansieht, und zeigt dann nur, was f�
 | Versprechen | ✓ | – | – | – | – |
 | Plattform („Was uns einzigartig macht“) | ✓ | – | – | ✓ | – |
 | Leistungsangebot | – | ✓ | ✓ | ✓ | – |
-| Vorteile + **Live-Demo** (Portal selbst gestalten) | – | ✓ | ✓ | – | ✓ |
+| **Live-Demo** (Vorschau ⇄ Builder) | im Hero | direkt unter dem Seitenkopf | direkt unter dem Seitenkopf | – | direkt unter dem Seitenkopf |
+| Vorteile im Überblick | – | ✓ | ✓ | – | ✓ |
 | Kundenstimmen | ✓ | ✓ | ✓ | – | – |
 | Über uns, Kontakt | ✓ | ✓ | ✓ | ✓ | ✓ |
 
@@ -89,26 +90,50 @@ ersten Zeichnen – aus der Adresse, sonst `?fuer=`, sonst der gemerkten Wahl. E
 Präfix (`unternehmen-…`, `marken-…`, `creator-…`; Arbeitgeber behält seine IDs). Ohne JavaScript stehen alle Welten
 untereinander.
 
+## Live-Demo: Vorschau ⇄ Builder
+
+Ein einziger Baustein (`#live-vorschau`, `[data-pb]`) statt getrennter Vorschau und getrenntem Builder:
+
+- **Vorschau** (Start): der große Nachbau des Vorteilsportals in 3D, folgt dem Cursor und richtet sich beim Scrollen auf;
+  darunter der Chip mit Schnellfarben und dem Knopf **„Eigenes Portal bauen“** (Creator: „Deinen Shop bauen“).
+- **Builder**: an derselben Stelle, ohne Seitenwechsel – die Bedienelemente (Logo, Unternehmensname, Buttonfarbe,
+  Navigationsleiste, Hintergrund) schieben sich links herein, das Portal rückt nach rechts, wird ruhiger und zeigt
+  zusätzlich die Shop-Reihe. Beim Gestalten bleibt die Vorschau stehen (Desktop: neben den Feldern, mobil: oben).
+- **Hin und her**: Umschalter „Vorschau | Selbst gestalten“ oben rechts (große Flächen, gleitende Markierung) und
+  „Fertig – große Vorschau ansehen“ unter den Feldern. Per Tastatur geöffnet, springt der Fokus in den Builder.
+- **Wo**: im Hero der Übersicht und in jeder Welt direkt unter dem Seitenkopf (Arbeitgeber, Unternehmen, Creator –
+  nicht bei Marken). Es gibt den Baustein nur einmal; beim Wechsel der Welt wandert er an deren Platz
+  (`[data-pb-slot]`), ein kleines Skript direkt nach dem Platz holt ihn schon beim Aufbau der Seite dorthin.
+  Überschrift, Kontoname im Portal („Mitarbeiterportal“, „Kundenportal“, „Community-Shop“), Kategorien (Creator:
+  Fitness, Supplements, Gaming …) und Knopftext passen sich der Welt an (`data-for` an den Texten).
+- **Links**: `href="#live-vorschau"` mit `data-pb-open="builder"` öffnet den Builder (z. B. „Im Portal-Builder selbst
+  gestalten“ in „Drei gute Gründe“), mit `data-pb-open="preview"` die Vorschau („So sieht Dein Shop aus“).
+  Die früheren Vorschau-Inseln „Ihr Portal, Ihr Design“ (Unternehmen, `#portal`) und „Dein Shop, Dein Look“ (Creator,
+  `#dein-shop`) sind Hinweise mit Knopf, der die Live-Demo im Builder öffnet.
+- Logik: `initPortalStudio()` (Modus), `initWorlds()` (Platz), `initStudio()` (Bedienelemente); Stile unter
+  „Live-Demo: Vorschau ⇄ Builder“ in `main.css`. Ohne JavaScript steht nur die Vorschau da.
+
 ## Interaktive Elemente
 
 | Bereich | Was passiert |
 | --- | --- |
 | Navigation | Flach und ohne Ausklapp-Menüs: „Arbeitgeber“, „Unternehmen“, „Marken“, „Creator“ führen direkt in ihre Welt, dazu „Über uns“ und „Kontakt“; die aktuelle Welt ist blau markiert. Helle Glas-Leiste beim Scrollen, auf Mobilgeräten Vollbild-Menü mit großen Einträgen. Logo: `assets/img/incent-logo-nav-dark.png` (dunkle Fassung des zentrierten `incent-logo-nav.png`, gleiche Maße und Lage; oben 48 px hoch, nach dem Scrollen weich auf 34 px verkleinert) |
-| Hero | Heller Verlauf (ohne Gittertextur), Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz). Darunter im ersten Bildschirm die Frage **„Wer sind Sie?“** mit vier Einstiegen – Arbeitgeber, Unternehmen, Marken, Creator – jeweils mit den Lösungen in Kurzform. Jede Karte öffnet die Welt dieser Zielgruppe (siehe „Aufbau der Seite“). Danach der Nachbau des echten Vorteilsportals in 3D, der dem Cursor folgt; der Live-Chip ändert die Buttonfarbe |
+| Hero | Heller Verlauf (ohne Gittertextur), Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz). Darunter im ersten Bildschirm die Frage **„Wer sind Sie?“** mit vier Einstiegen – Arbeitgeber, Unternehmen, Marken, Creator – jeweils mit den Lösungen in Kurzform. Jede Karte öffnet die Welt dieser Zielgruppe (siehe „Aufbau der Seite“). Danach die Live-Demo (Vorschau ⇄ Builder, siehe oben) |
 | Seitenkopf der Welten | Umschalter „Übersicht · Ansicht für …“, Titel, Text und Bild wechseln mit dem Bereich, Lichtkegel folgt dem Cursor; darunter die Leiste mit den Lösungen der Welt (Absprungzone), die beim Scrollen an die Navigation andockt |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
 | Partner | Endlos-Laufband aus `assets/img/partner-logos/` – jede Datei wird automatisch eine Kachel, gelöschte Dateien verschwinden (keine Liste im HTML); Dateien, die nicht laden oder leer sind, bekommen keine Kachel. Tempo passt sich der Anzahl an, pausiert bei Hover. Transparenter oder weißer Rand der Logo-Dateien wird automatisch abgeschnitten, danach bekommen alle Logos etwa dieselbe Fläche (`fitLogo` in `main.js`); pro Partner erscheint nur ein Logo. Markennamen für Kurz-Dateinamen (z. B. „UI“ → „Union Investment“) stehen in `BRAND_NAMES` |
 | Versprechen | Text leuchtet Wort für Wort beim Scrollen auf |
 | Plattform | Netzwerk-Grafik reagiert auf das gewählte Feature im Akkordeon |
 | Leistungen | Bento-Karten mit Lichtkante und animierten Mini-Grafiken; Kachelbilder aus `assets/img/deal-tiles/` |
-| Vorteile | Kacheln mit weichem Hover. Live-Vorschau des Portals (Text oben, darunter Editor und Vorschau nebeneinander; die Vorschau folgt dem Cursor): eigenes Logo (Upload oder Drag & Drop, leerer Rand wird automatisch abgeschnitten), Unternehmensname, Buttonfarbe, Farbe der Navigationsleiste und Hintergrund (eigenes Hintergrundbild hochladen, einfarbig, Verlauf – jeweils mit eigener Farbwahl). Die Gestaltung ist das **Marken-Profil** und gilt seitenübergreifend (siehe unten); „Alles zurücksetzen“ stellt den INCENT-Standard wieder her. Alle Wechsel blenden weich über, und das Portal im Hero übernimmt jede Änderung |
+| Live-Demo | Builder: eigenes Logo (Upload oder Drag & Drop, leerer Rand wird automatisch abgeschnitten), Unternehmensname, Buttonfarbe, Farbe der Navigationsleiste und Hintergrund (eigenes Hintergrundbild hochladen, einfarbig, Verlauf – jeweils mit eigener Farbwahl). Die Gestaltung ist das **Marken-Profil** und gilt überall (siehe unten); „Alles zurücksetzen“ stellt den INCENT-Standard wieder her. Alle Wechsel blenden weich über |
+| Vorteile | Kacheln mit weichem Hover |
 | Kundenstimmen | Karussell mit Auto-Play, Pause-Taste, Wischgeste und Pfeiltasten |
 | Über uns | Inhalte der bisherigen Über-uns-Seite: Einleitung, Kennzahlen, drei Kernbereiche, Link zum Vorteilsportal. „Unsere Kernbereiche – Erfolg auf allen Ebenen“ mit eigenen, animierten Illustrationen statt Bildern (`initAreas` in `main.js`): Mitarbeiterbindung – Benefits aus dem Portal gehen reihum ans Team, Bindungsringe und Bindungswert steigen (Klick auf eine Person schenkt ihr sofort einen Benefit); Kundenbindung – eine Kundin läuft die Kontaktpunkte Vorteil, Newsletter, Gutschein, Treuepunkte ab, der Zähler steigt, das Herz wächst (Kontaktpunkte anklickbar); Neukundengewinnung – Nutzer strömen über Ihr Angebot zu den Neukunden, die Sonderkondition (10/20/30 %) ist wählbar und bestimmt, wie viele es werden. Der Abschluss zeigt statt eines Fotos ein Netzwerk: Arbeitgeber, Unternehmen und Marken sind über Vorteile.net mit den Menschen verbunden, Impulse laufen die Wege entlang; Knoten anklickbar, Überfahren einer Karte hebt ihren Weg hervor. Szenen laufen nur, solange sie sichtbar sind; bei „Bewegung reduzieren“ ruhige Standbilder |
 | Kontakt | Kontaktformular mit Zielgruppen-Auswahl, passenden Zusatzfeldern je Zielgruppe und Prüfung der Eingaben |
-| Cursor-Folgen (alle Seiten) | Alle Kipp-Elemente folgen dem Cursor im ganzen Fenster, nicht nur über ihrer Fläche: Portal im Hero, Live-Vorschauen, Fotos im Seitenkopf, Bilder neben Text, Gutschein-Gestalter, Checkout-Demo „Wertgutscheine einlösen“ und das Kontaktformular. Ein gemeinsamer Listener (`createTilt` in `main.js`) rechnet nur für sichtbare Elemente; der Lichtreflex sitzt unter dem Cursor und wird mit Abstand schwächer. Liegt der Fokus im Element (Tippen im Formular), hält es weitgehend still; verlässt die Maus das Fenster, richtet sich alles auf. Nur bei Maus/Stift, nicht bei „Bewegung reduzieren“. |
+| Cursor-Folgen (alle Seiten) | Alle Kipp-Elemente folgen dem Cursor im ganzen Fenster, nicht nur über ihrer Fläche: Portal der Live-Demo, Vorschauen, Fotos im Seitenkopf, Bilder neben Text, Gutschein-Gestalter, Checkout-Demo „Wertgutscheine einlösen“ und das Kontaktformular. Ein gemeinsamer Listener (`createTilt` in `main.js`) rechnet nur für sichtbare Elemente; der Lichtreflex sitzt unter dem Cursor und wird mit Abstand schwächer. Liegt der Fokus im Element (Tippen im Formular), hält es weitgehend still; verlässt die Maus das Fenster, richtet sich alles auf. Nur bei Maus/Stift, nicht bei „Bewegung reduzieren“. |
 | Bilder neben Text (alle Seiten) | Kippen zum Cursor (`.tilt-media` mit `data-tilt-card`), das Bild verschiebt sich im Rahmen gegen die Bewegung, Ebenen davor (z. B. „Seit 2012“) schweben in der Tiefe, Lichtreflex folgt dem Cursor. Beim Scrollen driften die Bilder leicht hinter der Seite her (`data-parallax`, auch Fotos im Seitenkopf und Geräte-Bühne). |
 | Schwebende Tags (alle Seiten) | Beim Darüberfahren hebt sich der Tag an, das Icon spielt eine kleine Animation passend zum Motiv (Herz schlägt, Flugzeug fliegt davon, Haken zeichnet sich, Zahnrad dreht sich …). Die Zuordnung Icon → Animation steht in `TAG_ANIMS` in `main.js`, die Animationen als `ico-*` in `main.css`; neue Tags bekommen sie automatisch. Nur bei echter Hover-Maus aktiv. |
-| Scroll-Stepper (alle Seiten) | Alles, was man durchklicken kann (Tabs, Akkordeons, Vorteile mit Umschalter, Hotspots, Karussells, Touchpoints, Pakete, Anlass-Finder …), bleibt am Desktop beim Scrollen stehen und schaltet mit dem Scrollen Punkt für Punkt weiter, erst danach geht die Seite weiter (bei „Warum INCENT?“ erst alle Arbeitgeber-Vorteile, dann alle für Mitarbeitende). Rückwärts scrollen läuft die Punkte rückwärts ab. Rechts zeigt eine kleine Punktleiste, wo man steht. Ein Klick auf einen Punkt springt an die passende Scroll-Stelle; Links und Anker auf einen Punkt (z. B. `#sc-panel-3`) öffnen ihn direkt. Das automatische Weiterschalten dieser Elemente ist am Desktop aus, weil das Scrollen es übernimmt. Die Zuordnung steht in `STEPPERS` in `main.js` (`initScrollSteps`). Vorab wird die Höhe aller Punkte gemessen (unsichtbar, ohne Animation), damit ein Bereich nicht mitten im Scrollen abschaltet, wenn ein späterer Punkt mehr Text hat. Angeheftet wird der größte umgebende Block, der ganz ins Fenster passt (unter Navigation und angedockter Bereichsleiste); ist schon das Element selbst etwas zu hoch (kleine Laptop-Fenster), wird es verkleinert, höchstens auf 75 % (`STEP_ZMIN`), sonst bleibt es normal klickbar. `data-sstep-pin` legt den stehenden Block fest (bei „Bindung und Recruiting“ nur die Vorteile, die Grafik läuft daneben mit). Bereiche, die erst beim Wechsel über die Bereichsleiste sichtbar werden, richten sich dabei ein. Bei den Newsletter-Paketen beginnt der Durchlauf mit „Starter“ (ohne Stepper ist „Business“ vorausgewählt). Geprüft von 1280×720 bis 1920×1080 (alle 24 Bereiche). Nicht auf Mobilgeräten (unter 981 px) und nicht bei „Bewegung reduzieren“. |
+| Scroll-Stepper (alle Seiten) | Alles, was man durchklicken kann (Tabs, Akkordeons, Vorteile mit Umschalter, Karussells, Touchpoints, Pakete, Anlass-Finder …), bleibt am Desktop beim Scrollen stehen und schaltet mit dem Scrollen Punkt für Punkt weiter, erst danach geht die Seite weiter (bei „Warum INCENT?“ erst alle Arbeitgeber-Vorteile, dann alle für Mitarbeitende). Rückwärts scrollen läuft die Punkte rückwärts ab. Rechts zeigt eine kleine Punktleiste, wo man steht. Ein Klick auf einen Punkt springt an die passende Scroll-Stelle; Links und Anker auf einen Punkt (z. B. `#sc-panel-3`) öffnen ihn direkt. Das automatische Weiterschalten dieser Elemente ist am Desktop aus, weil das Scrollen es übernimmt. Die Zuordnung steht in `STEPPERS` in `main.js` (`initScrollSteps`). Vorab wird die Höhe aller Punkte gemessen (unsichtbar, ohne Animation), damit ein Bereich nicht mitten im Scrollen abschaltet, wenn ein späterer Punkt mehr Text hat. Angeheftet wird der größte umgebende Block, der ganz ins Fenster passt (unter Navigation und angedockter Bereichsleiste); ist schon das Element selbst etwas zu hoch (kleine Laptop-Fenster), wird es verkleinert, höchstens auf 75 % (`STEP_ZMIN`), sonst bleibt es normal klickbar. `data-sstep-pin` legt den stehenden Block fest (bei „Bindung und Recruiting“ nur die Vorteile, die Grafik läuft daneben mit). Bereiche, die erst beim Wechsel über die Bereichsleiste sichtbar werden, richten sich dabei ein. Bei den Newsletter-Paketen beginnt der Durchlauf mit „Starter“ (ohne Stepper ist „Business“ vorausgewählt). Geprüft von 1280×720 bis 1920×1080 (alle 24 Bereiche). Nicht auf Mobilgeräten (unter 981 px) und nicht bei „Bewegung reduzieren“. |
 | Weiches Scrollen (alle Seiten) | Das Mausrad gleitet statt zu springen: Ein Radschritt setzt nur das Ziel, die Seite zieht weich nach (`initSmoothScroll` in `main.js`, ohne Bibliothek; Stärke `LERP`). Beim Browser bleiben Zoomen (Strg/Cmd + Rad), waagerechtes Scrollen, scrollbare Bereiche im Inhalt (bis sie am Ende sind, Opt-out per `data-native-scroll`), Tastatur, Scrollleiste, Touch und Sprünge per Link; ein Klick oder eine Taste beendet das Gleiten sofort. Nicht bei „Bewegung reduzieren“. |
 
 ### Welt Arbeitgeber: Mitarbeiterbindung, vier Bereiche
@@ -147,7 +172,7 @@ Mitarbeiterbindung gibt, haben das Präfix `unternehmen-` (`#unternehmen-gruende
 
 | Bereich | Adresse | Interaktive Elemente |
 | --- | --- | --- |
-| Loyalty-Portal | `#loyalty-portal` | Kennzahlen, Tabs „Vier gute Gründe“ mit reduzierten Shop-Demos statt Screenshots (gleiche Bausteine wie im Benefitportal: Deal-Seite mit persönlichem Code und drei Deals, Prämienshop mit Prämien-Guthaben – `data-home="praemienshop"`, `data-balance-label` –, Corporate-Design-Vorschau mit drei Beispielen und „Ihr Design“, Warenkorb-Schleife mit Gutschein-Einlösung); unter jeder Demo ein Link zum passenden Bereich und zur Live-Demo (`#live-vorschau`), alle Demos übernehmen das Marken-Profil, Leistungsversprechen (freigestellte Geräte, die dem Mauszeiger folgen, mit vier schwebenden Vorteils-Tags; mobil als Raster unter dem Bild) mit Umschalter „Für Unternehmen / Für Kunden“, Portal-Hotspots (`#portal`) mit Link „Ihr Portal in der Live-Demo selbst gestalten“ (Portal-Builder, `#live-vorschau`), Verweis auf den SELECT Einkaufsgutschein, Ablauf (`#unternehmen-ablauf`) |
+| Loyalty-Portal | `#loyalty-portal` | Kennzahlen, Tabs „Vier gute Gründe“ mit reduzierten Shop-Demos statt Screenshots (gleiche Bausteine wie im Benefitportal: Deal-Seite mit persönlichem Code und drei Deals, Prämienshop mit Prämien-Guthaben – `data-home="praemienshop"`, `data-balance-label` –, Corporate-Design-Vorschau mit drei Beispielen und „Ihr Design“, Warenkorb-Schleife mit Gutschein-Einlösung); unter jeder Demo ein Link zum passenden Bereich und zur Live-Demo (`#live-vorschau`), alle Demos übernehmen das Marken-Profil, Leistungsversprechen (freigestellte Geräte, die dem Mauszeiger folgen, mit vier schwebenden Vorteils-Tags; mobil als Raster unter dem Bild) mit Umschalter „Für Unternehmen / Für Kunden“, Hinweis „Ihr Portal, Ihr Design“ (`#portal`) mit Knopf „Portal live gestalten“ (öffnet die Live-Demo im Builder), Verweis auf den SELECT Einkaufsgutschein, Ablauf (`#unternehmen-ablauf`) |
 | Kundenrabatte | `#kundenrabatte` | Kontaktkalender „Ohne / Mit Kundenrabatten“ (`#unternehmen-anlaesse`, schaltet beim ersten Sichtkontakt selbst um), Branchen-Explorer mit sieben Branchen, Texten und Beispielangeboten (`#branchen`), Verweise auf Portal, Ablauf und Gutscheine |
 | Kundengutscheine | `#kundengutscheine` | Drei Einsatzmöglichkeiten mit Link zum passenden Gutscheinmotiv, Vorteile Unternehmen/Kunden, Gutschein-Gestalter mit Kunden-Anlässen (Treue, Willkommen, Gewinnspiel, Kulanz, Geburtstag; `#unternehmen-gestalten`), Warenkorb-Demo (`#unternehmen-einloesen`), Ablauf |
 
@@ -170,9 +195,8 @@ und ist als „beispielhafte Verteilung“ gekennzeichnet.
 ### Welt Creator: Content Creator
 
 Ein Bereich (`#community-shop`, es gibt nur ein Angebot), durchgehend in Du-Ansprache, Präfix `creator-`. Inhalte:
-Kennzahlen, Tabs „Vier gute Gründe“, Vorteile, „Dein Shop, Dein Look“ mit Portal-Hotspots (Logo, Creator-Farben,
-Kategorien passend zum Content – wechselnde Beispiel-Kategorien für Fitness, Reisen, Gaming, Beauty –, Hintergrundbild;
-Link „Deinen Shop in der Live-Demo selbst gestalten“ zum Portal-Builder weiter unten),
+Kennzahlen, Tabs „Vier gute Gründe“, Vorteile, Hinweis „Dein Shop, Dein Look“
+(`#dein-shop`, Knopf „Shop live gestalten“ öffnet die Live-Demo oben im Builder),
 Vergleich „Klassische Brand Deals / Dein Community-Shop“ (`#einnahmen`, schematisch, keine Umsatzprognose) und Ablauf.
 
 **SELECT-Gutschein** (`.selv` in `main.css`): Nachbau der echten Gutscheine. PDF = Hochformat
@@ -247,11 +271,11 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   dann wird das Formular per `fetch` (POST, FormData) an diese Adresse geschickt. Die Zusatzfelder je Zielgruppe
   (z. B. Unternehmensgröße für Arbeitgeber, Plattform/Profil-URL für Creator) sind nachgebaut, da sie in der
   gespeicherten Seite nicht enthalten waren – bitte mit dem bisherigen Formular abgleichen.
-- **Marken-Profil** (Live-Demo auf der Startseite, Logo-Feld im Gutschein-Gestalter): Logo, Hintergrundbild,
+- **Marken-Profil** (Builder der Live-Demo, Logo-Feld im Gutschein-Gestalter): Logo, Hintergrundbild,
   Unternehmensname und Farben werden nur im Browser gespeichert (`localStorage`, Schlüssel `incent-brand`) und nirgendwohin
   übertragen. Bilder werden vorher verkleinert (Logo max. 640 px als WebP, ohne leeren Rand; Hintergrund max. 1600 px als JPEG).
   Alle Vorschauen auf allen Seiten übernehmen das Profil – auch in anderen offenen Tabs sofort:
-  Portal im Hero und „Ihr Portal, Ihr Design“ (Farben, Hintergrund, Logo, Adresszeile), Corporate-Design-Vorschau
+  Portal der Live-Demo (Farben, Hintergrund, Logo, Adresszeile), Corporate-Design-Vorschau
   („Ihr Design“ als erster Punkt), Portal-Köpfe der Vorschauen, SELECT-Gutscheine (Logo statt „Ihr Logo“),
   „Individuell personalisierbar“, der Warenkorb unter „Einlösung im eigenen Shop“ und der Checkout „Wertgutscheine einlösen“.
   Hooks im HTML: `[data-brand-img]` (Logo-Bild), `[data-brand-slot]` / `.selv__logo` (Logo-Fläche), `[data-portal-name]`,
@@ -280,7 +304,7 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
   (dort zusätzlich „Projektbezogene Prämien“), die Kennzahlen in der Benefitportal-Einleitung. Der Ablauf der
   Rabatte war identisch mit dem des Portals und ist durch einen Verweis ersetzt.
 - Kundenbindung: Die drei bisherigen Seiten sind zu einer Seite zusammengefasst. Kennzahlen stehen nur im Loyalty-Portal,
-  Portal-Hotspots nur im Loyalty-Portal, Gutschein-Gestalter und Warenkorb nur bei den Kundengutscheinen (im
+  Gutschein-Gestalter und Warenkorb nur bei den Kundengutscheinen (im
   Loyalty-Portal steht ein Verweis). Der Ablauf der Kundenrabatte war von der Mitarbeitergutschein-Seite kopiert
   („Gutscheine an Ihre Mitarbeitenden“) und ist durch einen Verweis auf den Ablauf des Loyalty-Portals ersetzt.
   Abschlusstexte und Buttons, die auf Mitarbeitende bzw. „Zu allen Anlässen“ (Mitarbeitergeschenke) verwiesen, sind

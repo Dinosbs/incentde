@@ -456,13 +456,7 @@ ul, ol { padding: 0; list-style: none; }
 .hero__ticks li { display: inline-flex; align-items: center; gap: 8px; }
 .hero__ticks .i { color: #0f9d63; }
 
-/* Produkt-Mockup */
-.hero__visual {
-  position: relative;
-  max-width: 1080px;
-  margin: clamp(56px, 7vw, 96px) auto 0;
-  perspective: 1800px;
-}
+/* Produkt-Mockup (Bühne der Live-Demo, siehe .pb) */
 .stage {
   position: relative;
   transform-style: preserve-3d;
@@ -484,7 +478,7 @@ ul, ol { padding: 0; list-style: none; }
     radial-gradient(520px circle at var(--gx, 50%) var(--gy, 30%), rgba(255, 255, 255, .26), transparent 55%),
     linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .07) 48%, transparent 66%);
 }
-.hero__visual .vp {
+.pb .vp {
   border-radius: 18px;
   box-shadow:
     0 0 0 1px rgba(0, 30, 90, .08),
@@ -1434,23 +1428,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .perk p { font-size: 1rem; color: var(--ink-2); }
 
 /* Live-Vorschau */
-.studio {
-  margin-top: clamp(48px, 6vw, 80px);
-  padding: clamp(20px, 3.6vw, 44px);
-  overflow: clip;
-  border-radius: 32px;
-  background: #fff;
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-2);
-}
-.studio__head {
-  display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 16px 56px;
-  margin-bottom: clamp(24px, 3vw, 36px);
-}
-.studio__head > div { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
-.studio__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 3.4vw, 3rem); line-height: 1.02; letter-spacing: -.005em; }
-.studio__text { max-width: 56ch; justify-self: end; font-size: clamp(1.05rem, 1.3vw, 1.18rem); color: var(--ink-2); }
-.studio__body { display: grid; grid-template-columns: minmax(330px, 380px) 1fr; align-items: stretch; gap: clamp(16px, 2.4vw, 28px); }
 .studio__controls {
   display: flex; flex-direction: column; align-items: flex-start; gap: 18px;
   padding: clamp(18px, 2vw, 26px);
@@ -1517,31 +1494,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .bg-opt__thumb--image { background: var(--bg-img, url("../img/portal/bg-highlights.webp")) center / cover no-repeat; }
 .bg-opt__thumb--solid { background: var(--bg-solid); }
 .bg-opt__thumb--gradient { background: linear-gradient(150deg, var(--bg-g1), var(--bg-g2)); }
-
-.studio__preview {
-  position: relative; overflow: clip;
-  display: grid; place-items: center;
-  padding: clamp(16px, 2.6vw, 34px);
-  border-radius: 24px;
-  background: radial-gradient(120% 120% at 100% 0%, #d9e6ff 0%, #ebf1fb 45%, #f4f7fc 100%);
-  perspective: 1600px;
-}
-.studio__preview::before {
-  content: "";
-  position: absolute; inset: 0;
-  background-image: radial-gradient(rgba(26, 77, 255, .14) 1px, transparent 1.5px);
-  background-size: 22px 22px;
-  -webkit-mask-image: radial-gradient(ellipse at 70% 30%, #000, transparent 70%);
-  mask-image: radial-gradient(ellipse at 70% 30%, #000, transparent 70%);
-}
-.studio__stage {
-  position: relative; z-index: 1;
-  width: 100%;
-  transform-style: preserve-3d;
-  transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  will-change: transform;
-}
-.studio__stage .stage__glare { z-index: 2; border-radius: 14px; }
 
 /* Logo hochladen */
 .logo-drop {
@@ -1617,8 +1569,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .swatch--pick { display: inline-block; width: 30px; height: 30px; cursor: pointer; }
 .swatch--pick input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; }
 .swatch--pick:focus-within { outline: 2px solid var(--azure); outline-offset: 3px; }
-.studio__preview .vp__stage { height: calc(1090 * var(--u)); }
-.studio__preview .vp { border-radius: 14px; box-shadow: 0 40px 80px -30px rgba(0, 20, 70, .45), 0 0 0 1px rgba(0, 10, 30, .08); }
 
 /* ==========================================================================
    Kundenstimmen
@@ -2272,7 +2222,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
    Die passende Animation setzt main.js anhand des Icons (data-anim), z. B. Herz → Herzschlag, Flugzeug → fliegt. */
 /* Chrome sortiert bei starker 3D-Neigung die großen Bildflächen beim Treffertest vor die Tags (Hover flackert).
    Die Flächen sind reine Deko – Mausereignisse gehen an die Tags bzw. an den umgebenden Kippbereich. */
-.hero__visual .vp-frame, .photo-card__img, .devices__img { pointer-events: none; }
+.pb .vp-frame, .photo-card__img, .devices__img { pointer-events: none; }
 .float--voucher, .float--stat, .float--tag { transition: scale .5s var(--ease-out), box-shadow .35s; }
 .float__icon { overflow: hidden; }
 @media (hover: hover) {
@@ -3120,8 +3070,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .split__copy > .checks { width: 100%; margin-top: 8px; }
 
 /* Hotspots auf dem Portal-Mockup */
-.hotspots { display: grid; grid-template-columns: minmax(280px, .7fr) 1.3fr; align-items: center; gap: clamp(24px, 4vw, 56px); }
-.hotspots__legend { display: flex; flex-direction: column; gap: 8px; }
 .spot {
   display: flex; align-items: center; gap: 14px;
   width: 100%;
@@ -3145,8 +3093,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .hotspots__promises { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .promise { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font-size: .95rem; font-weight: 600; color: #0f7a4f; background: #e7f8ef; }
 .promise .i { width: 16px; height: 16px; stroke-width: 2.6; }
-.hotspots__visual { position: relative; perspective: 1600px; }
-.hotspots__visual .vp { border-radius: 16px; box-shadow: 0 40px 80px -30px rgba(0, 20, 70, .45), 0 0 0 1px rgba(0, 10, 30, .08); }
 .pin {
   position: absolute; z-index: 5;
   left: var(--x); top: var(--y);
@@ -3477,7 +3423,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px 
 
 /* Responsive */
 @media (max-width: 980px) {
-  .subhero__grid, .intro, .showcase, .split, .hotspots, .vconf, .calc, .explorer, .finder { grid-template-columns: 1fr; }
+  .subhero__grid, .intro, .showcase, .split, .vconf, .calc, .explorer, .finder { grid-template-columns: 1fr; }
   /* Chips, die am Desktop über den Bildrand ragen, bleiben im einspaltigen Layout im Bild */
   .chip-float[style*="left:-"] { left: 8px !important; }
   .chip-float[style*="right:-"] { right: 8px !important; }
@@ -3709,7 +3655,6 @@ a.more-link:hover .i { transform: translateX(3px); }
 .sc-panel__more--two { display: flex; flex-wrap: wrap; gap: 8px 28px; }
 /* Illustrationen mit cqi-Innenabständen (z. B. Warenkorb) brauchen das Panel als Bezugsgröße */
 .sc-panel:has(> .ggv) { container-type: inline-size; }
-.hotspots__more { margin: 6px 0 0; }
 
 .select-teaser { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: clamp(28px, 5vw, 72px); }
 .select-teaser__mark {
@@ -4208,8 +4153,6 @@ a.more-link:hover .i { transform: translateX(3px); }
 .iso img { display: block; width: 100%; height: auto; border-radius: 26px; box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .7); }
 .iso .tilt-media__frame { border-radius: 26px; box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .7); }
 .iso .tilt-media__frame img { border-radius: 0; box-shadow: none; }
-.hotspots__visual .photo-card .stage__glare { border-radius: 16px; }
-.hotspots .pin { cursor: pointer; }
 .coupon-wrap { transform-style: preserve-3d; transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
 .finder [data-tilt-card] { transform-style: preserve-3d; transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
 
@@ -4347,9 +4290,6 @@ a.more-link:hover .i { transform: translateX(3px); }
 
   .card, .card--wide { grid-column: span 12; }
   .perks { grid-template-columns: repeat(2, 1fr); }
-  .studio__head, .studio__body { grid-template-columns: 1fr; }
-  .studio__text { justify-self: start; }
-  .studio__preview { order: -1; position: sticky; top: 84px; z-index: 3; padding: 12px; box-shadow: 0 18px 30px -24px rgba(0, 20, 70, .5); }
   .about__intro, .about__outro, .contact__panel { grid-template-columns: 1fr; }
   .about__since { left: 16px; }
   .areas { grid-template-columns: 1fr; max-width: 640px; margin-inline: auto; }
@@ -4364,12 +4304,9 @@ a.more-link:hover .i { transform: translateX(3px); }
 }
 
 @media (max-width: 760px) {
-  .hero__visual { margin-top: 76px; }
   .float--voucher { left: -6px; bottom: -46px; transform: translateZ(70px) scale(.66); transform-origin: 0 100%; }
   .float--stat { right: -6px; top: -40px; transform: translateZ(90px) scale(.8); transform-origin: 100% 0; }
   .float--tag { display: none; }
-  .studio__preview .vp__head--shop, .studio__preview .vp__products { display: none; }
-  .studio__preview .vp__stage { height: calc(700 * var(--u)); }
   .live-chip {
     position: relative; left: auto; bottom: auto; translate: none;
     flex-wrap: wrap; justify-content: center; gap: 10px 14px;
@@ -4541,4 +4478,142 @@ a.more-link:hover .i { transform: translateX(3px); }
   .aud__card { padding: 14px 16px; }
   .aud__sols { display: none; }
   .aud__go { top: 50%; bottom: auto; translate: 0 -50%; }
+}
+
+/* ==========================================================================
+   Live-Demo: Vorschau ⇄ Builder (main.js: initPortalStudio)
+   Ein Baustein: die große Portal-Vorschau wird auf Knopfdruck an derselben Stelle zum Builder.
+   Im Hero der Übersicht und in jeder Welt direkt unter dem Seitenkopf (außer Marken).
+   ========================================================================== */
+.pb-slot--hero { margin-top: clamp(44px, 6vw, 80px); }
+.world .pb-slot { padding-block: clamp(44px, 6vw, 80px) clamp(8px, 2vw, 24px); }
+.world .pb-slot:empty { display: none; }
+.pb { position: relative; max-width: 1180px; margin-inline: auto; }
+.pb__head {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px 32px;
+  margin-bottom: clamp(22px, 2.8vw, 34px);
+}
+.pb__title { margin-top: 10px; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.9rem, 3.2vw, 2.8rem); line-height: 1.04; text-wrap: balance; }
+
+/* Umschalter „Vorschau | Selbst gestalten“ – große Klickflächen, gleitende Markierung */
+.pb__modes {
+  position: relative;
+  display: inline-grid; grid-template-columns: 1fr 1fr;
+  padding: 5px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--line), 0 16px 34px -24px rgba(0, 30, 90, .55);
+}
+.pb__modes button {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  min-height: 48px; padding: 0 22px;
+  border-radius: 999px;
+  font-size: 1.02rem; font-weight: 600; color: var(--ink-2);
+  transition: color .35s;
+}
+.pb__modes button:hover { color: var(--ink); }
+.pb__modes button[aria-pressed="true"] { color: #fff; }
+.pb__modes button:focus-visible { outline: 3px solid rgba(43, 75, 255, .45); outline-offset: 2px; }
+.pb__modes .i { width: 19px; height: 19px; }
+.pb__ind {
+  position: absolute; top: 5px; bottom: 5px; left: 5px;
+  width: calc(50% - 5px);
+  border-radius: 999px;
+  background: var(--grad-btn);
+  box-shadow: 0 10px 24px -12px rgba(26, 120, 255, .9);
+  transition: translate .55s var(--ease-out);
+}
+.pb[data-mode="builder"] .pb__ind { translate: 100% 0; }
+
+/* Vorschau: Bühne über die volle Breite – Builder: Bedienelemente schieben sich links herein, die Bühne rückt nach rechts */
+.pb__body {
+  display: grid;
+  grid-template-columns: minmax(0, 0fr) minmax(0, 1fr);
+  column-gap: 0;
+  align-items: start;
+  transition: grid-template-columns .7s var(--ease-out), column-gap .7s var(--ease-out);
+}
+.pb[data-mode="builder"] .pb__body { grid-template-columns: minmax(0, .5fr) minmax(0, 1fr); column-gap: clamp(18px, 2.4vw, 30px); }
+.pb__drawer {
+  display: grid; grid-template-rows: minmax(0, 0fr);
+  opacity: 0;
+  transition: grid-template-rows .7s var(--ease-out), opacity .3s ease;
+}
+.pb[data-mode="builder"] .pb__drawer { grid-template-rows: minmax(0, 1fr); opacity: 1; transition: grid-template-rows .7s var(--ease-out), opacity .45s ease .2s; }
+.pb__drawer-in { min-height: 0; overflow: hidden; }
+.pb__controls { min-width: 350px; }
+.pb__done {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: 48px; margin-top: 4px;
+  border-radius: 999px;
+  font-weight: 600; color: var(--ink);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition: color .2s, box-shadow .2s;
+}
+.pb__done:hover { color: var(--royal); box-shadow: inset 0 0 0 1px rgba(43, 75, 255, .45); }
+
+.pb__view { position: relative; perspective: 1800px; }
+.pb[data-mode="builder"] .pb__view { position: sticky; top: var(--pb-top, 110px); }
+/* im Builder flacher und ruhiger: die Bühne kippt nur noch leicht mit dem Cursor */
+.pb[data-mode="builder"] .stage {
+  transform:
+    translate3d(calc(var(--tx, 0px) * .35), calc(var(--ty, 0px) * .35), 0)
+    rotateX(calc(var(--rx, 0deg) * .35))
+    rotateY(calc(var(--ry, 0deg) * .35));
+}
+.pb.is-switching .stage { transition: transform .7s var(--ease-out); }
+.pb .vp__stage { transition: height .7s var(--ease-out); }
+.pb[data-mode="builder"] .vp__stage { height: calc(1090 * var(--u)); }
+.pb .float { transition: opacity .35s ease; }
+.pb[data-mode="builder"] .float { opacity: 0; pointer-events: none; }
+.pb__chip { transition: opacity .3s ease, translate .45s var(--ease-out), visibility 0s; }
+.pb[data-mode="builder"] .pb__chip { opacity: 0; visibility: hidden; translate: -50% 14px; transition: opacity .2s ease, translate .3s ease, visibility 0s .3s; }
+.pb__chip .live-chip__link { cursor: pointer; }
+/* ohne JavaScript: nur die Vorschau (der Builder braucht JavaScript) */
+html:not(.js) .pb__body { display: block; }
+html:not(.js) .pb__drawer, html:not(.js) .pb__modes, html:not(.js) .pb__chip .live-chip__link { display: none; }
+html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
+
+/* Hinweis in den Welten: „Ihr Portal, Ihr Design“ → Live-Demo oben öffnen */
+.pb-teaser {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px 26px;
+  margin-top: clamp(32px, 4vw, 52px);
+  padding: clamp(20px, 2.6vw, 30px);
+  border-radius: 28px;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-2);
+}
+.pb-teaser__ico { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 18px; color: #fff; background: var(--grad-btn); }
+.pb-teaser__ico .i { width: 26px; height: 26px; }
+.pb-teaser__title { font-family: var(--font-display); font-size: clamp(1.35rem, 2vw, 1.7rem); font-weight: 700; line-height: 1.1; }
+.pb-teaser__copy p { max-width: 62ch; margin-top: 6px; color: var(--ink-2); }
+
+@media (max-width: 1180px) {
+  .pb[data-mode="builder"] .pb__body { grid-template-columns: minmax(0, .66fr) minmax(0, 1fr); }
+  .pb__controls { min-width: 330px; }
+}
+@media (max-width: 980px) {
+  .pb__head { flex-direction: column; align-items: stretch; }
+  .pb__modes { width: 100%; }
+  .pb__modes button { padding: 0 12px; }
+  /* gestapelt: Vorschau oben (bleibt beim Gestalten stehen), Bedienelemente klappen darunter auf */
+  .pb__body, .pb[data-mode="builder"] .pb__body { grid-template-columns: minmax(0, 1fr); column-gap: 0; }
+  .pb__view { order: -1; }
+  .pb[data-mode="builder"] .pb__view { top: var(--pb-top, 84px); z-index: 3; padding: 10px; border-radius: 22px; background: rgba(244, 247, 254, .94); box-shadow: 0 18px 30px -24px rgba(0, 20, 70, .5); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .pb[data-mode="builder"] .vp__stage { height: calc(560 * var(--u)); }
+  .pb[data-mode="builder"] .pb__drawer { margin-top: 16px; }
+  .pb__controls { min-width: 0; }
+}
+@media (max-width: 760px) {
+  /* Kennzahl unten rechts statt über dem Umschalter */
+  .pb .float--stat { top: auto; bottom: -40px; right: -6px; transform-origin: 100% 100%; }
+  .pb-teaser { grid-template-columns: 1fr; }
+  .pb-teaser .btn { justify-content: center; }
+  .pb[data-mode="builder"] .pb__chip { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pb__body, .pb__drawer, .pb .vp__stage, .pb__ind, .pb.is-switching .stage { transition: none; }
 }

@@ -603,11 +603,12 @@
       );
     }
 
+    // Bühne der Live-Demo (im Hero der Übersicht oder unter dem Seitenkopf einer Welt)
     const hero = $("[data-hero]");
     const spot = hero && $("[data-spot]", hero);
-    const visual = hero && $("[data-tilt]", hero);
+    const visual = $("[data-pb] [data-tilt]");
     const stage = visual && $("[data-tilt-stage]", visual);
-    if (!hero || !visual || !stage) return;
+    if (!visual || !stage) return;
 
     if (reducedMotion) {
       stage.style.setProperty("--p", "1");
@@ -620,6 +621,7 @@
       center: () => ({ x: window.innerWidth / 2, y: window.innerHeight / 2 }),
       reach: 0.5,
       onMove: (e) => {
+        if (!spot) return;
         const r = hero.getBoundingClientRect();
         spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
         spot.style.setProperty("--sy", `${e.clientY - r.top}px`);
@@ -631,20 +633,6 @@
       const vh = window.innerHeight;
       const p = clamp((vh - top) / (vh * 0.7), 0, 1);
       stage.style.setProperty("--p", p.toFixed(3));
-    });
-  }
-
-  /* ---------- Live-Vorschau: Portal folgt dem Cursor wie im Hero ---------- */
-  function initStudioTilt() {
-    const body = $("[data-studio-body]");
-    const stage = $("[data-studio-stage]");
-    if (!body || !stage) return;
-    createTilt({
-      stage,
-      rx: 6,
-      ry: 9,
-      tx: 14,
-      ty: 8,
     });
   }
 
@@ -1654,164 +1642,6 @@
     });
   }
 
-  /* ---------- Hotspots auf dem Portal-Mockup (mit kleinen Live-Demos) ---------- */
-  const demoLogo = (text = "IHR LOGO") =>
-    "data:image/svg+xml," +
-    encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 52"><rect x="1.5" y="1.5" width="197" height="49" rx="12" fill="none" stroke="#1c87b8" stroke-width="3" stroke-dasharray="7 6"/><text x="100" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#1c87b8">${text}</text></svg>`
-    );
-  // Kategorien je Creator-Thema (Demo „Kategorien passend zu Deinem Content“)
-  const CREATOR_CATS = [
-    ["Highlights", "Fitness", "Supplements", "Sportmode", "Recovery", "Outdoor", "Ernährung", "Gadgets"],
-    ["Highlights", "Reisen", "Kamera", "Gepäck", "Outdoor", "Hotels", "Mobilität", "Technik"],
-    ["Highlights", "Gaming", "Technik", "Audio", "Setup", "Streaming", "Snacks", "Merch"],
-    ["Highlights", "Beauty", "Skincare", "Fashion", "Wellness", "Düfte", "Schmuck", "Lifestyle"],
-  ];
-  function initHotspots() {
-    $$("[data-hotspots]").forEach((root) => {
-      const theme = $("[data-theme-local]", root);
-      const spots = $$("[data-spot]", root);
-      const pins = $$("[data-pin]", root);
-      const logo = theme && $(".vp__logo-custom", theme);
-      const emptyLogo = logo && logo.getAttribute("src");
-      const logoSrc = demoLogo(root.dataset.logoText);
-      const allCats = theme ? $$(".vp__cats i", theme) : [];
-      const cats = allCats.slice(0, -1);
-      const more = allCats[allCats.length - 1];
-      const catTexts = cats.map((c) => c.textContent);
-      let catGen = 0;
-      // Kategorien weich austauschen: nacheinander ausblenden, Text tauschen (unsichtbar), nacheinander einblenden
-      const swapCats = (texts) => {
-        const gen = ++catGen;
-        if (!cats[0] || !cats[0].animate) return cats.forEach((c, i) => (c.textContent = texts[i]));
-        cats.forEach((c) => c.getAnimations().forEach((a) => a.cancel()));
-        const outs = cats.map((c, i) =>
-          c.animate(
-            [{ opacity: 1, transform: "none", filter: "blur(0)" }, { opacity: 0, transform: "translateY(-40%)", filter: "blur(2px)" }],
-            { duration: 240, delay: i * 30, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards" }
-          )
-        );
-        Promise.all(outs.map((a) => a.finished))
-          .then(() => {
-            if (gen !== catGen) return;
-            // „Alle Kategorien“ bleibt sichtbar: gleitet an seine neue Position statt zu springen
-            const from = more.getBoundingClientRect().left;
-            more.getAnimations().forEach((a) => a.cancel());
-            cats.forEach((c, i) => (c.textContent = texts[i]));
-            const dx = from - more.getBoundingClientRect().left;
-            if (Math.abs(dx) > 0.5)
-              more.animate([{ transform: `translateX(${dx}px)` }, { transform: "none" }], { duration: 520, easing: "cubic-bezier(.2,.8,.2,1)" });
-            cats.forEach((c, i) => {
-              c.animate(
-                [{ opacity: 0, transform: "translateY(40%)", filter: "blur(2px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
-                { duration: 420, delay: i * 45, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" }
-              );
-            });
-            outs.forEach((a) => a.cancel());
-          })
-          .catch(() => {});
-      };
-      let active = "";
-      let demoTimer = 0;
-      let autoTimer = 0;
-      let auto = !reducedMotion && root.dataset.autoplay !== "false";
-      let visible = false;
-
-      // Ruhezustand: das Marken-Profil aus der Live-Demo (sonst INCENT-Standard)
-      const reset = () => {
-        clearInterval(demoTimer);
-        if (!theme) return;
-        paintTheme(theme, brand.state);
-        if (logo) logo.src = brand.state.logo || emptyLogo;
-        theme.classList.remove("is-demo-deals");
-        if (theme.classList.contains("is-demo-cats")) {
-          theme.classList.remove("is-demo-cats");
-          swapCats(catTexts);
-        }
-      };
-      const demos = {
-        // mit eigener Gestaltung aus der Live-Demo: deren Logo und Buttonfarbe zuerst
-        logo: () => {
-          logo.src = brand.state.logo || logoSrc;
-          theme.dataset.logo = "custom";
-        },
-        farben: () => {
-          const colors = ["#e30613", "#00965e", "#7b2cbf", "#ff7a00", "#1c87b8"];
-          if (brand.isCustom()) colors.unshift(brand.state.btn);
-          let k = 0;
-          const tick = () => {
-            const c = colors[k++ % colors.length];
-            theme.style.setProperty("--btn", c);
-            theme.dataset.btnTone = toneOf(c);
-          };
-          tick();
-          demoTimer = setInterval(tick, 1100);
-        },
-        hintergrund: () => {
-          const bgs = ["gradient", "solid", "image"];
-          let k = 0;
-          const tick = () => {
-            const bg = bgs[k++ % bgs.length];
-            theme.dataset.bg = bg;
-            theme.dataset.stageTone = stageToneOf({ ...brand.state, bg });
-          };
-          tick();
-          demoTimer = setInterval(tick, 1500);
-        },
-        deals: () => theme.classList.add("is-demo-deals"),
-        kategorien: () => {
-          let k = 0;
-          theme.classList.add("is-demo-cats");
-          const tick = () => {
-            const set = CREATOR_CATS[k++ % CREATOR_CATS.length];
-            swapCats(cats.map((c, i) => set[i] || catTexts[i]));
-          };
-          tick();
-          demoTimer = setInterval(tick, 2400);
-        },
-      };
-      const activate = (key) => {
-        if (key === active) return;
-        active = key;
-        reset();
-        spots.forEach((s) => {
-          const on = s.dataset.spot === key;
-          s.classList.toggle("is-active", on);
-          s.setAttribute("aria-pressed", String(on));
-        });
-        pins.forEach((p) => p.classList.toggle("is-active", p.dataset.pin === key));
-        if (theme && !reducedMotion && demos[key]) demos[key]();
-      };
-      const stopAuto = () => {
-        auto = false;
-        clearInterval(autoTimer);
-      };
-      const startAuto = () => {
-        clearInterval(autoTimer);
-        if (!auto || !visible) return;
-        autoTimer = setInterval(() => {
-          const keys = spots.map((s) => s.dataset.spot);
-          activate(keys[(keys.indexOf(active) + 1) % keys.length]);
-        }, 3400);
-      };
-
-      spots.forEach((s) => {
-        s.addEventListener("click", () => (stopAuto(), activate(s.dataset.spot)));
-        s.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && (stopAuto(), activate(s.dataset.spot)));
-        s.addEventListener("focus", () => (stopAuto(), activate(s.dataset.spot)));
-      });
-      pins.forEach((p) => p.addEventListener("click", () => (stopAuto(), activate(p.dataset.pin))));
-      if (hasIO) new IntersectionObserver((ioEntries, ioObs, e = ioEntries[ioEntries.length - 1]) => ((visible = e.isIntersecting), startAuto())).observe(root);
-      activate(spots[0].dataset.spot);
-      // Marken-Profil geändert (z. B. in einem anderen Tab): aktuelle Demo mit den neuen Werten neu starten
-      brand.onChange(() => {
-        const key = active;
-        active = "";
-        activate(key);
-      });
-    });
-  }
-
   /* ---------- SELECT-Gutschein: Konfigurator + Vorschau ---------- */
   const MOTIFS = {
     geburtstag: { title: "Alles Gute zum Geburtstag", greeting: "Herzlichen Glückwunsch zum Geburtstag – feiern Sie schön!", icon: "i-cake", accents: ["i-gift", "i-sparkles"] },
@@ -2311,6 +2141,56 @@
     });
   }
 
+  /* ---------- Live-Demo: Vorschau ⇄ Builder (ein Baustein) ----------
+     „Eigenes Portal bauen“ / „Selbst gestalten“ blendet an derselben Stelle den Builder ein: die Bedienelemente
+     schieben sich links herein, das Portal rückt nach rechts und wird höher (Shop-Reihe). „Vorschau“ bzw.
+     „Fertig – große Vorschau ansehen“ führt zurück. Links mit data-pb-open="builder|preview" springen zur
+     Live-Demo und öffnen den passenden Modus. Ohne JavaScript bleibt die Vorschau stehen. */
+  function initPortalStudio() {
+    const pb = $("[data-pb]");
+    if (!pb) return;
+    const toggles = $$(".pb__modes [data-pb-mode]", pb);
+    const drawer = $(".pb__drawer", pb);
+    let timer = 0;
+    // Kopf der Live-Demo in den Blick holen (z. B. „Fertig“ ganz unten im Builder: danach wird alles kürzer)
+    const reveal = () => {
+      const top = pb.getBoundingClientRect().top;
+      if (top > 40 && top < window.innerHeight * 0.6) return;
+      const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 96;
+      scrollWindow({ top: Math.max(0, top + window.scrollY - pad), behavior: reducedMotion ? "auto" : "smooth" });
+    };
+    const set = (mode, { focus = false, scroll = false } = {}) => {
+      const changed = pb.dataset.mode !== mode;
+      pb.dataset.mode = mode;
+      toggles.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.pbMode === mode)));
+      drawer.inert = mode !== "builder";
+      if (!changed) return;
+      // während des Wechsels gleitet auch die Kippung der Bühne in die neue Lage
+      pb.classList.add("is-switching");
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        pb.classList.remove("is-switching");
+        // die Seite ist jetzt höher bzw. niedriger: Scroll-Stepper & Co. neu messen
+        window.dispatchEvent(new Event("resize"));
+      }, reducedMotion ? 0 : 750);
+      if (focus && mode === "builder") {
+        const first = $("input, button, [tabindex]", drawer);
+        setTimeout(() => first && first.focus({ preventScroll: true }), reducedMotion ? 0 : 450);
+      }
+      if (scroll) reveal();
+    };
+    // per Tastatur (detail 0) geöffnet: Fokus in den Builder, damit es dort direkt weitergeht
+    $$("[data-pb-mode]", pb).forEach((b) =>
+      b.addEventListener("click", (e) => set(b.dataset.pbMode, { focus: e.detail === 0 && !b.closest(".pb__modes"), scroll: true }))
+    );
+    // Links zur Live-Demo: Modus wählen, das Springen übernimmt der Link (bzw. initWorlds)
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a[data-pb-open]");
+      if (a && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) set(a.dataset.pbOpen === "builder" ? "builder" : "preview");
+    }, true);
+    set(pb.dataset.mode === "builder" ? "builder" : "preview");
+  }
+
   /* ---------- Welten: alles für eine Zielgruppe unter einem Dach ----------
      Die Startseite ist ein One-Pager. Die Wahl („Wer sind Sie?“, Navigation, Umschalter im Seitenkopf) zeigt genau
      eine Welt (Arbeitgeber, Unternehmen, Marken, Creator). Die Leiste im Seitenkopf der Welt tauscht deren Bereiche
@@ -2355,6 +2235,13 @@
       return w;
     });
     const byKey = (k) => worlds.find((w) => w.key === k);
+    // Live-Demo (Vorschau ⇄ Builder) wandert in die gezeigte Welt; Welten ohne Platz (Marken): zurück in den Hero
+    const studio = $("#live-vorschau");
+    const placeStudio = () => {
+      if (!studio) return;
+      const slot = $(`[data-pb-slot="${html.dataset.world || "start"}"]`) || $('[data-pb-slot="start"]');
+      if (slot && studio.parentElement !== slot) slot.append(studio);
+    };
     const worldOf = (panelId) => worlds.find((w) => w.ids.includes(panelId));
     const cur = () => byKey(html.dataset.world);
 
@@ -2420,6 +2307,8 @@
       if (w) w.hosts.forEach(placeInd);
       fitTexts();
       html.style.scrollPaddingTop = `${offset()}px`;
+      // Builder: die Vorschau bleibt unter Navigation (und angedockter Leiste) stehen
+      html.style.setProperty("--pb-top", `${offset() - 6}px`);
     };
     const sync = () => {
       const w = cur();
@@ -2455,6 +2344,7 @@
     const closeDockMenus = () => worlds.forEach((w) => setDockMenu(w, false));
     // Welt gewechselt: Leiste neu andocken, Formular vorbelegen, Stepper & Co. neu messen
     const worldChanged = () => {
+      placeStudio();
       if (nav) nav.classList.remove("is-docked");
       worlds.forEach((w) => w.dock && (w.dock.inert = true));
       closeDockMenus();
@@ -2562,7 +2452,10 @@
     window.addEventListener("popstate", (e) => {
       const id = decodeURIComponent(location.hash.slice(1));
       const state = e.state && typeof e.state.world === "string" ? e.state : null;
-      if (tabOf(id)) show(id, { push: false });
+      // Ziel in einem Bereich: dieser Bereich; Ziel, das zur ganzen Welt gehört (Seitenkopf, Live-Demo): Stand des Eintrags
+      const el = id && document.getElementById(id);
+      const inPanel = !!el && (!!worldOf(id) || !!byKey(id) || !!el.closest(".mb-panel"));
+      if (tabOf(id) && (inPanel || !state)) show(id, { push: false });
       else if (state) restore(state.world, state.mb, id);
       else if (!id || id === "top") showHome({ push: false });
     });
@@ -2619,6 +2512,7 @@
       preselect(html.dataset.world);
     }
     history.replaceState(stamp(), "");
+    placeStudio();
     sync();
     // Direktlink auf einen Abschnitt: nach dem Laden (Bilder, Schriften) noch einmal genau ausrichten
     const firstEl = !kept && firstTab && first !== firstTab ? document.getElementById(first) : null;
@@ -3685,7 +3579,6 @@
     },
     { sel: ".showcase[data-tabs], .tabs[data-tabs], .explorer[data-tabs]", measure: true, steps: tabSteps },
     { sel: "[data-acc]", skip: (el) => !!el.closest(".adv"), measure: true, steps: accSteps },
-    { sel: "[data-hotspots]", steps: (root) => pressSteps($$("[data-spot]", root), "aria-pressed") },
     {
       sel: "[data-features]",
       steps: (root) =>
@@ -4026,7 +3919,6 @@
   initRotator();
   initCounters();
   initHero();
-  initStudioTilt();
   initSpotlight();
   initMagnetic();
   initTabs();
@@ -4053,10 +3945,10 @@
   initPackages();
   initEarnings();
   initWorlds();
+  initPortalStudio();
   initSelfLinks();
   initShots();
   initSteps();
-  initHotspots();
   initVouchers();
   initFinder();
   initCheckout();
