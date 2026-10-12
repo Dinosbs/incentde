@@ -51,10 +51,11 @@ Die Seite entscheidet von Beginn an, wer sie ansieht, und zeigt dann nur, was f�
    (Partner, Versprechen, Plattform, Kundenstimmen, Über uns, Kontakt).
 2. **Welt** (nach der Wahl): Die Übersicht verschwindet, oben steht die Welt der Zielgruppe – alles für sie unter
    einem Dach. Ganz oben ein Umschalter „Übersicht | Ansicht für: Arbeitgeber · Unternehmen · Marken · Creator“
-   (große Klickflächen, mobil als 2×2-Raster). Im Seitenkopf die **Absprungzone**: die Leiste mit den Lösungen der
-   Welt (z. B. Benefitportal · Mitarbeiterrabatte · Mitarbeitergutscheine · Geschenkanlässe) tauscht den Inhalt
-   darunter aus, ohne neue Seite und ohne Verschachtelung. Direkt darunter – vor allen Inhalten – die **Live-Demo**
-   (Vorschau ⇄ Builder, siehe unten). Danach folgen die allgemeinen Abschnitte, die zu dieser Zielgruppe passen.
+   (große Klickflächen, mobil als 2×2-Raster). Die **Hauptnavigation wird zur Absprungzone**: statt der Zielgruppen
+   zeigt sie die Bereiche der Welt, z. B. bei Arbeitgebern „Übersicht · Ihr Design · 2-in-1-Benefits ·
+   Mitarbeiterrabatte · Mitarbeitergutscheine · Geschenkanlässe“ – ein Klick tauscht den Inhalt, ohne neue Seite und
+   ohne zweite Leiste. **„Ihr Design“** (Creator: „Dein Design“) ist ein eigener Bereich mit der Live-Demo
+   (Builder geöffnet, siehe unten). Danach folgen die allgemeinen Abschnitte, die zu dieser Zielgruppe passen.
 
 | Abschnitt | Übersicht | Arbeitgeber | Unternehmen | Marken | Creator |
 | --- | :-: | :-: | :-: | :-: | :-: |
@@ -63,7 +64,7 @@ Die Seite entscheidet von Beginn an, wer sie ansieht, und zeigt dann nur, was f�
 | Versprechen | ✓ | – | – | – | – |
 | Plattform („Was uns einzigartig macht“) | ✓ | – | – | ✓ | – |
 | Leistungsangebot | – | ✓ | ✓ | ✓ | – |
-| **Live-Demo** (Vorschau ⇄ Builder) | im Hero | direkt unter dem Seitenkopf | direkt unter dem Seitenkopf | – | direkt unter dem Seitenkopf |
+| **Live-Demo** (Vorschau ⇄ Builder) | im Hero | Bereich „Ihr Design“ | Bereich „Ihr Design“ | – | Bereich „Dein Design“ |
 | Vorteile im Überblick | – | ✓ | ✓ | – | ✓ |
 | Kundenstimmen | ✓ | ✓ | ✓ | – | – |
 | Über uns, Kontakt | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -71,9 +72,11 @@ Die Seite entscheidet von Beginn an, wer sie ansieht, und zeigt dann nur, was f�
 Die Zuordnung steht als `data-for="start arbeitgeber …"` am Abschnitt (`start` = Übersicht); Abschnitte ohne `data-for`
 stehen überall. Es gibt keinen Filter und keinen „Alle Inhalte“-Schalter mehr.
 
-**Wechseln:** Navigation (Arbeitgeber, Unternehmen, Marken, Creator als direkte Links, die aktuelle Welt ist blau),
-Umschalter oben in der Welt, Karten in der Übersicht, „Mehr erfahren“ unter „Über uns“. Das Logo und „Übersicht“
-führen zurück zur Wahl. Der Wechsel blendet weich über und springt nach oben, der Seitentitel wechselt mit.
+**Wechseln:** in der Übersicht Navigation (Arbeitgeber, Unternehmen, Marken, Creator als direkte Links) und Karten,
+in der Welt der Umschalter oben und die Bereiche in der Navigation (der aktuelle ist blau hinterlegt; beim Wechsel der
+Welt tauschen sich die Einträge sichtbar aus). Logo und „Übersicht“ (in der Navigation und im Umschalter) führen
+zurück zur Wahl. Der Wechsel blendet weich über; wer schon weiter unten war, beginnt im neuen Bereich oben. Der
+Seitentitel wechselt mit. Unten rechts erscheint nach dem ersten Bildschirm der Knopf **„Nach oben“** (Pfeil im Kasten).
 
 **Merken:** Die gewählte Zielgruppe merkt sich der Browser (`localStorage`, `incent-audience`). Wer wiederkommt, landet
 direkt in seiner Welt; „Übersicht“ vergisst die Wahl. Das Kontaktformular ist passend vorbelegt („Ich bin …“).
@@ -101,9 +104,12 @@ Ein einziger Baustein (`#live-vorschau`, `[data-pb]`) statt getrennter Vorschau 
   zusätzlich die Shop-Reihe. Beim Gestalten bleibt die Vorschau stehen (Desktop: neben den Feldern, mobil: oben).
 - **Hin und her**: Umschalter „Vorschau | Selbst gestalten“ oben rechts (große Flächen, gleitende Markierung) und
   „Fertig – große Vorschau ansehen“ unter den Feldern. Per Tastatur geöffnet, springt der Fokus in den Builder.
-- **Wo**: im Hero der Übersicht und in jeder Welt direkt unter dem Seitenkopf (Arbeitgeber, Unternehmen, Creator –
-  nicht bei Marken). Es gibt den Baustein nur einmal; beim Wechsel der Welt wandert er an deren Platz
-  (`[data-pb-slot]`), ein kleines Skript direkt nach dem Platz holt ihn schon beim Aufbau der Seite dorthin.
+- **Wo**: im Hero der Übersicht (Start: große Vorschau) und als eigener Bereich „Ihr Design“ jeder Welt
+  (`#ihr-design`, `#unternehmen-ihr-design`, `#creator-dein-design`; Start: Builder geöffnet, ohne Seitenkopf, darunter
+  „Gefällt Ihnen Ihr Portal?“ mit „Demo buchen“ und dem Weg zum ersten Bereich) – nicht bei Marken. Es gibt den
+  Baustein nur einmal; beim Wechsel der Welt wandert er an deren Platz (`[data-pb-slot]`), ein kleines Skript direkt
+  nach dem Platz holt ihn schon beim Aufbau der Seite dorthin. Links mit `data-pb-open="preview"` öffnen auch dort
+  die Vorschau.
   Überschrift, Kontoname im Portal („Mitarbeiterportal“, „Kundenportal“, „Community-Shop“), Kategorien (Creator:
   Fitness, Supplements, Gaming …) und Knopftext passen sich der Welt an (`data-for` an den Texten).
 - **Links**: `href="#live-vorschau"` mit `data-pb-open="builder"` öffnet den Builder (z. B. „Im Portal-Builder selbst
@@ -117,9 +123,11 @@ Ein einziger Baustein (`#live-vorschau`, `[data-pb]`) statt getrennter Vorschau 
 
 | Bereich | Was passiert |
 | --- | --- |
-| Navigation | Flach und ohne Ausklapp-Menüs: „Arbeitgeber“, „Unternehmen“, „Marken“, „Creator“ führen direkt in ihre Welt, dazu „Über uns“ und „Kontakt“; die aktuelle Welt ist blau markiert. Helle Glas-Leiste beim Scrollen, auf Mobilgeräten Vollbild-Menü mit großen Einträgen. Logo: `assets/img/incent-logo-nav-dark.png` (dunkle Fassung des zentrierten `incent-logo-nav.png`, gleiche Maße und Lage; oben 48 px hoch, nach dem Scrollen weich auf 34 px verkleinert) |
-| Hero | Heller Verlauf (ohne Gittertextur), Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz). Darunter im ersten Bildschirm die Frage **„Wer sind Sie?“** mit vier Einstiegen – Arbeitgeber, Unternehmen, Marken, Creator – jeweils mit den Lösungen in Kurzform. Jede Karte öffnet die Welt dieser Zielgruppe (siehe „Aufbau der Seite“). Danach die Live-Demo (Vorschau ⇄ Builder, siehe oben) |
-| Seitenkopf der Welten | Umschalter „Übersicht · Ansicht für …“, Titel, Text und Bild wechseln mit dem Bereich, Lichtkegel folgt dem Cursor; darunter die Leiste mit den Lösungen der Welt (Absprungzone), die beim Scrollen an die Navigation andockt |
+| Navigation | Flach und ohne Ausklapp-Menüs. Übersicht: „Arbeitgeber“, „Unternehmen“, „Marken“, „Creator“ führen direkt in ihre Welt, dazu „Über uns“ und „Kontakt“. In einer Welt tauscht sie sich aus gegen deren Bereiche (eigene Liste je Welt, `.nav__list--world`): „Übersicht“, „Ihr Design“ und die Lösungen; der aktuelle Bereich ist blau hinterlegt. Bei knappem Platz (bis 1360 px) steht „Übersicht“ nur als Symbol da und Telefon/vorteile.net verschwinden aus der Leiste. Helle Glas-Leiste beim Scrollen, auf Mobilgeräten Vollbild-Menü mit großen Einträgen. Logo: `assets/img/incent-logo-nav-dark.png` (dunkle Fassung des zentrierten `incent-logo-nav.png`, gleiche Maße und Lage; oben 48 px hoch, nach dem Scrollen weich auf 34 px verkleinert) |
+| Hero | Heller Verlauf (ohne Gittertextur), Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 800 ms, kippen in 3D ein, mit Lichtblitz). Darunter im ersten Bildschirm die Frage **„Wer sind Sie?“** (groß, „Sie“ im Verlauf, eine Linie zeichnet sich darunter, ein Pfeil wippt zu den Karten) mit vier Einstiegen – Arbeitgeber, Unternehmen, Marken, Creator – jeweils mit den Lösungen in Kurzform. Die Hervorhebung wandert mit der Headline: Zeigt sie „Mitarbeiterbindung“ oder „Steuerfreie Sachbezüge“, gleitet ein leuchtender Rahmen auf „Arbeitgeber“ und ein Fähnchen nennt den Begriff („Kundenbindung“ → Unternehmen, „Brand Awareness“ → Marken, „Social Communities“ → Creator; Zuordnung in `data-aud-terms` an der Karte, `initAudSpot` in `main.js`). Zeiger oder Fokus auf einer Karte halten den Rahmen dort und die Headline zeigt deren Begriff. Jede Karte öffnet die Welt dieser Zielgruppe (siehe „Aufbau der Seite“). Danach die Live-Demo (Vorschau ⇄ Builder, siehe oben) |
+| Seitenkopf der Welten | Umschalter „Übersicht · Ansicht für …“, Titel, Text und Bild wechseln mit dem Bereich, Lichtkegel folgt dem Cursor (die Bereiche stehen in der Navigation) |
+| Ladeanimation | INCENT-Logo mit Ladebalken auf hellem Grund, bis die Seite geladen ist (mindestens 0,7 s, höchstens 2,5 s; ohne Skript verschwindet sie per CSS nach 4 s). Danach blendet die Seite ein und die Einblend-Animationen im Hero starten. Nur mit JavaScript, bei „Bewegung reduzieren“ ohne Bewegung |
+| Nach oben | Quadratischer Knopf mit Pfeil unten rechts, erscheint nach dem ersten Bildschirm, scrollt weich nach oben (`initToTop`) |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
 | Partner | Endlos-Laufband aus `assets/img/partner-logos/` – jede Datei wird automatisch eine Kachel, gelöschte Dateien verschwinden (keine Liste im HTML); Dateien, die nicht laden oder leer sind, bekommen keine Kachel. Tempo passt sich der Anzahl an, pausiert bei Hover. Transparenter oder weißer Rand der Logo-Dateien wird automatisch abgeschnitten, danach bekommen alle Logos etwa dieselbe Fläche (`fitLogo` in `main.js`); pro Partner erscheint nur ein Logo. Markennamen für Kurz-Dateinamen (z. B. „UI“ → „Union Investment“) stehen in `BRAND_NAMES` |
 | Versprechen | Text leuchtet Wort für Wort beim Scrollen auf |
@@ -133,32 +141,27 @@ Ein einziger Baustein (`#live-vorschau`, `[data-pb]`) statt getrennter Vorschau 
 | Cursor-Folgen (alle Seiten) | Alle Kipp-Elemente folgen dem Cursor im ganzen Fenster, nicht nur über ihrer Fläche: Portal der Live-Demo, Vorschauen, Fotos im Seitenkopf, Bilder neben Text, Gutschein-Gestalter, Checkout-Demo „Wertgutscheine einlösen“ und das Kontaktformular. Ein gemeinsamer Listener (`createTilt` in `main.js`) rechnet nur für sichtbare Elemente; der Lichtreflex sitzt unter dem Cursor und wird mit Abstand schwächer. Liegt der Fokus im Element (Tippen im Formular), hält es weitgehend still; verlässt die Maus das Fenster, richtet sich alles auf. Nur bei Maus/Stift, nicht bei „Bewegung reduzieren“. |
 | Bilder neben Text (alle Seiten) | Kippen zum Cursor (`.tilt-media` mit `data-tilt-card`), das Bild verschiebt sich im Rahmen gegen die Bewegung, Ebenen davor (z. B. „Seit 2012“) schweben in der Tiefe, Lichtreflex folgt dem Cursor. Beim Scrollen driften die Bilder leicht hinter der Seite her (`data-parallax`, auch Fotos im Seitenkopf und Geräte-Bühne). |
 | Schwebende Tags (alle Seiten) | Beim Darüberfahren hebt sich der Tag an, das Icon spielt eine kleine Animation passend zum Motiv (Herz schlägt, Flugzeug fliegt davon, Haken zeichnet sich, Zahnrad dreht sich …). Die Zuordnung Icon → Animation steht in `TAG_ANIMS` in `main.js`, die Animationen als `ico-*` in `main.css`; neue Tags bekommen sie automatisch. Nur bei echter Hover-Maus aktiv. |
-| Scroll-Stepper (alle Seiten) | Alles, was man durchklicken kann (Tabs, Akkordeons, Vorteile mit Umschalter, Karussells, Touchpoints, Pakete, Anlass-Finder …), bleibt am Desktop beim Scrollen stehen und schaltet mit dem Scrollen Punkt für Punkt weiter, erst danach geht die Seite weiter (bei „Warum INCENT?“ erst alle Arbeitgeber-Vorteile, dann alle für Mitarbeitende). Rückwärts scrollen läuft die Punkte rückwärts ab. Rechts zeigt eine kleine Punktleiste, wo man steht. Ein Klick auf einen Punkt springt an die passende Scroll-Stelle; Links und Anker auf einen Punkt (z. B. `#sc-panel-3`) öffnen ihn direkt. Das automatische Weiterschalten dieser Elemente ist am Desktop aus, weil das Scrollen es übernimmt. Die Zuordnung steht in `STEPPERS` in `main.js` (`initScrollSteps`). Vorab wird die Höhe aller Punkte gemessen (unsichtbar, ohne Animation), damit ein Bereich nicht mitten im Scrollen abschaltet, wenn ein späterer Punkt mehr Text hat. Angeheftet wird der größte umgebende Block, der ganz ins Fenster passt (unter Navigation und angedockter Bereichsleiste); ist schon das Element selbst etwas zu hoch (kleine Laptop-Fenster), wird es verkleinert, höchstens auf 75 % (`STEP_ZMIN`), sonst bleibt es normal klickbar. `data-sstep-pin` legt den stehenden Block fest (bei „Bindung und Recruiting“ nur die Vorteile, die Grafik läuft daneben mit). Bereiche, die erst beim Wechsel über die Bereichsleiste sichtbar werden, richten sich dabei ein. Bei den Newsletter-Paketen beginnt der Durchlauf mit „Starter“ (ohne Stepper ist „Business“ vorausgewählt). Geprüft von 1280×720 bis 1920×1080 (alle 24 Bereiche). Nicht auf Mobilgeräten (unter 981 px) und nicht bei „Bewegung reduzieren“. |
+| Scroll-Stepper (alle Seiten) | Alles, was man durchklicken kann (Tabs, Akkordeons, Vorteile mit Umschalter, Karussells, Touchpoints, Pakete, Anlass-Finder …), bleibt am Desktop beim Scrollen stehen und schaltet mit dem Scrollen Punkt für Punkt weiter, erst danach geht die Seite weiter (bei „Warum INCENT?“ erst alle Arbeitgeber-Vorteile, dann alle für Mitarbeitende). Rückwärts scrollen läuft die Punkte rückwärts ab. Rechts zeigt eine kleine Punktleiste, wo man steht. Ein Klick auf einen Punkt springt an die passende Scroll-Stelle; Links und Anker auf einen Punkt (z. B. `#sc-panel-3`) öffnen ihn direkt. Das automatische Weiterschalten dieser Elemente ist am Desktop aus, weil das Scrollen es übernimmt. Die Zuordnung steht in `STEPPERS` in `main.js` (`initScrollSteps`). Vorab wird die Höhe aller Punkte gemessen (unsichtbar, ohne Animation), damit ein Bereich nicht mitten im Scrollen abschaltet, wenn ein späterer Punkt mehr Text hat. Angeheftet wird der größte umgebende Block, der ganz ins Fenster passt (unter der Navigation); ist schon das Element selbst etwas zu hoch (kleine Laptop-Fenster), wird es verkleinert, höchstens auf 75 % (`STEP_ZMIN`), sonst bleibt es normal klickbar. `data-sstep-pin` legt den stehenden Block fest (bei „Bindung und Recruiting“ nur die Vorteile, die Grafik läuft daneben mit). Bereiche, die erst beim Wechsel über die Navigation sichtbar werden, richten sich dabei ein. Bei den Newsletter-Paketen beginnt der Durchlauf mit „Starter“ (ohne Stepper ist „Business“ vorausgewählt). Geprüft von 1280×720 bis 1920×1080 (alle 24 Bereiche). Nicht auf Mobilgeräten (unter 981 px) und nicht bei „Bewegung reduzieren“. |
 | Weiches Scrollen (alle Seiten) | Das Mausrad gleitet statt zu springen: Ein Radschritt setzt nur das Ziel, die Seite zieht weich nach (`initSmoothScroll` in `main.js`, ohne Bibliothek; Stärke `LERP`). Beim Browser bleiben Zoomen (Strg/Cmd + Rad), waagerechtes Scrollen, scrollbare Bereiche im Inhalt (bis sie am Ende sind, Opt-out per `data-native-scroll`), Tastatur, Scrollleiste, Touch und Sprünge per Link; ein Klick oder eine Taste beendet das Gleiten sofort. Nicht bei „Bewegung reduzieren“. |
 
 ### Welt Arbeitgeber: Mitarbeiterbindung, vier Bereiche
 
-Die Leiste unter dem Seitenkopf schaltet um, ohne die Seite neu zu laden: Seitenkopf (Titel, Text, Bild) und Inhalt
-blenden weich über, die Markierung gleitet zum gewählten Bereich. Jeder Bereich hat eine eigene Adresse, die
-Zurück-Taste funktioniert, und der Seitentitel wechselt mit:
+Die Navigation schaltet um, ohne die Seite neu zu laden: Seitenkopf (Titel, Text, Bild) und Inhalt blenden weich über.
+Jeder Bereich hat eine eigene Adresse, die Zurück-Taste funktioniert, und der Seitentitel wechselt mit:
 
 | Bereich | Adresse | Interaktive Elemente |
 | --- | --- | --- |
-| 2-in-1-Benefitportal | `#benefitportal` | Kennzahlen, Tabs „Drei gute Gründe“ mit interaktiven Portal-Vorschauen statt Screenshots (Deal-Seite: „Jetzt sichern!“ zeigt den persönlichen Code, ähnliche Deals wechseln den Inhalt; Geschenkeshop: Gutscheinwelt → Gutscheinansicht mit Wertauswahl, Warenkorb und Geschenk-Guthaben; Corporate Design: Portal-Nachbau mit wechselnden Beispiel-Designs und Link zum Portal-Builder (`#live-vorschau`, Live-Demo weiter unten in derselben Welt); jede Vorschau spielt beim Einblenden eine kurze Demo, ein Klick in die Vorschau stoppt das automatische Weiterschalten), Vorteile mit Umschalter „Für Arbeitgeber / Für Mitarbeitende“ (Desktop: Liste und Detailkarte, mobil: Akkordeon); die Links „Im Portal in Ihrem Design“ und „So sieht Ihr Geschenkeshop aus“ springen auf die passende Vorschau oben (`#sc-panel-3`, `#sc-panel-2`), Verweis auf den SELECT Einkaufsgutschein, Ablauf |
+| 2-in-1-Benefitportal | `#benefitportal` | Kennzahlen, Tabs „Drei gute Gründe“ mit interaktiven Portal-Vorschauen statt Screenshots (Deal-Seite: „Jetzt sichern!“ zeigt den persönlichen Code, ähnliche Deals wechseln den Inhalt; Geschenkeshop: Gutscheinwelt → Gutscheinansicht mit Wertauswahl, Warenkorb und Geschenk-Guthaben; Corporate Design: Portal-Nachbau mit wechselnden Beispiel-Designs und Link zum Portal-Builder (`#live-vorschau`, führt zu „Ihr Design“); jede Vorschau spielt beim Einblenden eine kurze Demo, ein Klick in die Vorschau stoppt das automatische Weiterschalten), Vorteile mit Umschalter „Für Arbeitgeber / Für Mitarbeitende“ (Desktop: Liste und Detailkarte, mobil: Akkordeon); die Links „Im Portal in Ihrem Design“ und „So sieht Ihr Geschenkeshop aus“ springen auf die passende Vorschau oben (`#sc-panel-3`, `#sc-panel-2`), Verweis auf den SELECT Einkaufsgutschein, Ablauf |
 | Mitarbeiterrabatte | `#mitarbeiterrabatte` | Rabatt-Explorer „Vielfältige Rabatte für alle Lebensbereiche“ mit den Kategorien des Vorteilsportals (Mobilfunk & Internet, Mobilität, Home & Living, Reisen, Sport, Mode & Accessoires, Freizeit & Familie) und je bis zu vier echten Angeboten aus den Kategorieseiten des Shops (Bilder unter `assets/img/portal/`, Stand Oktober 2026), „Bindung und Recruiting“ (`#arbeitgebermarke`) mit eigener Visualisierung „Arbeitgeber-Magnet“ statt Bild (Team auf einer Umlaufbahn, Bewerbungen werden angezogen; die Grafik zeigt den im Akkordeon geöffneten Vorteil und steht vertikal mittig; am Desktop bleiben beim Durchscrollen der Vorteile Akkordeon und Grafik nebeneinander stehen), Verweise auf Portal, Ablauf und Gutscheine |
 | Mitarbeitergutscheine | `#mitarbeitergutscheine` | „Ein Gutschein, drei gute Gründe“ (`#gutschein-gruende`) als helles Showcase mit eigenen, interaktiven Illustrationen statt Bildern: 1 Formate – PDF, Print (DIN lang) und Excel gefächert, Format, Design-Farbe und Logo wählbar (Klick auf ein hinteres Format holt es nach vorn); 2 Aufladungen – Karte, Kennzahlen und Monatsleiste, Rhythmus (monatlich, quartalsweise, anlassbezogen) und Betrag wählbar, das Jahr läuft durch, Gebühren immer 0,00 €; 3 Einlösung – der hauseigene Warenkorb im Branding aus dem Marken-Profil (Logo, Name, Adresse, Buttonfarbe, Hintergrund als Banner) als Endlosschleife: ein Zeiger tippt den Gutscheincode ein, löst ein, die Gesamtsumme sinkt von 57,95 € auf 7,95 €, Bezahlen, Danke – und von vorn (`initGiftReasons` / `initGiftCart` in `main.js`; Demos 1 und 2 laufen bis zur ersten eigenen Wahl; bei „Bewegung reduzieren“ steht der Warenkorb eingelöst), Vorteile Arbeitgeber/Mitarbeitende, Gutschein-Konfigurator (`#gestalten`, mit Logo-Upload – das Logo landet im Marken-Profil), Vorteile mit SELECT, Preisrechner (`#preise`), Warenkorb-Demo im Look des Portal-Checkouts (`#einloesen`), Ablauf |
+| Ihr Design | `#ihr-design` | Live-Demo mit geöffnetem Builder (siehe „Live-Demo“), darunter „Demo buchen“ und „Weiter zum 2-in-1-Benefitportal“ |
 | Geschenkanlässe | `#geschenkanlaesse` | Anlass-Finder mit Gutschein-Vorschau (`#anlaesse`; die Kacheln sind keine Links, Darüberfahren, Antippen oder Tab wechselt das Motiv), Text ohne externe Links |
 
 Links auf einen Abschnitt in einem anderen Bereich (z. B. `#gestalten` aus dem Benefitportal) wechseln erst den Bereich und
 springen dann zum Abschnitt. Jedes Element steht nur einmal auf der Seite; andere Bereiche verweisen darauf.
 Kontakt, Partner-Laufband und die passenden allgemeinen Abschnitte stehen einmal unter allen Bereichen.
 
-**Angedockte Leiste:** Sobald die Cluster-Leiste beim Scrollen unter der Hauptnavigation verschwindet, klappt unter der
-Hauptnavigation eine zweite Zeile in derselben Breite auf (Hauptnavigation bleibt sichtbar). Desktop: alle vier Bereiche
-mit gleitender Markierung. Tablet und Handy (bis 1120 px): aktueller Bereich in der Mitte, Pfeile für vorherigen/nächsten
-Bereich, Fortschrittsbalken und eine aufklappbare Liste aller Bereiche.
-
-Technik: siehe „Aufbau der Seite“ (`data-world`, `data-mb`, `initWorlds()`). Jede Welt hat ihre eigene angedockte Leiste.
+Technik: siehe „Aufbau der Seite“ (`data-world`, `data-mb`, `initWorlds()`).
 
 **Warenkorb-Demo** (`#einloesen`): Nachbau der Checkout-Seite des Vorteilsportals mit Schritten, Warenkorb und der Box
 „Select-Einkaufsgutschein oder Aktions-Code“ (Maße, Farben und Zahlungslogos aus dem Portal). Beim ersten Sichtkontakt
@@ -167,7 +170,7 @@ tippt die Demo den Gutscheincode ein; Produkte lassen sich entfernen und hinzuf�
 
 ### Welt Unternehmen: Kundenbindung, drei Bereiche
 
-Funktioniert genauso wie die Welt Arbeitgeber (Leiste, angedockte Leiste, eigene Adressen). Abschnitte, die es auch in der
+Funktioniert genauso wie die Welt Arbeitgeber (Bereiche in der Navigation, „Ihr Design“ unter `#unternehmen-ihr-design`, eigene Adressen). Abschnitte, die es auch in der
 Mitarbeiterbindung gibt, haben das Präfix `unternehmen-` (`#unternehmen-gruende`, `#unternehmen-gestalten`, `#unternehmen-einloesen` …).
 
 | Bereich | Adresse | Interaktive Elemente |
@@ -212,8 +215,8 @@ Die Geschenkanlässe verlinken nicht mehr auf die Anlass-Unterseiten von `www.in
 
 **Inhalte pflegen:** Alles steht in `index.html`. Die Welten liegen in `<div class="worlds">` direkt nach dem Hero
 (`<div class="world" id="arbeitgeber">` …), jeder Bereich ist ein `<div class="mb-panel" id="…">` mit `data-title` und
-`data-desc` (Seitentitel und Beschreibung). **Neuer Bereich:** `mb-panel` anlegen, Link in Leiste und angedockter Leiste
-der Welt ergänzen und im `<head>` die ID in `map` (Skript) und eine Zeile wie bei den anderen Bereichen (Stil) eintragen.
+`data-desc` (Seitentitel und Beschreibung). **Neuer Bereich:** `mb-panel` anlegen, Link in der Navigationsliste
+der Welt (`.nav__list--world[data-tabs-world="…"]`) ergänzen und im `<head>` die ID in `map` (Skript) und eine Zeile wie bei den anderen Bereichen (Stil) eintragen.
 Neue Abschnitte bekommen eindeutige IDs (bei Bedarf mit Präfix der Welt).
 
 **Livegang – bisherige Adressen weiterleiten:** Bei Google sind die Seiten noch unter den alten Adressen bekannt.
@@ -286,7 +289,7 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 
 - Nutzerführung: Die ganze Website ist ein One-Pager. Sie fragt zuerst, wer sie besucht (Arbeitgeber, Unternehmen,
   Marken, Creator), und zeigt danach nur die Welt dieser Zielgruppe mit den passenden allgemeinen Abschnitten – kein Filter,
-  keine Unterseiten, keine Ausklapp-Menüs. Die Lösungen einer Zielgruppe tauscht die Leiste im Seitenkopf (Absprungzone).
+  keine Unterseiten, keine Ausklapp-Menüs. Die Lösungen einer Zielgruppe tauscht die Hauptnavigation (sie zeigt in der Welt deren Bereiche).
   Der frühere Block „Eine Plattform. Vier Zielgruppen.“ mit Reitern entfällt; „Unsere Plattform“ und „Vorteile“ sind keine
   Navigationspunkte mehr.
 - Farben: Die ganze Seite ist hell – Hero, Seitenköpfe der Welten, die früher dunklen Abschnitte (jetzt heller, leicht blauer

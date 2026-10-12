@@ -28,8 +28,8 @@
     // Zeigt die Adresse nur einen Bereich oder eine Welt, beginnt die Seite oben beim Seitenkopf: Das Sprungziel
     // ruht bis zum Start von main.js (data-hash), sonst scrollt der Browser nach dem Laden selbst dorthin.
     (function () {
-      var r = document.documentElement, map = {"arbeitgeber-top":"benefitportal","arbeitgeber-dock-menu":"benefitportal","benefitportal":"benefitportal","portal-intro":"benefitportal","gruende":"benefitportal","reasons-title":"benefitportal","sc-tab-1":"benefitportal","sc-tab-2":"benefitportal","sc-tab-3":"benefitportal","sc-panel-1":"benefitportal","sc-panel-2":"benefitportal","sc-panel-3":"benefitportal","warum":"benefitportal","why-title":"benefitportal","portal-vorteile-tab-1":"benefitportal","portal-vorteile-tab-2":"benefitportal","portal-vorteile-panel-1":"benefitportal","portal-vorteile-1-1-btn":"benefitportal","portal-vorteile-1-1":"benefitportal","portal-vorteile-1-2-btn":"benefitportal","portal-vorteile-1-2":"benefitportal","portal-vorteile-1-3-btn":"benefitportal","portal-vorteile-1-3":"benefitportal","portal-vorteile-1-4-btn":"benefitportal","portal-vorteile-1-4":"benefitportal","portal-vorteile-1-5-btn":"benefitportal","portal-vorteile-1-5":"benefitportal","portal-vorteile-panel-2":"benefitportal","portal-vorteile-2-1-btn":"benefitportal","portal-vorteile-2-1":"benefitportal","portal-vorteile-2-2-btn":"benefitportal","portal-vorteile-2-2":"benefitportal","portal-vorteile-2-3-btn":"benefitportal","portal-vorteile-2-3":"benefitportal","portal-vorteile-2-4-btn":"benefitportal","portal-vorteile-2-4":"benefitportal","select":"benefitportal","select-teaser-title":"benefitportal","ablauf":"benefitportal","ablauf-title":"benefitportal","mitarbeiterrabatte":"mitarbeiterrabatte","rabatte-intro":"benefitportal","rabatte":"benefitportal","cats-title":"benefitportal","cat-tab-1":"benefitportal","cat-tab-2":"benefitportal","cat-tab-3":"benefitportal","cat-tab-4":"benefitportal","cat-tab-5":"benefitportal","cat-tab-6":"benefitportal","cat-tab-7":"benefitportal","cat-panel-1":"benefitportal","cat-panel-2":"benefitportal","cat-panel-3":"benefitportal","cat-panel-4":"benefitportal","cat-panel-5":"benefitportal","cat-panel-6":"benefitportal","cat-panel-7":"benefitportal","arbeitgebermarke":"benefitportal","brand-title":"benefitportal","marke-acc":"benefitportal","marke-1-btn":"benefitportal","marke-1":"benefitportal","marke-2-btn":"benefitportal","marke-2":"benefitportal","marke-3-btn":"benefitportal","marke-3":"benefitportal","marke-4-btn":"benefitportal","marke-4":"benefitportal","marke-5-btn":"benefitportal","marke-5":"benefitportal","alle-profitieren":"benefitportal","all-title":"benefitportal","mitarbeitergutscheine":"mitarbeitergutscheine","gutschein-intro":"benefitportal","gutschein-gruende":"benefitportal","three-title":"benefitportal","gg-tab-1":"benefitportal","gg-tab-2":"benefitportal","gg-tab-3":"benefitportal","gg-panel-1":"benefitportal","gg-panel-2":"benefitportal","gg-panel-3":"benefitportal","gestalten":"benefitportal","success-title":"benefitportal","gutschein-vorteile-tab-1":"benefitportal","gutschein-vorteile-tab-2":"benefitportal","gutschein-vorteile-panel-1":"benefitportal","gutschein-vorteile-1-1-btn":"benefitportal","gutschein-vorteile-1-1":"benefitportal","gutschein-vorteile-1-2-btn":"benefitportal","gutschein-vorteile-1-2":"benefitportal","gutschein-vorteile-1-3-btn":"benefitportal","gutschein-vorteile-1-3":"benefitportal","gutschein-vorteile-1-4-btn":"benefitportal","gutschein-vorteile-1-4":"benefitportal","gutschein-vorteile-1-5-btn":"benefitportal","gutschein-vorteile-1-5":"benefitportal","gutschein-vorteile-panel-2":"benefitportal","gutschein-vorteile-2-1-btn":"benefitportal","gutschein-vorteile-2-1":"benefitportal","gutschein-vorteile-2-2-btn":"benefitportal","gutschein-vorteile-2-2":"benefitportal","gutschein-vorteile-2-3-btn":"benefitportal","gutschein-vorteile-2-3":"benefitportal","gutschein-vorteile-2-4-btn":"benefitportal","gutschein-vorteile-2-4":"benefitportal","gutschein-vorteile-2-5-btn":"benefitportal","gutschein-vorteile-2-5":"benefitportal","v-value":"benefitportal","v-name":"benefitportal","v-greeting":"benefitportal","v-logo-label":"benefitportal","select-gutschein":"benefitportal","addon-title":"benefitportal","select-vorteile-1-btn":"benefitportal","select-vorteile-1":"benefitportal","select-vorteile-2-btn":"benefitportal","select-vorteile-2":"benefitportal","select-vorteile-3-btn":"benefitportal","select-vorteile-3":"benefitportal","select-vorteile-4-btn":"benefitportal","select-vorteile-4":"benefitportal","select-vorteile-5-btn":"benefitportal","select-vorteile-5":"benefitportal","preise":"benefitportal","price-title":"benefitportal","calc-people":"benefitportal","calc-amount":"benefitportal","einloesen":"benefitportal","redeem-title":"benefitportal","ablauf-gutschein":"benefitportal","ablauf-gutschein-title":"benefitportal","geschenkanlaesse":"geschenkanlaesse","anlaesse":"benefitportal","occ-title":"benefitportal","wertschaetzung":"benefitportal","article-title":"benefitportal","arbeitgeber":"benefitportal","unternehmen-top":"loyalty-portal","unternehmen-dock-menu":"loyalty-portal","loyalty-portal":"loyalty-portal","loyalty-intro":"loyalty-portal","unternehmen-gruende":"loyalty-portal","kb-reasons-title":"loyalty-portal","unternehmen-sc-tab-1":"loyalty-portal","unternehmen-sc-tab-2":"loyalty-portal","unternehmen-sc-tab-3":"loyalty-portal","unternehmen-sc-tab-4":"loyalty-portal","unternehmen-sc-panel-1":"loyalty-portal","unternehmen-sc-panel-2":"loyalty-portal","unternehmen-sc-panel-3":"loyalty-portal","unternehmen-sc-panel-4":"loyalty-portal","leistungsversprechen":"loyalty-portal","unternehmen-promise-title":"loyalty-portal","loyalty-vorteile-tab-1":"loyalty-portal","loyalty-vorteile-tab-2":"loyalty-portal","loyalty-vorteile-panel-1":"loyalty-portal","loyalty-vorteile-1-1-btn":"loyalty-portal","loyalty-vorteile-1-1":"loyalty-portal","loyalty-vorteile-1-2-btn":"loyalty-portal","loyalty-vorteile-1-2":"loyalty-portal","loyalty-vorteile-1-3-btn":"loyalty-portal","loyalty-vorteile-1-3":"loyalty-portal","loyalty-vorteile-1-4-btn":"loyalty-portal","loyalty-vorteile-1-4":"loyalty-portal","loyalty-vorteile-1-5-btn":"loyalty-portal","loyalty-vorteile-1-5":"loyalty-portal","loyalty-vorteile-1-6-btn":"loyalty-portal","loyalty-vorteile-1-6":"loyalty-portal","loyalty-vorteile-panel-2":"loyalty-portal","loyalty-vorteile-2-1-btn":"loyalty-portal","loyalty-vorteile-2-1":"loyalty-portal","loyalty-vorteile-2-2-btn":"loyalty-portal","loyalty-vorteile-2-2":"loyalty-portal","loyalty-vorteile-2-3-btn":"loyalty-portal","loyalty-vorteile-2-3":"loyalty-portal","loyalty-vorteile-2-4-btn":"loyalty-portal","loyalty-vorteile-2-4":"loyalty-portal","portal":"loyalty-portal","unternehmen-select":"loyalty-portal","unternehmen-ablauf":"loyalty-portal","unternehmen-ablauf-title":"loyalty-portal","kundenrabatte":"kundenrabatte","unternehmen-rabatte-intro":"loyalty-portal","unternehmen-anlaesse":"loyalty-portal","tp-title":"loyalty-portal","branchen":"loyalty-portal","ind-title":"loyalty-portal","ind-tab-1":"loyalty-portal","ind-tab-2":"loyalty-portal","ind-tab-3":"loyalty-portal","ind-tab-4":"loyalty-portal","ind-tab-5":"loyalty-portal","ind-tab-6":"loyalty-portal","ind-tab-7":"loyalty-portal","ind-panel-1":"loyalty-portal","ind-panel-2":"loyalty-portal","ind-panel-3":"loyalty-portal","ind-panel-4":"loyalty-portal","ind-panel-5":"loyalty-portal","ind-panel-6":"loyalty-portal","ind-panel-7":"loyalty-portal","entlastung":"loyalty-portal","relief-title":"loyalty-portal","kundengutscheine":"kundengutscheine","kg-intro":"loyalty-portal","einsatz":"loyalty-portal","uses-title":"loyalty-portal","unternehmen-gestalten":"loyalty-portal","kg-success-title":"loyalty-portal","kg-vorteile-tab-1":"loyalty-portal","kg-vorteile-tab-2":"loyalty-portal","kg-vorteile-panel-1":"loyalty-portal","kg-vorteile-1-1-btn":"loyalty-portal","kg-vorteile-1-1":"loyalty-portal","kg-vorteile-1-2-btn":"loyalty-portal","kg-vorteile-1-2":"loyalty-portal","kg-vorteile-1-3-btn":"loyalty-portal","kg-vorteile-1-3":"loyalty-portal","kg-vorteile-panel-2":"loyalty-portal","kg-vorteile-2-1-btn":"loyalty-portal","kg-vorteile-2-1":"loyalty-portal","kg-vorteile-2-2-btn":"loyalty-portal","kg-vorteile-2-2":"loyalty-portal","kg-vorteile-2-3-btn":"loyalty-portal","kg-vorteile-2-3":"loyalty-portal","kg-vorteile-2-4-btn":"loyalty-portal","kg-vorteile-2-4":"loyalty-portal","unternehmen-v-value":"loyalty-portal","unternehmen-v-name":"loyalty-portal","unternehmen-v-greeting":"loyalty-portal","unternehmen-v-logo-label":"loyalty-portal","unternehmen-einloesen":"loyalty-portal","unternehmen-redeem-title":"loyalty-portal","unternehmen-ablauf-gutschein":"loyalty-portal","unternehmen-ablauf-gutschein-title":"loyalty-portal","unternehmen":"loyalty-portal","marken-top":"anbieter-werden","marken-dock-menu":"anbieter-werden","anbieter-werden":"anbieter-werden","anbieter-intro":"anbieter-werden","marken-gruende":"anbieter-werden","marken-gruende-title":"anbieter-werden","marken-gruende-tab-1":"anbieter-werden","marken-gruende-tab-2":"anbieter-werden","marken-gruende-tab-3":"anbieter-werden","marken-gruende-panel-1":"anbieter-werden","marken-gruende-panel-2":"anbieter-werden","marken-gruende-panel-3":"anbieter-werden","vorschau":"anbieter-werden","place-title":"anbieter-werden","pl-brand":"anbieter-werden","pl-offer":"anbieter-werden","marken-warum":"anbieter-werden","marken-warum-title":"anbieter-werden","anbieter-vorteile-1-btn":"anbieter-werden","anbieter-vorteile-1":"anbieter-werden","anbieter-vorteile-2-btn":"anbieter-werden","anbieter-vorteile-2":"anbieter-werden","anbieter-vorteile-3-btn":"anbieter-werden","anbieter-vorteile-3":"anbieter-werden","anbieter-vorteile-4-btn":"anbieter-werden","anbieter-vorteile-4":"anbieter-werden","anbieter-vorteile-5-btn":"anbieter-werden","anbieter-vorteile-5":"anbieter-werden","marken-ablauf":"anbieter-werden","marken-ablauf-title":"anbieter-werden","newsletter-platzierung":"newsletter-platzierung","nl-intro":"anbieter-werden","ansatz":"anbieter-werden","nl-more-title":"anbieter-werden","erfolgsfaktor":"anbieter-werden","erfolgsfaktor-title":"anbieter-werden","nl-vorteile-1-btn":"anbieter-werden","nl-vorteile-1":"anbieter-werden","nl-vorteile-2-btn":"anbieter-werden","nl-vorteile-2":"anbieter-werden","nl-vorteile-3-btn":"anbieter-werden","nl-vorteile-3":"anbieter-werden","nl-vorteile-4-btn":"anbieter-werden","nl-vorteile-4":"anbieter-werden","pakete":"anbieter-werden","pk-title":"anbieter-werden","ablauf-newsletter":"anbieter-werden","ablauf-newsletter-title":"anbieter-werden","marken":"anbieter-werden","creator-top":"community-shop","community-shop":"community-shop","cc-intro":"community-shop","creator-gruende":"community-shop","creator-gruende-title":"community-shop","creator-gruende-tab-1":"community-shop","creator-gruende-tab-2":"community-shop","creator-gruende-tab-3":"community-shop","creator-gruende-tab-4":"community-shop","creator-gruende-panel-1":"community-shop","creator-gruende-panel-2":"community-shop","creator-gruende-panel-3":"community-shop","creator-gruende-panel-4":"community-shop","creator-warum":"community-shop","creator-warum-title":"community-shop","cc-vorteile-1-btn":"community-shop","cc-vorteile-1":"community-shop","cc-vorteile-2-btn":"community-shop","cc-vorteile-2":"community-shop","cc-vorteile-3-btn":"community-shop","cc-vorteile-3":"community-shop","cc-vorteile-4-btn":"community-shop","cc-vorteile-4":"community-shop","cc-vorteile-5-btn":"community-shop","cc-vorteile-5":"community-shop","cc-vorteile-6-btn":"community-shop","cc-vorteile-6":"community-shop","dein-shop":"community-shop","einnahmen":"community-shop","earn-title":"community-shop","creator-ablauf":"community-shop","creator-ablauf-title":"community-shop","creator":"community-shop"}, world = {"benefitportal":"arbeitgeber","mitarbeiterrabatte":"arbeitgeber","mitarbeitergutscheine":"arbeitgeber","geschenkanlaesse":"arbeitgeber","loyalty-portal":"unternehmen","kundenrabatte":"unternehmen","kundengutscheine":"unternehmen","anbieter-werden":"marken","newsletter-platzierung":"marken","community-shop":"creator"}, first = {"arbeitgeber":"benefitportal","unternehmen":"loyalty-portal","marken":"anbieter-werden","creator":"community-shop"}, gen = {"promise-title":["start"],"plattform":["start","marken"],"platform-title":["start","marken"],"hub-glow":["start","marken"],"link-grad":["start","marken"],"l-unternehmen":["start","marken"],"l-markenpartner":["start","marken"],"l-haendler":["start","marken"],"l-kunden":["start","marken"],"l-mitarbeitende":["start","marken"],"feat-1-btn":["start","marken"],"feat-1":["start","marken"],"feat-2-btn":["start","marken"],"feat-2":["start","marken"],"feat-3-btn":["start","marken"],"feat-3":["start","marken"],"feat-4-btn":["start","marken"],"feat-4":["start","marken"],"feat-5-btn":["start","marken"],"feat-5":["start","marken"],"leistungen":["arbeitgeber","unternehmen","marken"],"services-title":["arbeitgeber","unternehmen","marken"],"vorteile":["arbeitgeber","unternehmen","creator"],"benefits-title":["arbeitgeber","unternehmen","creator"],"live-vorschau":["start","arbeitgeber","unternehmen","creator"],"logo-label":["start","arbeitgeber","unternehmen","creator"],"studio-name":["start","arbeitgeber","unternehmen","creator"],"bg-img-label":["start","arbeitgeber","unternehmen","creator"],"stimmen":["start","arbeitgeber","unternehmen"],"voices-title":["start","arbeitgeber","unternehmen"],"pb-title":["start","arbeitgeber","unternehmen","creator"],"pb-builder":["start","arbeitgeber","unternehmen","creator"]}, h = "", w = "", g, p, keep;
-      r.classList.add("js");
+      var r = document.documentElement, map = {"arbeitgeber-top":"benefitportal","benefitportal":"benefitportal","portal-intro":"benefitportal","gruende":"benefitportal","reasons-title":"benefitportal","sc-tab-1":"benefitportal","sc-tab-2":"benefitportal","sc-tab-3":"benefitportal","sc-panel-1":"benefitportal","sc-panel-2":"benefitportal","sc-panel-3":"benefitportal","warum":"benefitportal","why-title":"benefitportal","portal-vorteile-tab-1":"benefitportal","portal-vorteile-tab-2":"benefitportal","portal-vorteile-panel-1":"benefitportal","portal-vorteile-1-1-btn":"benefitportal","portal-vorteile-1-1":"benefitportal","portal-vorteile-1-2-btn":"benefitportal","portal-vorteile-1-2":"benefitportal","portal-vorteile-1-3-btn":"benefitportal","portal-vorteile-1-3":"benefitportal","portal-vorteile-1-4-btn":"benefitportal","portal-vorteile-1-4":"benefitportal","portal-vorteile-1-5-btn":"benefitportal","portal-vorteile-1-5":"benefitportal","portal-vorteile-panel-2":"benefitportal","portal-vorteile-2-1-btn":"benefitportal","portal-vorteile-2-1":"benefitportal","portal-vorteile-2-2-btn":"benefitportal","portal-vorteile-2-2":"benefitportal","portal-vorteile-2-3-btn":"benefitportal","portal-vorteile-2-3":"benefitportal","portal-vorteile-2-4-btn":"benefitportal","portal-vorteile-2-4":"benefitportal","select":"benefitportal","select-teaser-title":"benefitportal","ablauf":"benefitportal","ablauf-title":"benefitportal","mitarbeiterrabatte":"mitarbeiterrabatte","rabatte-intro":"benefitportal","rabatte":"benefitportal","cats-title":"benefitportal","cat-tab-1":"benefitportal","cat-tab-2":"benefitportal","cat-tab-3":"benefitportal","cat-tab-4":"benefitportal","cat-tab-5":"benefitportal","cat-tab-6":"benefitportal","cat-tab-7":"benefitportal","cat-panel-1":"benefitportal","cat-panel-2":"benefitportal","cat-panel-3":"benefitportal","cat-panel-4":"benefitportal","cat-panel-5":"benefitportal","cat-panel-6":"benefitportal","cat-panel-7":"benefitportal","arbeitgebermarke":"benefitportal","brand-title":"benefitportal","marke-acc":"benefitportal","marke-1-btn":"benefitportal","marke-1":"benefitportal","marke-2-btn":"benefitportal","marke-2":"benefitportal","marke-3-btn":"benefitportal","marke-3":"benefitportal","marke-4-btn":"benefitportal","marke-4":"benefitportal","marke-5-btn":"benefitportal","marke-5":"benefitportal","alle-profitieren":"benefitportal","all-title":"benefitportal","mitarbeitergutscheine":"mitarbeitergutscheine","gutschein-intro":"benefitportal","gutschein-gruende":"benefitportal","three-title":"benefitportal","gg-tab-1":"benefitportal","gg-tab-2":"benefitportal","gg-tab-3":"benefitportal","gg-panel-1":"benefitportal","gg-panel-2":"benefitportal","gg-panel-3":"benefitportal","gestalten":"benefitportal","success-title":"benefitportal","gutschein-vorteile-tab-1":"benefitportal","gutschein-vorteile-tab-2":"benefitportal","gutschein-vorteile-panel-1":"benefitportal","gutschein-vorteile-1-1-btn":"benefitportal","gutschein-vorteile-1-1":"benefitportal","gutschein-vorteile-1-2-btn":"benefitportal","gutschein-vorteile-1-2":"benefitportal","gutschein-vorteile-1-3-btn":"benefitportal","gutschein-vorteile-1-3":"benefitportal","gutschein-vorteile-1-4-btn":"benefitportal","gutschein-vorteile-1-4":"benefitportal","gutschein-vorteile-1-5-btn":"benefitportal","gutschein-vorteile-1-5":"benefitportal","gutschein-vorteile-panel-2":"benefitportal","gutschein-vorteile-2-1-btn":"benefitportal","gutschein-vorteile-2-1":"benefitportal","gutschein-vorteile-2-2-btn":"benefitportal","gutschein-vorteile-2-2":"benefitportal","gutschein-vorteile-2-3-btn":"benefitportal","gutschein-vorteile-2-3":"benefitportal","gutschein-vorteile-2-4-btn":"benefitportal","gutschein-vorteile-2-4":"benefitportal","gutschein-vorteile-2-5-btn":"benefitportal","gutschein-vorteile-2-5":"benefitportal","v-value":"benefitportal","v-name":"benefitportal","v-greeting":"benefitportal","v-logo-label":"benefitportal","select-gutschein":"benefitportal","addon-title":"benefitportal","select-vorteile-1-btn":"benefitportal","select-vorteile-1":"benefitportal","select-vorteile-2-btn":"benefitportal","select-vorteile-2":"benefitportal","select-vorteile-3-btn":"benefitportal","select-vorteile-3":"benefitportal","select-vorteile-4-btn":"benefitportal","select-vorteile-4":"benefitportal","select-vorteile-5-btn":"benefitportal","select-vorteile-5":"benefitportal","preise":"benefitportal","price-title":"benefitportal","calc-people":"benefitportal","calc-amount":"benefitportal","einloesen":"benefitportal","redeem-title":"benefitportal","ablauf-gutschein":"benefitportal","ablauf-gutschein-title":"benefitportal","geschenkanlaesse":"geschenkanlaesse","anlaesse":"benefitportal","occ-title":"benefitportal","wertschaetzung":"benefitportal","article-title":"benefitportal","arbeitgeber":"benefitportal","unternehmen-top":"loyalty-portal","loyalty-portal":"loyalty-portal","loyalty-intro":"loyalty-portal","unternehmen-gruende":"loyalty-portal","kb-reasons-title":"loyalty-portal","unternehmen-sc-tab-1":"loyalty-portal","unternehmen-sc-tab-2":"loyalty-portal","unternehmen-sc-tab-3":"loyalty-portal","unternehmen-sc-tab-4":"loyalty-portal","unternehmen-sc-panel-1":"loyalty-portal","unternehmen-sc-panel-2":"loyalty-portal","unternehmen-sc-panel-3":"loyalty-portal","unternehmen-sc-panel-4":"loyalty-portal","leistungsversprechen":"loyalty-portal","unternehmen-promise-title":"loyalty-portal","loyalty-vorteile-tab-1":"loyalty-portal","loyalty-vorteile-tab-2":"loyalty-portal","loyalty-vorteile-panel-1":"loyalty-portal","loyalty-vorteile-1-1-btn":"loyalty-portal","loyalty-vorteile-1-1":"loyalty-portal","loyalty-vorteile-1-2-btn":"loyalty-portal","loyalty-vorteile-1-2":"loyalty-portal","loyalty-vorteile-1-3-btn":"loyalty-portal","loyalty-vorteile-1-3":"loyalty-portal","loyalty-vorteile-1-4-btn":"loyalty-portal","loyalty-vorteile-1-4":"loyalty-portal","loyalty-vorteile-1-5-btn":"loyalty-portal","loyalty-vorteile-1-5":"loyalty-portal","loyalty-vorteile-1-6-btn":"loyalty-portal","loyalty-vorteile-1-6":"loyalty-portal","loyalty-vorteile-panel-2":"loyalty-portal","loyalty-vorteile-2-1-btn":"loyalty-portal","loyalty-vorteile-2-1":"loyalty-portal","loyalty-vorteile-2-2-btn":"loyalty-portal","loyalty-vorteile-2-2":"loyalty-portal","loyalty-vorteile-2-3-btn":"loyalty-portal","loyalty-vorteile-2-3":"loyalty-portal","loyalty-vorteile-2-4-btn":"loyalty-portal","loyalty-vorteile-2-4":"loyalty-portal","portal":"loyalty-portal","unternehmen-select":"loyalty-portal","unternehmen-ablauf":"loyalty-portal","unternehmen-ablauf-title":"loyalty-portal","kundenrabatte":"kundenrabatte","unternehmen-rabatte-intro":"loyalty-portal","unternehmen-anlaesse":"loyalty-portal","tp-title":"loyalty-portal","branchen":"loyalty-portal","ind-title":"loyalty-portal","ind-tab-1":"loyalty-portal","ind-tab-2":"loyalty-portal","ind-tab-3":"loyalty-portal","ind-tab-4":"loyalty-portal","ind-tab-5":"loyalty-portal","ind-tab-6":"loyalty-portal","ind-tab-7":"loyalty-portal","ind-panel-1":"loyalty-portal","ind-panel-2":"loyalty-portal","ind-panel-3":"loyalty-portal","ind-panel-4":"loyalty-portal","ind-panel-5":"loyalty-portal","ind-panel-6":"loyalty-portal","ind-panel-7":"loyalty-portal","entlastung":"loyalty-portal","relief-title":"loyalty-portal","kundengutscheine":"kundengutscheine","kg-intro":"loyalty-portal","einsatz":"loyalty-portal","uses-title":"loyalty-portal","unternehmen-gestalten":"loyalty-portal","kg-success-title":"loyalty-portal","kg-vorteile-tab-1":"loyalty-portal","kg-vorteile-tab-2":"loyalty-portal","kg-vorteile-panel-1":"loyalty-portal","kg-vorteile-1-1-btn":"loyalty-portal","kg-vorteile-1-1":"loyalty-portal","kg-vorteile-1-2-btn":"loyalty-portal","kg-vorteile-1-2":"loyalty-portal","kg-vorteile-1-3-btn":"loyalty-portal","kg-vorteile-1-3":"loyalty-portal","kg-vorteile-panel-2":"loyalty-portal","kg-vorteile-2-1-btn":"loyalty-portal","kg-vorteile-2-1":"loyalty-portal","kg-vorteile-2-2-btn":"loyalty-portal","kg-vorteile-2-2":"loyalty-portal","kg-vorteile-2-3-btn":"loyalty-portal","kg-vorteile-2-3":"loyalty-portal","kg-vorteile-2-4-btn":"loyalty-portal","kg-vorteile-2-4":"loyalty-portal","unternehmen-v-value":"loyalty-portal","unternehmen-v-name":"loyalty-portal","unternehmen-v-greeting":"loyalty-portal","unternehmen-v-logo-label":"loyalty-portal","unternehmen-einloesen":"loyalty-portal","unternehmen-redeem-title":"loyalty-portal","unternehmen-ablauf-gutschein":"loyalty-portal","unternehmen-ablauf-gutschein-title":"loyalty-portal","unternehmen":"loyalty-portal","marken-top":"anbieter-werden","anbieter-werden":"anbieter-werden","anbieter-intro":"anbieter-werden","marken-gruende":"anbieter-werden","marken-gruende-title":"anbieter-werden","marken-gruende-tab-1":"anbieter-werden","marken-gruende-tab-2":"anbieter-werden","marken-gruende-tab-3":"anbieter-werden","marken-gruende-panel-1":"anbieter-werden","marken-gruende-panel-2":"anbieter-werden","marken-gruende-panel-3":"anbieter-werden","vorschau":"anbieter-werden","place-title":"anbieter-werden","pl-brand":"anbieter-werden","pl-offer":"anbieter-werden","marken-warum":"anbieter-werden","marken-warum-title":"anbieter-werden","anbieter-vorteile-1-btn":"anbieter-werden","anbieter-vorteile-1":"anbieter-werden","anbieter-vorteile-2-btn":"anbieter-werden","anbieter-vorteile-2":"anbieter-werden","anbieter-vorteile-3-btn":"anbieter-werden","anbieter-vorteile-3":"anbieter-werden","anbieter-vorteile-4-btn":"anbieter-werden","anbieter-vorteile-4":"anbieter-werden","anbieter-vorteile-5-btn":"anbieter-werden","anbieter-vorteile-5":"anbieter-werden","marken-ablauf":"anbieter-werden","marken-ablauf-title":"anbieter-werden","newsletter-platzierung":"newsletter-platzierung","nl-intro":"anbieter-werden","ansatz":"anbieter-werden","nl-more-title":"anbieter-werden","erfolgsfaktor":"anbieter-werden","erfolgsfaktor-title":"anbieter-werden","nl-vorteile-1-btn":"anbieter-werden","nl-vorteile-1":"anbieter-werden","nl-vorteile-2-btn":"anbieter-werden","nl-vorteile-2":"anbieter-werden","nl-vorteile-3-btn":"anbieter-werden","nl-vorteile-3":"anbieter-werden","nl-vorteile-4-btn":"anbieter-werden","nl-vorteile-4":"anbieter-werden","pakete":"anbieter-werden","pk-title":"anbieter-werden","ablauf-newsletter":"anbieter-werden","ablauf-newsletter-title":"anbieter-werden","marken":"anbieter-werden","creator-top":"community-shop","community-shop":"community-shop","cc-intro":"community-shop","creator-gruende":"community-shop","creator-gruende-title":"community-shop","creator-gruende-tab-1":"community-shop","creator-gruende-tab-2":"community-shop","creator-gruende-tab-3":"community-shop","creator-gruende-tab-4":"community-shop","creator-gruende-panel-1":"community-shop","creator-gruende-panel-2":"community-shop","creator-gruende-panel-3":"community-shop","creator-gruende-panel-4":"community-shop","creator-warum":"community-shop","creator-warum-title":"community-shop","cc-vorteile-1-btn":"community-shop","cc-vorteile-1":"community-shop","cc-vorteile-2-btn":"community-shop","cc-vorteile-2":"community-shop","cc-vorteile-3-btn":"community-shop","cc-vorteile-3":"community-shop","cc-vorteile-4-btn":"community-shop","cc-vorteile-4":"community-shop","cc-vorteile-5-btn":"community-shop","cc-vorteile-5":"community-shop","cc-vorteile-6-btn":"community-shop","cc-vorteile-6":"community-shop","dein-shop":"community-shop","einnahmen":"community-shop","earn-title":"community-shop","creator-ablauf":"community-shop","creator-ablauf-title":"community-shop","creator":"community-shop","ihr-design":"ihr-design","unternehmen-ihr-design":"unternehmen-ihr-design","creator-dein-design":"creator-dein-design"}, world = {"benefitportal":"arbeitgeber","mitarbeiterrabatte":"arbeitgeber","mitarbeitergutscheine":"arbeitgeber","geschenkanlaesse":"arbeitgeber","loyalty-portal":"unternehmen","kundenrabatte":"unternehmen","kundengutscheine":"unternehmen","anbieter-werden":"marken","newsletter-platzierung":"marken","community-shop":"creator","ihr-design":"arbeitgeber","unternehmen-ihr-design":"unternehmen","creator-dein-design":"creator"}, first = {"arbeitgeber":"benefitportal","unternehmen":"loyalty-portal","marken":"anbieter-werden","creator":"community-shop"}, gen = {"promise-title":["start"],"plattform":["start","marken"],"platform-title":["start","marken"],"hub-glow":["start","marken"],"link-grad":["start","marken"],"l-unternehmen":["start","marken"],"l-markenpartner":["start","marken"],"l-haendler":["start","marken"],"l-kunden":["start","marken"],"l-mitarbeitende":["start","marken"],"feat-1-btn":["start","marken"],"feat-1":["start","marken"],"feat-2-btn":["start","marken"],"feat-2":["start","marken"],"feat-3-btn":["start","marken"],"feat-3":["start","marken"],"feat-4-btn":["start","marken"],"feat-4":["start","marken"],"feat-5-btn":["start","marken"],"feat-5":["start","marken"],"leistungen":["arbeitgeber","unternehmen","marken"],"services-title":["arbeitgeber","unternehmen","marken"],"vorteile":["arbeitgeber","unternehmen","creator"],"benefits-title":["arbeitgeber","unternehmen","creator"],"live-vorschau":["start","arbeitgeber","unternehmen","creator"],"logo-label":["start","arbeitgeber","unternehmen","creator"],"studio-name":["start","arbeitgeber","unternehmen","creator"],"bg-img-label":["start","arbeitgeber","unternehmen","creator"],"stimmen":["start","arbeitgeber","unternehmen"],"voices-title":["start","arbeitgeber","unternehmen"],"pb-title":["start","arbeitgeber","unternehmen","creator"],"pb-builder":["start","arbeitgeber","unternehmen","creator"]}, design = {"arbeitgeber":"ihr-design","unternehmen":"unternehmen-ihr-design","creator":"creator-dein-design"}, pb = {"live-vorschau":1,"pb-title":1,"pb-builder":1,"logo-label":1,"studio-name":1,"bg-img-label":1}, h = "", w = "", g, p, keep;
+      r.classList.add("js", "is-loading");
       try { h = decodeURIComponent(location.hash.slice(1)); } catch (e) {}
       p = map[h];
       if (p && (p === h || first[h])) keep = h;
@@ -40,6 +40,8 @@
         g = gen[h];
         if (g && g.indexOf(w || "start") < 0) w = g[0] === "start" ? "" : g[0];
         p = first[w];
+        // Live-Demo in einer Welt: ihr Bereich „Ihr Design“
+        if (pb[h] && design[w]) p = design[w];
         if (p && !h) keep = p;
       }
       if (keep) try { history.replaceState(null, "", location.pathname + location.search); r.dataset.hash = keep; } catch (e) {}
@@ -51,7 +53,7 @@
       };
     })();
   </script>
-  <style>.js .world,.js .mb-panel,.js[data-world] .hero{display:none}.js[data-world="arbeitgeber"] #arbeitgeber{display:block}.js[data-mb="benefitportal"] #benefitportal{display:block}.js[data-mb="benefitportal"] .mb-swap>[data-mb-only="benefitportal"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="benefitportal"] [data-mb-tabs] a[href="#benefitportal"]{color:#fff}.js[data-mb="mitarbeiterrabatte"] #mitarbeiterrabatte{display:block}.js[data-mb="mitarbeiterrabatte"] .mb-swap>[data-mb-only="mitarbeiterrabatte"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="mitarbeiterrabatte"] [data-mb-tabs] a[href="#mitarbeiterrabatte"]{color:#fff}.js[data-mb="mitarbeitergutscheine"] #mitarbeitergutscheine{display:block}.js[data-mb="mitarbeitergutscheine"] .mb-swap>[data-mb-only="mitarbeitergutscheine"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="mitarbeitergutscheine"] [data-mb-tabs] a[href="#mitarbeitergutscheine"]{color:#fff}.js[data-mb="geschenkanlaesse"] #geschenkanlaesse{display:block}.js[data-mb="geschenkanlaesse"] .mb-swap>[data-mb-only="geschenkanlaesse"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="geschenkanlaesse"] [data-mb-tabs] a[href="#geschenkanlaesse"]{color:#fff}.js[data-world="unternehmen"] #unternehmen{display:block}.js[data-mb="loyalty-portal"] #loyalty-portal{display:block}.js[data-mb="loyalty-portal"] .mb-swap>[data-mb-only="loyalty-portal"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="loyalty-portal"] [data-mb-tabs] a[href="#loyalty-portal"]{color:#fff}.js[data-mb="kundenrabatte"] #kundenrabatte{display:block}.js[data-mb="kundenrabatte"] .mb-swap>[data-mb-only="kundenrabatte"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="kundenrabatte"] [data-mb-tabs] a[href="#kundenrabatte"]{color:#fff}.js[data-mb="kundengutscheine"] #kundengutscheine{display:block}.js[data-mb="kundengutscheine"] .mb-swap>[data-mb-only="kundengutscheine"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="kundengutscheine"] [data-mb-tabs] a[href="#kundengutscheine"]{color:#fff}.js[data-world="marken"] #marken{display:block}.js[data-mb="anbieter-werden"] #anbieter-werden{display:block}.js[data-mb="anbieter-werden"] .mb-swap>[data-mb-only="anbieter-werden"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="anbieter-werden"] [data-mb-tabs] a[href="#anbieter-werden"]{color:#fff}.js[data-mb="newsletter-platzierung"] #newsletter-platzierung{display:block}.js[data-mb="newsletter-platzierung"] .mb-swap>[data-mb-only="newsletter-platzierung"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="newsletter-platzierung"] [data-mb-tabs] a[href="#newsletter-platzierung"]{color:#fff}.js[data-world="creator"] #creator{display:block}.js[data-mb="community-shop"] #community-shop{display:block}.js[data-mb="community-shop"] .mb-swap>[data-mb-only="community-shop"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="community-shop"] [data-mb-tabs] a[href="#community-shop"]{color:#fff}</style>
+  <style>.js .world,.js .mb-panel,.js[data-world] .hero{display:none}.js[data-world="arbeitgeber"] #arbeitgeber{display:block}.js[data-mb="benefitportal"] #benefitportal{display:block}.js[data-mb="benefitportal"] .mb-swap>[data-mb-only="benefitportal"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="benefitportal"] [data-mb-tabs] a[href="#benefitportal"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-mb="mitarbeiterrabatte"] #mitarbeiterrabatte{display:block}.js[data-mb="mitarbeiterrabatte"] .mb-swap>[data-mb-only="mitarbeiterrabatte"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="mitarbeiterrabatte"] [data-mb-tabs] a[href="#mitarbeiterrabatte"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-mb="mitarbeitergutscheine"] #mitarbeitergutscheine{display:block}.js[data-mb="mitarbeitergutscheine"] .mb-swap>[data-mb-only="mitarbeitergutscheine"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="mitarbeitergutscheine"] [data-mb-tabs] a[href="#mitarbeitergutscheine"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-mb="geschenkanlaesse"] #geschenkanlaesse{display:block}.js[data-mb="geschenkanlaesse"] .mb-swap>[data-mb-only="geschenkanlaesse"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="geschenkanlaesse"] [data-mb-tabs] a[href="#geschenkanlaesse"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-world="unternehmen"] #unternehmen{display:block}.js[data-mb="loyalty-portal"] #loyalty-portal{display:block}.js[data-mb="loyalty-portal"] .mb-swap>[data-mb-only="loyalty-portal"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="loyalty-portal"] [data-mb-tabs] a[href="#loyalty-portal"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-mb="kundenrabatte"] #kundenrabatte{display:block}.js[data-mb="kundenrabatte"] .mb-swap>[data-mb-only="kundenrabatte"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="kundenrabatte"] [data-mb-tabs] a[href="#kundenrabatte"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-mb="kundengutscheine"] #kundengutscheine{display:block}.js[data-mb="kundengutscheine"] .mb-swap>[data-mb-only="kundengutscheine"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="kundengutscheine"] [data-mb-tabs] a[href="#kundengutscheine"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-world="marken"] #marken{display:block}.js[data-mb="anbieter-werden"] #anbieter-werden{display:block}.js[data-mb="anbieter-werden"] .mb-swap>[data-mb-only="anbieter-werden"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="anbieter-werden"] [data-mb-tabs] a[href="#anbieter-werden"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-mb="newsletter-platzierung"] #newsletter-platzierung{display:block}.js[data-mb="newsletter-platzierung"] .mb-swap>[data-mb-only="newsletter-platzierung"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="newsletter-platzierung"] [data-mb-tabs] a[href="#newsletter-platzierung"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-world="creator"] #creator{display:block}.js[data-mb="community-shop"] #community-shop{display:block}.js[data-mb="community-shop"] .mb-swap>[data-mb-only="community-shop"]{visibility:visible;opacity:1;translate:none;pointer-events:auto;transition-delay:0s}.js[data-mb="community-shop"] [data-mb-tabs] a[href="#community-shop"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-mb="ihr-design"] #ihr-design{display:block}.js[data-mb="ihr-design"] #arbeitgeber .subhero{display:none}.js[data-mb="ihr-design"] [data-mb-tabs] a[href="#ihr-design"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-mb="unternehmen-ihr-design"] #unternehmen-ihr-design{display:block}.js[data-mb="unternehmen-ihr-design"] #unternehmen .subhero{display:none}.js[data-mb="unternehmen-ihr-design"] [data-mb-tabs] a[href="#unternehmen-ihr-design"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}.js[data-mb="creator-dein-design"] #creator-dein-design{display:block}.js[data-mb="creator-dein-design"] #creator .subhero{display:none}.js[data-mb="creator-dein-design"] [data-mb-tabs] a[href="#creator-dein-design"]{color:#fff;background:var(--grad-btn);box-shadow:0 10px 22px -12px rgba(26,120,255,.9)}</style>
   <link rel="stylesheet" href="assets/css/main.css">
   <script defer src="assets/js/main.js"></script>
 
@@ -79,6 +81,13 @@
   </script>
 </head>
 <body>
+  <!-- Ladeanimation: nur mit JavaScript, verschwindet nach dem Laden (main.js) – spätestens nach 4 s per CSS -->
+  <div class="loader" aria-hidden="true">
+    <div class="loader__inner">
+      <img class="loader__logo" src="assets/img/incent-logo-nav-dark.png" width="446" height="155" alt="">
+      <span class="loader__bar"><i></i></span>
+    </div>
+  </div>
   <!-- layout:icons -->
   <!-- Icon-Sprite (Strichicons, 24×24) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -89,6 +98,7 @@
         <stop offset="1" stop-color="#2b4bff"/>
       </linearGradient>
     </defs>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></symbol>
     <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
     <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
     <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
@@ -178,13 +188,44 @@
       </a>
 
       <nav class="nav__menu" aria-label="Hauptnavigation" data-menu>
-        <ul class="nav__list">
+        <ul class="nav__list nav__list--start">
           <li><a class="nav__link" href="#benefitportal" data-nav-world="arbeitgeber">Arbeitgeber</a></li>
           <li><a class="nav__link" href="#loyalty-portal" data-nav-world="unternehmen">Unternehmen</a></li>
           <li><a class="nav__link" href="#anbieter-werden" data-nav-world="marken">Marken</a></li>
           <li><a class="nav__link" href="#community-shop" data-nav-world="creator">Creator</a></li>
           <li><a class="nav__link" href="#ueber-uns" data-spy="ueber-uns">Über uns</a></li>
           <li><a class="nav__link" href="#kontakt" data-spy="kontakt">Kontakt</a></li>
+        </ul>
+        <!-- Welt Arbeitgeber: die Navigation zeigt ihre Bereiche (main.js: initWorlds) -->
+        <ul class="nav__list nav__list--world" data-mb-tabs data-tabs-world="arbeitgeber">
+          <li><a class="nav__link nav__link--home" href="#top"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg><span>Übersicht</span></a></li>
+          <li><a class="nav__link nav__link--design" href="#ihr-design"><svg class="i" aria-hidden="true"><use href="#i-palette"/></svg><span>Ihr Design</span></a></li>
+          <li><a class="nav__link" href="#benefitportal">2-in-1-Benefits</a></li>
+          <li><a class="nav__link" href="#mitarbeiterrabatte">Mitarbeiterrabatte</a></li>
+          <li><a class="nav__link" href="#mitarbeitergutscheine">Mitarbeitergutscheine</a></li>
+          <li><a class="nav__link" href="#geschenkanlaesse">Geschenkanlässe</a></li>
+        </ul>
+        <!-- Welt Unternehmen: die Navigation zeigt ihre Bereiche (main.js: initWorlds) -->
+        <ul class="nav__list nav__list--world" data-mb-tabs data-tabs-world="unternehmen">
+          <li><a class="nav__link nav__link--home" href="#top"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg><span>Übersicht</span></a></li>
+          <li><a class="nav__link nav__link--design" href="#unternehmen-ihr-design"><svg class="i" aria-hidden="true"><use href="#i-palette"/></svg><span>Ihr Design</span></a></li>
+          <li><a class="nav__link" href="#loyalty-portal">Loyalty-Portal</a></li>
+          <li><a class="nav__link" href="#kundenrabatte">Kundenrabatte</a></li>
+          <li><a class="nav__link" href="#kundengutscheine">Kundengutscheine</a></li>
+        </ul>
+        <!-- Welt Marken: die Navigation zeigt ihre Bereiche (main.js: initWorlds) -->
+        <ul class="nav__list nav__list--world" data-mb-tabs data-tabs-world="marken">
+          <li><a class="nav__link nav__link--home" href="#top"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg><span>Übersicht</span></a></li>
+          <li><a class="nav__link" href="#anbieter-werden">Anbieter werden</a></li>
+          <li><a class="nav__link" href="#newsletter-platzierung">Newsletter-Platzierung</a></li>
+        </ul>
+        <!-- Welt Creator: die Navigation zeigt ihre Bereiche (main.js: initWorlds) -->
+        <ul class="nav__list nav__list--world" data-mb-tabs data-tabs-world="creator">
+          <li><a class="nav__link nav__link--home" href="#top"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg><span>Übersicht</span></a></li>
+          <li><a class="nav__link nav__link--design" href="#creator-dein-design"><svg class="i" aria-hidden="true"><use href="#i-palette"/></svg><span>Dein Design</span></a></li>
+          <li><a class="nav__link" href="#community-shop">Community-Shop</a></li>
+          <li><a class="nav__link" href="#einnahmen">Einnahmen</a></li>
+          <li><a class="nav__link" href="#creator-ablauf">Ablauf</a></li>
         </ul>
         <div class="nav__mobile-extra">
           <a href="tel:+49834193450"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg>08341&nbsp;93450</a>
@@ -230,27 +271,33 @@
 
         <!-- Einstieg nach Zielgruppe: jede Karte öffnet die Welt dieser Zielgruppe (main.js: initWorlds) -->
         <div class="aud" id="loesungen" data-reveal style="--d:.16s">
-          <p class="aud__q" id="aud-q">Wer sind Sie? <span>Wählen Sie Ihren Einstieg – danach sehen Sie nur, was für Sie wichtig ist.</span></p>
-          <div class="aud__grid" role="group" aria-labelledby="aud-q">
-            <a class="aud__card" href="#benefitportal" data-aud-pick="arbeitgeber">
+          <p class="aud__q" id="aud-q"><span class="aud__ask">Wer sind <span class="aud__you">Sie</span>?<svg class="aud__line" viewBox="0 0 220 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 9 C 50 3, 110 3, 217 8"/></svg></span> <span class="aud__hint">Wählen Sie Ihren Einstieg – danach sehen Sie nur, was für Sie wichtig ist.</span></p>
+          <span class="aud__arrow" aria-hidden="true"><svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></span>
+          <div class="aud__grid" role="group" aria-labelledby="aud-q" data-aud-grid>
+            <span class="aud__spot" aria-hidden="true"></span>
+            <a class="aud__card" href="#benefitportal" data-aud-pick="arbeitgeber" data-aud-terms="Mitarbeiterbindung|Steuerfreie Sachbezüge">
+              <span class="aud__term" aria-hidden="true">Mitarbeiterbindung</span>
               <span class="aud__ico"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg></span>
               <span class="aud__txt"><b>Arbeitgeber</b><small>Mitarbeitende binden &amp; begeistern</small></span>
               <span class="aud__sols">Benefitportal · Rabatte · Gutscheine · Geschenke</span>
               <span class="aud__go" aria-hidden="true"><svg class="i i--sm"><use href="#i-arrow-right"/></svg></span>
             </a>
-            <a class="aud__card" href="#loyalty-portal" data-aud-pick="unternehmen">
+            <a class="aud__card" href="#loyalty-portal" data-aud-pick="unternehmen" data-aud-terms="Kundenbindung">
+              <span class="aud__term" aria-hidden="true">Kundenbindung</span>
               <span class="aud__ico"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></span>
               <span class="aud__txt"><b>Unternehmen</b><small>Kundinnen und Kunden binden</small></span>
               <span class="aud__sols">Loyalty-Portal · Kundenrabatte · Kundengutscheine</span>
               <span class="aud__go" aria-hidden="true"><svg class="i i--sm"><use href="#i-arrow-right"/></svg></span>
             </a>
-            <a class="aud__card" href="#anbieter-werden" data-aud-pick="marken">
+            <a class="aud__card" href="#anbieter-werden" data-aud-pick="marken" data-aud-terms="Brand Awareness">
+              <span class="aud__term" aria-hidden="true">Brand Awareness</span>
               <span class="aud__ico"><svg class="i" aria-hidden="true"><use href="#i-megaphone"/></svg></span>
               <span class="aud__txt"><b>Marken</b><small>Neue Zielgruppen erreichen</small></span>
               <span class="aud__sols">Anbieter werden · Newsletter-Platzierung</span>
               <span class="aud__go" aria-hidden="true"><svg class="i i--sm"><use href="#i-arrow-right"/></svg></span>
             </a>
-            <a class="aud__card" href="#community-shop" data-aud-pick="creator">
+            <a class="aud__card" href="#community-shop" data-aud-pick="creator" data-aud-terms="Social Communities">
+              <span class="aud__term" aria-hidden="true">Social Communities</span>
               <span class="aud__ico"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></span>
               <span class="aud__txt"><b>Creator</b><small>Eigenen Community-Shop starten</small></span>
               <span class="aud__sols">Community-Shop · Einnahmen · Start in einer Woche</span>
@@ -705,46 +752,8 @@
             </div>
           </div>
         </div>
-        <nav class="cluster" aria-label="Bereiche der Mitarbeiterbindung" data-cluster data-reveal style="--d:.2s">
-          <span class="cluster__label">Mitarbeiterbindung</span>
-          <div class="cluster__tabs" data-mb-tabs>
-            <span class="tab-ind" aria-hidden="true"></span>
-            <a href="#benefitportal">2-in-1-Benefitportal</a>
-            <a href="#mitarbeiterrabatte">Mitarbeiterrabatte</a>
-            <a href="#mitarbeitergutscheine">Mitarbeitergutscheine</a>
-            <a href="#geschenkanlaesse">Geschenkanlässe</a>
-          </div>
-        </nav>
-        <nav class="nav__dock" data-dock-world="arbeitgeber" aria-label="Bereiche der Mitarbeiterbindung (angeheftet)" data-mb-dock>
-          <div class="dock">
-            <div class="dock__bar">
-              <span class="dock__label">Mitarbeiterbindung</span>
-              <div class="dock__tabs" data-mb-tabs>
-                <span class="tab-ind" aria-hidden="true"></span>
-          <a href="#benefitportal">2-in-1-Benefitportal</a>
-          <a href="#mitarbeiterrabatte">Mitarbeiterrabatte</a>
-          <a href="#mitarbeitergutscheine">Mitarbeitergutscheine</a>
-          <a href="#geschenkanlaesse">Geschenkanlässe</a>
-              </div>
-              <button class="dock__step" type="button" data-dock-step="-1" aria-label="Vorheriger Bereich"><svg class="i" aria-hidden="true"><use href="#i-chevron-left"/></svg></button>
-              <button class="dock__current" type="button" aria-expanded="false" aria-controls="arbeitgeber-dock-menu" data-dock-toggle>
-                <small>Mitarbeiterbindung</small><b><span class="mb-swap"><span data-mb-only="benefitportal">2-in-1-Benefitportal</span><span data-mb-only="mitarbeiterrabatte">Mitarbeiterrabatte</span><span data-mb-only="mitarbeitergutscheine">Mitarbeitergutscheine</span><span data-mb-only="geschenkanlaesse">Geschenkanlässe</span></span></b><svg class="i dock__chev" aria-hidden="true"><use href="#i-chevron-down"/></svg>
-              </button>
-              <button class="dock__step" type="button" data-dock-step="1" aria-label="Nächster Bereich"><svg class="i" aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
-            </div>
-            <span class="dock__progress" aria-hidden="true"><i></i></span>
-            <ul class="dock__menu" id="arbeitgeber-dock-menu" data-mb-tabs>
-          <li><a href="#benefitportal"><span class="dock__no">01</span>2-in-1-Benefitportal</a></li>
-          <li><a href="#mitarbeiterrabatte"><span class="dock__no">02</span>Mitarbeiterrabatte</a></li>
-          <li><a href="#mitarbeitergutscheine"><span class="dock__no">03</span>Mitarbeitergutscheine</a></li>
-          <li><a href="#geschenkanlaesse"><span class="dock__no">04</span>Geschenkanlässe</a></li>
-            </ul>
-          </div>
-        </nav>
       </div>
     </section>
-    <!-- Live-Demo (Vorschau ⇄ Builder) landet hier, sobald diese Welt gezeigt wird -->
-    <div class="container pb-slot" data-pb-slot="arbeitgeber"></div><script>incentStudio(document.currentScript.previousElementSibling)</script>
 
     <!-- ============ Bereiche: alle Inhalte sind geladen, die Cluster-Leiste schaltet um ============ -->
     <div class="mb-panels" data-mb-panels>
@@ -2479,6 +2488,24 @@
     </section>
 
     </div>
+    <!-- ============ Ihr Design: Live-Demo als eigener Bereich (Builder geöffnet) ============ -->
+    <div class="mb-panel mb-panel--design" id="ihr-design" data-title="Ihr Benefitportal im eigenen Design – Live-Demo | INCENT" data-desc="Gestalten Sie Ihr Benefitportal live: Logo, Farben und Hintergrund – so sieht Ihr Portal für Mitarbeitende aus. Kostenfrei und ohne IT-Aufwand." role="region" aria-label="Ihr Design – Arbeitgeber">
+      <section class="section design-page">
+        <div class="container pb-slot pb-slot--page" data-pb-slot="arbeitgeber"></div><script>incentStudio(document.currentScript.previousElementSibling)</script>
+        <div class="container">
+          <div class="design-next" data-reveal>
+            <div class="design-next__copy">
+              <h2 class="design-next__title">Gefällt Ihnen Ihr Portal?</h2>
+              <p>Genau so richten wir es für Ihr Unternehmen ein – kostenfrei, ohne IT-Aufwand und in wenigen Tagen startklar.</p>
+            </div>
+            <div class="design-next__btns">
+              <a class="btn btn--primary btn--lg" href="#kontakt" data-magnetic>Demo buchen <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+              <a class="btn btn--ghost btn--lg" href="#benefitportal">Weiter zum 2-in-1-Benefitportal</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
     </div>
     </div>
     <div class="world" id="unternehmen" data-world-id="unternehmen" role="region" aria-label="Für Unternehmen: Kundenbindung">
@@ -2585,43 +2612,8 @@
             </div>
           </div>
         </div>
-        <nav class="cluster" aria-label="Bereiche der Kundenbindung" data-cluster data-reveal style="--d:.2s">
-          <span class="cluster__label">Kundenbindung</span>
-          <div class="cluster__tabs" data-mb-tabs>
-            <span class="tab-ind" aria-hidden="true"></span>
-            <a href="#loyalty-portal">Loyalty-Portal</a>
-            <a href="#kundenrabatte">Kundenrabatte</a>
-            <a href="#kundengutscheine">Kundengutscheine</a>
-          </div>
-        </nav>
-        <nav class="nav__dock" data-dock-world="unternehmen" aria-label="Bereiche der Kundenbindung (angeheftet)" data-mb-dock>
-          <div class="dock">
-            <div class="dock__bar">
-              <span class="dock__label">Kundenbindung</span>
-              <div class="dock__tabs" data-mb-tabs>
-                <span class="tab-ind" aria-hidden="true"></span>
-          <a href="#loyalty-portal">Loyalty-Portal</a>
-          <a href="#kundenrabatte">Kundenrabatte</a>
-          <a href="#kundengutscheine">Kundengutscheine</a>
-              </div>
-              <button class="dock__step" type="button" data-dock-step="-1" aria-label="Vorheriger Bereich"><svg class="i" aria-hidden="true"><use href="#i-chevron-left"/></svg></button>
-              <button class="dock__current" type="button" aria-expanded="false" aria-controls="unternehmen-dock-menu" data-dock-toggle>
-                <small>Kundenbindung</small><b><span class="mb-swap"><span data-mb-only="loyalty-portal">Loyalty-Portal</span><span data-mb-only="kundenrabatte">Kundenrabatte</span><span data-mb-only="kundengutscheine">Kundengutscheine</span></span></b><svg class="i dock__chev" aria-hidden="true"><use href="#i-chevron-down"/></svg>
-              </button>
-              <button class="dock__step" type="button" data-dock-step="1" aria-label="Nächster Bereich"><svg class="i" aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
-            </div>
-            <span class="dock__progress" aria-hidden="true"><i></i></span>
-            <ul class="dock__menu" id="unternehmen-dock-menu" data-mb-tabs>
-          <li><a href="#loyalty-portal"><span class="dock__no">01</span>Loyalty-Portal</a></li>
-          <li><a href="#kundenrabatte"><span class="dock__no">02</span>Kundenrabatte</a></li>
-          <li><a href="#kundengutscheine"><span class="dock__no">03</span>Kundengutscheine</a></li>
-            </ul>
-          </div>
-        </nav>
       </div>
     </section>
-    <!-- Live-Demo (Vorschau ⇄ Builder) landet hier, sobald diese Welt gezeigt wird -->
-    <div class="container pb-slot" data-pb-slot="unternehmen"></div><script>incentStudio(document.currentScript.previousElementSibling)</script>
 
     <!-- ============ Bereiche: alle Inhalte sind geladen, die Cluster-Leiste schaltet um ============ -->
     <div class="mb-panels" data-mb-panels>
@@ -3934,6 +3926,24 @@
       </div>
     </section>
     </div>
+    <!-- ============ Ihr Design: Live-Demo als eigener Bereich (Builder geöffnet) ============ -->
+    <div class="mb-panel mb-panel--design" id="unternehmen-ihr-design" data-title="Ihr Kundenportal im eigenen Design – Live-Demo | INCENT" data-desc="Gestalten Sie Ihr Kundenportal live: Logo, Farben und Hintergrund – so sieht Ihr Loyalty-Portal für Ihre Kundinnen und Kunden aus." role="region" aria-label="Ihr Design – Unternehmen">
+      <section class="section design-page">
+        <div class="container pb-slot pb-slot--page" data-pb-slot="unternehmen"></div><script>incentStudio(document.currentScript.previousElementSibling)</script>
+        <div class="container">
+          <div class="design-next" data-reveal>
+            <div class="design-next__copy">
+              <h2 class="design-next__title">Gefällt Ihnen Ihr Kundenportal?</h2>
+              <p>Genau so richten wir es für Ihre Kundinnen und Kunden ein – ohne Servicekosten und ohne IT-Aufwand.</p>
+            </div>
+            <div class="design-next__btns">
+              <a class="btn btn--primary btn--lg" href="#kontakt" data-magnetic>Demo buchen <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+              <a class="btn btn--ghost btn--lg" href="#loyalty-portal">Weiter zum Loyalty-Portal</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
     </div>
     </div>
     <div class="world" id="marken" data-world-id="marken" role="region" aria-label="Für Marken: Markenplatzierung">
@@ -4018,36 +4028,6 @@
             </div>
           </div>
         </div>
-        <nav class="cluster" aria-label="Bereiche der Markenplatzierung" data-cluster data-reveal style="--d:.2s">
-          <span class="cluster__label">Markenplatzierung</span>
-          <div class="cluster__tabs" data-mb-tabs>
-            <span class="tab-ind" aria-hidden="true"></span>
-            <a href="#anbieter-werden">Anbieter werden</a>
-            <a href="#newsletter-platzierung">Newsletter-Platzierung</a>
-          </div>
-        </nav>
-        <nav class="nav__dock" data-dock-world="marken" aria-label="Bereiche der Markenplatzierung (angeheftet)" data-mb-dock>
-          <div class="dock">
-            <div class="dock__bar">
-              <span class="dock__label">Markenplatzierung</span>
-              <div class="dock__tabs" data-mb-tabs>
-                <span class="tab-ind" aria-hidden="true"></span>
-          <a href="#anbieter-werden">Anbieter werden</a>
-          <a href="#newsletter-platzierung">Newsletter-Platzierung</a>
-              </div>
-              <button class="dock__step" type="button" data-dock-step="-1" aria-label="Vorheriger Bereich"><svg class="i" aria-hidden="true"><use href="#i-chevron-left"/></svg></button>
-              <button class="dock__current" type="button" aria-expanded="false" aria-controls="marken-dock-menu" data-dock-toggle>
-                <small>Markenplatzierung</small><b><span class="mb-swap"><span data-mb-only="anbieter-werden">Anbieter werden</span><span data-mb-only="newsletter-platzierung">Newsletter-Platzierung</span></span></b><svg class="i dock__chev" aria-hidden="true"><use href="#i-chevron-down"/></svg>
-              </button>
-              <button class="dock__step" type="button" data-dock-step="1" aria-label="Nächster Bereich"><svg class="i" aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
-            </div>
-            <span class="dock__progress" aria-hidden="true"><i></i></span>
-            <ul class="dock__menu" id="marken-dock-menu" data-mb-tabs>
-          <li><a href="#anbieter-werden"><span class="dock__no">01</span>Anbieter werden</a></li>
-          <li><a href="#newsletter-platzierung"><span class="dock__no">02</span>Newsletter-Platzierung</a></li>
-            </ul>
-          </div>
-        </nav>
       </div>
     </section>
 
@@ -4655,8 +4635,6 @@
         </div>
       </div>
     </section>
-    <!-- Live-Demo (Vorschau ⇄ Builder) landet hier, sobald diese Welt gezeigt wird -->
-    <div class="container pb-slot" data-pb-slot="creator"></div><script>incentStudio(document.currentScript.previousElementSibling)</script>
 
     <div class="mb-panels" data-mb-panels>
     <div class="mb-panel" id="community-shop" data-title="Community Benefits Portal für Creator | INCENT" data-desc="Stärke Deine Community-Bindung mit exklusiven Community Benefits. Ein flexibles Vorteilsprogramm ohne Mehraufwand. Jetzt eigenes Portal starten!" role="region" aria-label="Community-Shop">
@@ -4953,6 +4931,24 @@
         </div>
       </div>
     </section>
+    </div>
+    <!-- ============ Dein Design: Live-Demo als eigener Bereich (Builder geöffnet) ============ -->
+    <div class="mb-panel mb-panel--design" id="creator-dein-design" data-title="Dein Community-Shop im eigenen Look – Live-Demo | INCENT" data-desc="Gestalte Deinen Vorteils-Shop live: Logo, Creator-Farben und Hintergrund – so sieht Dein Shop für Deine Community aus." role="region" aria-label="Dein Design – Creator">
+      <section class="section design-page">
+        <div class="container pb-slot pb-slot--page" data-pb-slot="creator"></div><script>incentStudio(document.currentScript.previousElementSibling)</script>
+        <div class="container">
+          <div class="design-next" data-reveal>
+            <div class="design-next__copy">
+              <h2 class="design-next__title">Gefällt Dir Dein Shop?</h2>
+              <p>Genau so richten wir ihn für Deine Community ein – kostenlos, ohne Setup-Aufwand und in einer Woche startklar.</p>
+            </div>
+            <div class="design-next__btns">
+              <a class="btn btn--primary btn--lg" href="#kontakt" data-magnetic>Shop anfragen <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+              <a class="btn btn--ghost btn--lg" href="#community-shop">Weiter zum Community-Shop</a>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
     </div>
     </div>
@@ -5675,5 +5671,8 @@
     </div>
   </footer>
   <!-- /layout:footer -->
+
+  <!-- Nach oben: erscheint nach dem ersten Bildschirm (main.js: initToTop) -->
+  <button class="to-top" type="button" aria-label="Nach oben" title="Nach oben" data-to-top><svg class="i" aria-hidden="true"><use href="#i-arrow-up"/></svg></button>
 </body>
 </html>

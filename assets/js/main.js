@@ -430,6 +430,8 @@
       setTimeout(() => old.isConnected && old.remove(), 600);
       el.append(word);
       current = word;
+      // die passende Zielgruppen-Karte darunter leuchtet mit (initAudSpot)
+      document.dispatchEvent(new CustomEvent("incent:word", { detail: words[index] }));
     };
     const stop = () => {
       clearInterval(timer);
@@ -440,15 +442,97 @@
       timer = setInterval(next, INTERVAL);
     };
 
-    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+    // Zeiger oder Fokus auf einer Zielgruppen-Karte: deren Begriff bleibt stehen, danach geht es weiter
+    let held = false;
+    document.addEventListener("incent:aud-hover", (e) => {
+      held = !!e.detail;
+      if (!held) return start();
+      stop();
+      const k = words.indexOf(e.detail);
+      if (k >= 0 && current.textContent !== e.detail) {
+        index = k - 1;
+        next();
+      }
+    });
+    const startFree = start;
+    const guarded = () => !held && startFree();
+    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : guarded()));
     if (hasIO) {
       new IntersectionObserver((ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
         visible = entry.isIntersecting;
-        visible ? start() : stop();
+        visible ? guarded() : stop();
       }).observe(el);
     }
     // erster Begriff steht nach dem Laden kurz länger
-    setTimeout(start, 1400);
+    setTimeout(guarded, 1400);
+  }
+
+  /* ---------- Hero: „Wer sind Sie?“ – Hervorhebung wandert mit den Begriffen der Headline ----------
+     Jede Karte kennt ihre Begriffe (data-aud-terms, z. B. „Mitarbeiterbindung|Steuerfreie Sachbezüge“). Zeigt die
+     Headline einen davon, gleitet der Rahmen auf diese Karte und das Fähnchen nennt den Begriff. Zeiger oder Fokus
+     auf einer Karte halten Rahmen und Begriff dort fest. */
+  function initAudSpot() {
+    const grid = $("[data-aud-grid]");
+    if (!grid) return;
+    const spot = $(".aud__spot", grid);
+    const cards = $$("[data-aud-terms]", grid);
+    const termsOf = (c) => c.dataset.audTerms.split("|");
+    let lit = null;
+    let hover = null;
+    const place = () => {
+      const c = hover || lit;
+      if (!c || !c.offsetWidth) return spot.style.setProperty("--so", "0");
+      spot.style.setProperty("--sx", `${c.offsetLeft}px`);
+      spot.style.setProperty("--sy", `${c.offsetTop - (c.classList.contains("is-lit") ? 4 : 0)}px`);
+      spot.style.setProperty("--sw", `${c.offsetWidth}px`);
+      spot.style.setProperty("--sh", `${c.offsetHeight}px`);
+      spot.style.setProperty("--so", "1");
+    };
+    const light = (card, term) => {
+      cards.forEach((c) => c.classList.toggle("is-lit", c === card));
+      if (card && term) $(".aud__term", card).textContent = term;
+      place();
+    };
+    const byTerm = (term) => cards.find((c) => termsOf(c).includes(term));
+    document.addEventListener("incent:word", (e) => {
+      lit = byTerm(e.detail) || lit;
+      if (!hover) light(lit, e.detail);
+    });
+    cards.forEach((c) => {
+      const enter = () => {
+        hover = c;
+        light(c, termsOf(c)[0]);
+        document.dispatchEvent(new CustomEvent("incent:aud-hover", { detail: termsOf(c)[0] }));
+      };
+      const leave = () => {
+        if (hover !== c) return;
+        hover = null;
+        document.dispatchEvent(new CustomEvent("incent:aud-hover", { detail: "" }));
+      };
+      c.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && enter());
+      c.addEventListener("pointerleave", (e) => e.pointerType === "mouse" && leave());
+      c.addEventListener("focus", enter);
+      c.addEventListener("blur", leave);
+    });
+    // Start: Karte zum ersten Begriff der Headline
+    const word = $(".rotator__word");
+    lit = word ? byTerm(word.textContent.trim()) : null;
+    light(lit, word && word.textContent.trim());
+    window.addEventListener("resize", place);
+    if (document.fonts) document.fonts.ready.then(place);
+  }
+
+  /* ---------- Nach oben: Knopf erscheint nach dem ersten Bildschirm ---------- */
+  function initToTop() {
+    const btn = $("[data-to-top]");
+    if (!btn) return;
+    scrollTasks.push(() => btn.classList.toggle("is-on", window.scrollY > window.innerHeight * 0.8));
+    btn.addEventListener("click", () => {
+      scrollWindow({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+      // Tastatur: weiter oben im Dokument fortsetzen (Logo)
+      const home = $("[data-home]");
+      if (home) home.focus({ preventScroll: true });
+    });
   }
 
   /* ---------- Kennzahlen hochzählen ---------- */
@@ -2141,7 +2225,7 @@
     });
   }
 
-  /* ---------- Live-Demo: Vorschau ⇄ Builder (ein Baustein) ----------
+  /* ---------- Live-Demo: Vorschau ⇄ Builder (ein Baustein: im Hero der Übersicht und als „Ihr Design“ jeder Welt) ----------
      „Eigenes Portal bauen“ / „Selbst gestalten“ blendet an derselben Stelle den Builder ein: die Bedienelemente
      schieben sich links herein, das Portal rückt nach rechts und wird höher (Shop-Reihe). „Vorschau“ bzw.
      „Fertig – große Vorschau ansehen“ führt zurück. Links mit data-pb-open="builder|preview" springen zur
@@ -2183,18 +2267,35 @@
     $$("[data-pb-mode]", pb).forEach((b) =>
       b.addEventListener("click", (e) => set(b.dataset.pbMode, { focus: e.detail === 0 && !b.closest(".pb__modes"), scroll: true }))
     );
-    // Links zur Live-Demo: Modus wählen, das Springen übernimmt der Link (bzw. initWorlds)
+    // Links zur Live-Demo: Modus wählen, das Springen übernimmt der Link (bzw. initWorlds). Der gewünschte Modus
+    // gilt auch, wenn der Link erst zu „Ihr Design“ wechselt (sonst öffnet sich dort der Builder).
+    let wanted = "";
+    let wantedTimer = 0;
     document.addEventListener("click", (e) => {
       const a = e.target.closest("a[data-pb-open]");
-      if (a && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) set(a.dataset.pbOpen === "builder" ? "builder" : "preview");
+      if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      wanted = a.dataset.pbOpen === "builder" ? "builder" : "preview";
+      set(wanted);
+      clearTimeout(wantedTimer);
+      wantedTimer = setTimeout(() => (wanted = ""), 1000);
     }, true);
+    // „Ihr Design“ (eigener Bereich je Welt) beginnt mit geöffnetem Builder, die Übersicht mit der großen Vorschau
+    const fromView = (v) => {
+      if (v.design) set(wanted || "builder");
+      else if (!v.world) set("preview");
+      wanted = "";
+    };
+    document.addEventListener("incent:view", (e) => fromView(e.detail));
+    const html = document.documentElement;
+    const panel = html.dataset.mb && document.getElementById(html.dataset.mb);
     set(pb.dataset.mode === "builder" ? "builder" : "preview");
+    fromView({ world: html.dataset.world || "", design: !!panel && panel.classList.contains("mb-panel--design") });
   }
 
   /* ---------- Welten: alles für eine Zielgruppe unter einem Dach ----------
      Die Startseite ist ein One-Pager. Die Wahl („Wer sind Sie?“, Navigation, Umschalter im Seitenkopf) zeigt genau
-     eine Welt (Arbeitgeber, Unternehmen, Marken, Creator). Die Leiste im Seitenkopf der Welt tauscht deren Bereiche
-     und dockt beim Scrollen an die Navigation an. Allgemeine Abschnitte (data-for) erscheinen nur, wo sie passen.
+     eine Welt (Arbeitgeber, Unternehmen, Marken, Creator). In der Welt zeigt die Hauptnavigation deren Bereiche
+     (Übersicht, Ihr Design, Lösungen) und tauscht damit den Inhalt. Allgemeine Abschnitte (data-for) erscheinen nur, wo sie passen.
      Welt und Bereich stehen schon vor dem ersten Zeichnen fest (Skript im <head>), die Wahl merkt sich der Browser.
      „Übersicht“ (Logo, #top) führt zurück zur Wahl und vergisst sie. */
   function initWorlds() {
@@ -2216,23 +2317,17 @@
     };
 
     const worlds = $$("[data-world-id]", root).map((el) => {
-      const dock = $("[data-mb-dock]", el);
-      const w = {
+      const key = el.dataset.worldId;
+      return {
         el,
-        key: el.dataset.worldId,
+        key,
         ids: $$(".mb-panel", el).map((p) => p.id),
         panels: $("[data-mb-panels]", el),
-        cluster: $("[data-cluster]", el),
-        hosts: $$("[data-mb-tabs]", el),
+        // in der Welt zeigt die Hauptnavigation deren Bereiche (eigene Liste je Welt, CSS blendet um)
+        hosts: $$(`[data-mb-tabs][data-tabs-world="${key}"]`),
         texts: $(".subhero__texts", el),
-        dock,
-        dockBox: dock && $(".dock", dock),
-        dockToggle: dock && $("[data-dock-toggle]", dock),
-        dockMenu: dock && $(".dock__menu", dock),
+        head: $("[data-subhero]", el),
       };
-      // angeheftete Leiste jeder Welt hängt an der Navigation, sichtbar ist nur die der aktuellen Welt (CSS)
-      if (nav && dock) nav.append(dock);
-      return w;
     });
     const byKey = (k) => worlds.find((w) => w.key === k);
     // Live-Demo (Vorschau ⇄ Builder) wandert in die gezeigte Welt; Welten ohne Platz (Marken): zurück in den Hero
@@ -2273,13 +2368,17 @@
       radio.dispatchEvent(new Event("change", { bubbles: true }));
     };
 
-    const isDocked = () => !!nav && nav.classList.contains("is-docked");
     const offset = () => {
       const navBottom = navInner ? navInner.getBoundingClientRect().bottom : 80;
-      const w = cur();
-      const bar = w && w.dock && $(".dock__bar", w.dock);
-      return Math.round(Math.max(navBottom, 70) + (bar ? bar.offsetHeight : 0) + 18);
+      return Math.round(Math.max(navBottom, 70) + 18);
     };
+    // „Ihr Design“: eigener Bereich ohne Seitenkopf (die Live-Demo ist dort der Kopf)
+    const isDesign = (pid) => {
+      const p = pid && document.getElementById(pid);
+      return !!p && p.classList.contains("mb-panel--design");
+    };
+    // schon am Seitenkopf vorbeigescrollt? Dann beginnt ein neuer Bereich wieder oben
+    const pastHead = (w) => !w.head || w.head.getBoundingClientRect().bottom < offset();
     const scrollToEl = (el, behavior) => {
       // Ziele in einem Scroll-Stepper (z. B. ein Reiter) landen auf ihrem Schritt
       if (!document.dispatchEvent(new CustomEvent("stepper:target", { cancelable: true, detail: { el, behavior } }))) return;
@@ -2307,7 +2406,7 @@
       if (w) w.hosts.forEach(placeInd);
       fitTexts();
       html.style.scrollPaddingTop = `${offset()}px`;
-      // Builder: die Vorschau bleibt unter Navigation (und angedockter Leiste) stehen
+      // Builder: die Vorschau bleibt unter der Navigation stehen
       html.style.setProperty("--pb-top", `${offset() - 6}px`);
     };
     const sync = () => {
@@ -2322,32 +2421,14 @@
         )
       );
       $$("[data-nav-world]").forEach((a) => (w && a.dataset.navWorld === w.key ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")));
-      if (w) {
-        const i = w.ids.indexOf(id);
-        html.style.setProperty("--mb-i", String(i));
-        html.style.setProperty("--mb-n", String(w.ids.length));
-        if (w.dock)
-          $$("[data-dock-step]", w.dock).forEach((b) => {
-            const j = i + Number(b.dataset.dockStep);
-            b.disabled = j < 0 || j >= w.ids.length;
-          });
-      }
       layoutBars();
+      // z. B. für die Live-Demo: in „Ihr Design“ startet sie mit geöffnetem Builder
+      document.dispatchEvent(new CustomEvent("incent:view", { detail: { world: html.dataset.world || "", mb: html.dataset.mb || "", design: isDesign(id) } }));
     };
 
-    const setDockMenu = (w, open) => {
-      if (!w.dockBox) return;
-      w.dockBox.classList.toggle("is-open", open);
-      w.dockToggle.setAttribute("aria-expanded", String(open));
-      w.dockMenu.inert = !open;
-    };
-    const closeDockMenus = () => worlds.forEach((w) => setDockMenu(w, false));
-    // Welt gewechselt: Leiste neu andocken, Formular vorbelegen, Stepper & Co. neu messen
+    // Welt gewechselt: Live-Demo an ihren Platz, Formular vorbelegen, Stepper & Co. neu messen
     const worldChanged = () => {
       placeStudio();
-      if (nav) nav.classList.remove("is-docked");
-      worlds.forEach((w) => w.dock && (w.dock.inert = true));
-      closeDockMenus();
       preselect(html.dataset.world || "");
       requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
     };
@@ -2381,18 +2462,21 @@
       if (push && location.hash !== `#${id}`) history.pushState({ world: w.key, mb: tab }, "", `#${id}`);
       store(w.key);
       const sameWorld = w.key === html.dataset.world;
+      const past = sameWorld && pastHead(w);
       if (sameWorld && tab === html.dataset.mb) {
         if (target) scrollToEl(target, "smooth");
-        else if (top || isDocked()) scrollWindow({ top: 0, behavior: "smooth" });
+        else if (top || past) scrollWindow({ top: 0, behavior: "smooth" });
         return true;
       }
-      swap(sameWorld ? w.panels : main, () => {
+      // von/zu „Ihr Design“ wechselt auch der Seitenkopf: dann den ganzen Inhalt überblenden
+      const whole = !sameWorld || isDesign(tab) || isDesign(html.dataset.mb);
+      swap(whole ? main : w.panels, () => {
         html.dataset.world = w.key;
         html.dataset.mb = tab;
         sync();
         if (!sameWorld) worldChanged();
         if (target) scrollToEl(target, "instant");
-        else if (top || !sameWorld || isDocked()) scrollWindow({ top: 0, behavior: "instant" });
+        else if (top || whole || past) scrollWindow({ top: 0, behavior: "instant" });
       });
       return true;
     };
@@ -2419,13 +2503,11 @@
       const id = decodeURIComponent(url.hash.slice(1));
       if (!id || id === "top") {
         e.preventDefault();
-        closeDockMenus();
         showHome();
         return;
       }
       if (!tabOf(id)) return;
       e.preventDefault();
-      closeDockMenus();
       show(id);
     });
     // Verlauf: Jeder Eintrag kennt seine Welt (history.state) – auch Sprünge zu allgemeinen Abschnitten wie #kontakt
@@ -2459,37 +2541,6 @@
       else if (state) restore(state.world, state.mb, id);
       else if (!id || id === "top") showHome({ push: false });
     });
-
-    if (nav && navInner) {
-      worlds.forEach((w) => {
-        if (!w.dock) return;
-        w.dock.inert = true;
-        setDockMenu(w, false);
-        w.dockToggle.addEventListener("click", () => setDockMenu(w, !w.dockBox.classList.contains("is-open")));
-        $$("[data-dock-step]", w.dock).forEach((b) =>
-          b.addEventListener("click", () => {
-            const i = w.ids.indexOf(html.dataset.mb) + Number(b.dataset.dockStep);
-            if (i >= 0 && i < w.ids.length) show(w.ids[i]);
-          })
-        );
-      });
-      scrollTasks.push(() => {
-        const w = cur();
-        const docked = !!(w && w.cluster && w.dock) && w.cluster.getBoundingClientRect().bottom < navInner.getBoundingClientRect().bottom + 4;
-        if (docked === isDocked()) return;
-        nav.classList.toggle("is-docked", docked);
-        worlds.forEach((x) => x.dock && (x.dock.inert = !(docked && x === w)));
-        if (!docked) closeDockMenus();
-        requestAnimationFrame(layoutBars);
-      });
-      document.addEventListener("click", (e) => worlds.forEach((w) => w.dock && !w.dock.contains(e.target) && setDockMenu(w, false)));
-      document.addEventListener("keydown", (e) => {
-        const w = e.key === "Escape" && worlds.find((x) => x.dockBox && x.dockBox.classList.contains("is-open"));
-        if (!w) return;
-        setDockMenu(w, false);
-        w.dockToggle.focus();
-      });
-    }
 
     // Start: ruhendes Sprungziel (Bereich/Welt, siehe Kopf-Skript) wieder in die Adresse; Sprungziel, das das
     // Kopf-Skript nicht kennt, hier nachziehen; gezeigte Welt merken
@@ -3641,15 +3692,8 @@
       }
       return out;
     };
-    // Unterkante der Navigation beim Scrollen – auf den Clusterseiten mit angedockter Bereichsleiste
-    const docks = $$("[data-mb-dock]");
-    const navBottom = () => {
-      if (!nav) return 0;
-      const b = nav.getBoundingClientRect().bottom;
-      const dock = docks.find((d) => d.offsetHeight);
-      const dockBar = dock && $(".dock__bar", dock);
-      return Math.max(0, dockBar ? b - dock.offsetHeight + dockBar.offsetHeight : b);
-    };
+    // Unterkante der Navigation beim Scrollen
+    const navBottom = () => (nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0);
     const outerH = (el) => {
       const cs = getComputedStyle(el);
       return el.getBoundingClientRect().height + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
@@ -3905,10 +3949,24 @@
   }
 
   /* ---------- Start ---------- */
-  // weiches Scrollen für Anker erst nach dem Laden (siehe html.is-ready in main.css)
-  const ready = () => setTimeout(() => document.documentElement.classList.add("is-ready"), 120);
-  if (document.readyState === "complete") ready();
-  else window.addEventListener("load", ready, { once: true });
+  // Ladeanimation: weg, sobald die Seite geladen ist – mindestens kurz sichtbar, höchstens 2,5 s nach dem Start.
+  // Danach weiches Scrollen für Anker (siehe html.is-ready in main.css).
+  {
+    const html = document.documentElement;
+    let loaded = false;
+    const finish = () => {
+      if (loaded) return;
+      loaded = true;
+      html.classList.add("is-loaded");
+      html.classList.remove("is-loading");
+      setTimeout(() => html.classList.add("is-ready"), 120);
+    };
+    const MIN = reducedMotion ? 0 : 700;
+    const onLoad = () => setTimeout(finish, Math.max(0, MIN - performance.now()));
+    if (document.readyState === "complete") onLoad();
+    else window.addEventListener("load", onLoad, { once: true });
+    setTimeout(finish, 2500);
+  }
   markScrollSteps();
   initSmoothScroll();
   initPartnerLogos();
@@ -3916,7 +3974,9 @@
   initNav();
   initScrollProgress();
   initReveal();
+  initAudSpot();
   initRotator();
+  initToTop();
   initCounters();
   initHero();
   initSpotlight();
