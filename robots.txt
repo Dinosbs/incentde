@@ -1,0 +1,6 @@
+# INCENT – Suchmaschinen dürfen alles lesen außer den Werkzeugen
+User-agent: *
+Allow: /
+Disallow: /tools/
+
+Sitemap: https://www.incent.de/sitemap.xml

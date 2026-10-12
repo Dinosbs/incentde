@@ -243,6 +243,18 @@ Unterseiten dieses Relaunchs (`mitarbeiterbindung.html` usw.) bleiben als Weiter
 Bei `prefers-reduced-motion` laufen keine Animationen, und alle Inhalte sind sofort sichtbar.
 Ohne JavaScript bleiben alle Inhalte lesbar.
 
+### Suchmaschinen (SEO)
+
+- `robots.txt` und `sitemap.xml` im Hauptordner (Domain `https://www.incent.de/`; neue eigene Seiten dort eintragen).
+- Strukturierte Daten (JSON-LD im `<head>`): Firma (`Organization` mit Adresse, Telefon, E-Mail, LinkedIn/Instagram/
+  Facebook) und `WebSite`. Bei geänderten Firmendaten dort mitpflegen.
+- Vorschaubild für Social Media: `assets/img/og-incent.png` (1200 × 630, liegt jetzt auf der eigenen Domain statt im
+  alten WordPress); Apple-Touch-Icon `assets/img/apple-touch-icon.png`.
+- Alle Schriftschnitte des ersten Bildschirms werden vorgeladen (400/500/600/700) – die Navigation springt beim
+  Laden nicht mehr (CLS).
+- Neue Bilder vor dem Hochladen auf die Anzeigegröße bringen (etwa doppelte Anzeigebreite, WebP): Das Teamfoto in
+  „Über uns“ ist von 2752 px/393 KB auf 1400 px/141 KB verkleinert (sichtbar gleich).
+
 ### Leistung (flüssig auch auf großen Desktop-Bildschirmen)
 
 Regeln, damit die Seite nicht ruckelt – bitte bei neuen Elementen beibehalten. Messung (Chromium, 1920×1080 bei
