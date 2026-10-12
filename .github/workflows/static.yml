@@ -37,6 +37,13 @@ jobs:
       # löst selbst keine Veröffentlichung aus, neue Logos/Kachelbilder wären sonst online nicht gelistet.
       - name: Bildlisten erzeugen
         run: node tools/update-image-manifests.mjs
+      # main.js und main.css verkleinern (Leerzeichen, Kommentare, kurze Namen) – nur in der veröffentlichten
+      # Fassung, im Repository bleiben sie lesbar. Komprimiert ~49 → 29 KB (JS) und ~55 → 42 KB (CSS).
+      - name: CSS/JS verkleinern
+        run: |
+          npx --yes esbuild@0.24.0 assets/js/main.js --minify --outfile=assets/js/main.js --allow-overwrite
+          npx --yes esbuild@0.24.0 assets/css/main.css --minify --outfile=assets/css/main.css --allow-overwrite
+          ls -l assets/js/main.js assets/css/main.css
       # CSS und JS mit Versionsnummer einbinden (?v=Commit), damit Browser nach einer Veröffentlichung
       # nicht noch die alte Datei aus dem Cache nehmen (gilt nur für die veröffentlichte Fassung)
       - name: CSS/JS-Version setzen

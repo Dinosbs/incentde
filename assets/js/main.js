@@ -12,12 +12,19 @@
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const hasIO = "IntersectionObserver" in window;
 
-  /* Ein gemeinsamer rAF-Loop für alles, was am Scrollen hängt */
+  /* Ein gemeinsamer rAF-Loop für alles, was am Scrollen hängt – in zwei Phasen: Jede Aufgabe misst nur (Lage,
+     Scrollposition) und gibt ihre Änderungen als Funktion zurück; geschrieben wird erst, wenn alle gemessen haben.
+     So rechnet der Browser das Layout pro Bild höchstens einmal statt nach jeder Änderung erneut. */
   const scrollTasks = [];
   let scrollQueued = false;
   const runScrollTasks = () => {
     scrollQueued = false;
-    scrollTasks.forEach((task) => task());
+    const writes = [];
+    scrollTasks.forEach((task) => {
+      const write = task();
+      if (typeof write === "function") writes.push(write);
+    });
+    writes.forEach((write) => write());
   };
   const queueScrollTasks = () => {
     if (scrollQueued) return;
@@ -28,6 +35,18 @@
   window.addEventListener("resize", queueScrollTasks);
 
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  // CSS-Animation per Klasse neu starten, ohne das Layout zu erzwingen (der Trick void el.offsetWidth rechnet jedes
+  // Mal die ganze Seite durch): Klasse jetzt entfernen, ein Bild ohne sie zeichnen lassen, dann wieder setzen.
+  // on = false: nur entfernen (und ein noch ausstehendes Setzen verwerfen).
+  const pendingClass = new WeakMap();
+  const restartClass = (el, cls, on = true) => {
+    let pending = pendingClass.get(el);
+    if (!pending) pendingClass.set(el, (pending = {}));
+    cancelAnimationFrame(pending[cls]);
+    el.classList.remove(cls);
+    if (!on) return;
+    pending[cls] = requestAnimationFrame(() => (pending[cls] = requestAnimationFrame(() => el.classList.add(cls))));
+  };
   // Marken-Profil (createPortalTheme) – wird beim Start angelegt, alle Vorschauen lesen es
   let brand = null;
   // Zielgruppen (Welten der Startseite): Wert im Kontaktformular („Ich bin …“); die Wahl merkt sich der Browser
@@ -38,12 +57,7 @@
     creator: { form: "Creator" },
   };
   const AUD_KEY = "incent-audience";
-  // Weiches Scrollen (initSmoothScroll): Wer die Seite selbst scrollt (Sprünge, Stepper), beendet vorher das Gleiten
-  let stopGlide = () => {};
-  const scrollWindow = (opts) => {
-    stopGlide();
-    window.scrollTo(opts);
-  };
+  const scrollWindow = (opts) => window.scrollTo(opts);
 
   /* ---------- Bildordner automatisch auslesen ----------
      1. manifest.json im Ordner (erzeugt von tools/update-image-manifests.mjs bzw. der GitHub Action)
@@ -290,7 +304,10 @@
     const megas = $$("[data-mega]", nav).map((item) => ({ item, toggle: $("[data-mega-toggle]", item), panel: $("[data-mega-panel]", item) }));
     const desktop = window.matchMedia("(min-width: 1121px)");
 
-    scrollTasks.push(() => nav.classList.toggle("is-scrolled", window.scrollY > 24));
+    scrollTasks.push(() => {
+      const on = window.scrollY > 24;
+      return () => nav.classList.toggle("is-scrolled", on);
+    });
 
     const setMenu = (open) => {
       nav.classList.toggle("is-menu-open", open);
@@ -382,7 +399,8 @@
     if (!bar) return;
     scrollTasks.push(() => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.setProperty("--sp", max > 0 ? (window.scrollY / max).toFixed(4) : "0");
+      const v = max > 0 ? (window.scrollY / max).toFixed(4) : "0";
+      return () => bar.style.setProperty("--sp", v);
     });
   }
 
@@ -488,10 +506,15 @@
       spot.style.setProperty("--sh", `${c.offsetHeight}px`);
       spot.style.setProperty("--so", "1");
     };
+    // Lage messen erst im nächsten Bild (gebündelt) – nicht mitten zwischen anderen Änderungen
+    let placing = 0;
+    const queuePlace = () => {
+      if (!placing) placing = requestAnimationFrame(() => ((placing = 0), place()));
+    };
     const light = (card, term) => {
       cards.forEach((c) => c.classList.toggle("is-lit", c === card));
       if (card && term) $(".aud__term", card).textContent = term;
-      place();
+      queuePlace();
     };
     const byTerm = (term) => cards.find((c) => termsOf(c).includes(term));
     document.addEventListener("incent:word", (e) => {
@@ -526,7 +549,10 @@
   function initToTop() {
     const btn = $("[data-to-top]");
     if (!btn) return;
-    scrollTasks.push(() => btn.classList.toggle("is-on", window.scrollY > window.innerHeight * 0.8));
+    scrollTasks.push(() => {
+      const on = window.scrollY > window.innerHeight * 0.8;
+      return () => btn.classList.toggle("is-on", on);
+    });
     btn.addEventListener("click", () => {
       scrollWindow({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
       // Tastatur: weiter oben im Dokument fortsetzen (Logo)
@@ -574,9 +600,9 @@
 
   /* ---------- Cursor-Follow ohne Grenzen: Elemente neigen sich zum Cursor, wandern leicht mit, Lichtreflex ----------
      Beobachtet wird das ganze Fenster, nicht nur die Fläche des Elements. Die Neigung ergibt sich aus der Lage
-     des Cursors zur Mitte des Elements (normiert auf einen Teil der Fenstergröße, „reach“); der Lichtreflex sitzt
-     unter dem Cursor und wird mit Abstand schwächer. Verlässt die Maus das Fenster, richtet sich alles auf.
-     stage:  Element, das gekippt wird (bekommt --rx, --ry, --tx, --ty, --gx, --gy, --glare)
+     des Cursors zur Mitte des Elements (normiert auf einen Teil der Fenstergröße, „reach“). Verlässt die Maus das
+     Fenster, richtet sich alles auf.
+     stage:  Element, das gekippt wird (bekommt --rx, --ry, --tx, --ty – nicht vererbt, siehe @property in main.css)
      center: () => {x, y} – Bezugspunkt (Standard: Mitte des Elements)
      Pro Frame weich nachgeführt (lerp); gerechnet wird nur für sichtbare Elemente. Liegt der Fokus im
      Element (z. B. beim Tippen im Formular), hält es weitgehend still. */
@@ -585,22 +611,14 @@
   const tiltTick = (t) => {
     const c = t.current;
     const g = t.target;
-    c.x += (g.x - c.x) * 0.09;
-    c.y += (g.y - c.y) * 0.09;
-    c.glare += (g.glare - c.glare) * 0.08;
-    c.gx += (g.gx - c.gx) * 0.14;
-    c.gy += (g.gy - c.gy) * 0.14;
+    c.x += (g.x - c.x) * 0.12;
+    c.y += (g.y - c.y) * 0.12;
     const st = t.stage.style;
     st.setProperty("--ry", `${(c.x * t.ry).toFixed(2)}deg`);
     st.setProperty("--rx", `${(-c.y * t.rx).toFixed(2)}deg`);
     st.setProperty("--tx", `${(c.x * t.tx).toFixed(1)}px`);
     st.setProperty("--ty", `${(c.y * t.ty).toFixed(1)}px`);
-    st.setProperty("--gx", `${c.gx.toFixed(1)}%`);
-    st.setProperty("--gy", `${c.gy.toFixed(1)}%`);
-    st.setProperty("--glare", c.glare.toFixed(3));
-    const moving =
-      Math.abs(g.x - c.x) > 0.0005 || Math.abs(g.y - c.y) > 0.0005 || Math.abs(g.glare - c.glare) > 0.002 ||
-      Math.abs(g.gx - c.gx) > 0.05 || Math.abs(g.gy - c.gy) > 0.05;
+    const moving = Math.abs(g.x - c.x) > 0.002 || Math.abs(g.y - c.y) > 0.002;
     t.frame = moving ? requestAnimationFrame(() => tiltTick(t)) : 0;
   };
   // wirklich zu sehen? (nicht in einem ausgeblendeten Reiter mit opacity/visibility – IntersectionObserver sieht das nicht)
@@ -609,7 +627,7 @@
     const g = t.target;
     if (pointer && !shown(t.stage)) return;
     if (!pointer) {
-      g.x = g.y = g.glare = 0;
+      g.x = g.y = 0;
     } else {
       const r = t.stage.getBoundingClientRect();
       // Mitte ohne die eigene Mitbewegung, sonst läuft das Element dem Cursor davon
@@ -619,11 +637,6 @@
       const damp = t.stage.matches(":focus-within") ? 0.3 : 1;
       g.x = clamp((pointer.x - ctr.x) / (window.innerWidth * t.reach), -1, 1) * damp;
       g.y = clamp((pointer.y - ctr.y) / (window.innerHeight * t.reach), -1, 1) * damp;
-      const dx = Math.max(r.left - pointer.x, 0, pointer.x - r.right);
-      const dy = Math.max(r.top - pointer.y, 0, pointer.y - r.bottom);
-      g.glare = 1 - 0.75 * clamp(Math.hypot(dx, dy) / 480, 0, 1);
-      g.gx = clamp(((pointer.x - r.left) / (r.width || 1)) * 100, -30, 130);
-      g.gy = clamp(((pointer.y - r.top) / (r.height || 1)) * 100, -30, 130);
     }
     if (!t.frame) t.frame = requestAnimationFrame(() => tiltTick(t));
   };
@@ -655,8 +668,8 @@
       stage, center, rx, ry, tx, ty, reach, onMove,
       visible: !hasIO,
       frame: 0,
-      target: { x: 0, y: 0, glare: 0, gx: 50, gy: 35 },
-      current: { x: 0, y: 0, glare: 0, gx: 50, gy: 35 },
+      target: { x: 0, y: 0 },
+      current: { x: 0, y: 0 },
     };
     tilts.push(t);
     if (tilts.length === 1) listenTilts();
@@ -682,8 +695,8 @@
             const r = sub.getBoundingClientRect();
             const spot = $("[data-spot]", sub);
             if (!spot || r.bottom < 0 || !r.height) return;
-            spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
-            spot.style.setProperty("--sy", `${e.clientY - r.top}px`);
+            spot.style.setProperty("--sx", `${(e.clientX - r.left - r.width * 0.5).toFixed(0)}px`);
+            spot.style.setProperty("--sy", `${(e.clientY - r.top - r.height * 0.3).toFixed(0)}px`);
           });
         },
         { passive: true }
@@ -710,16 +723,19 @@
       onMove: (e) => {
         if (!spot) return;
         const r = hero.getBoundingClientRect();
-        spot.style.setProperty("--sx", `${e.clientX - r.left}px`);
-        spot.style.setProperty("--sy", `${e.clientY - r.top}px`);
+        spot.style.setProperty("--sx", `${(e.clientX - r.left - r.width * 0.5).toFixed(0)}px`);
+        spot.style.setProperty("--sy", `${(e.clientY - r.top - r.height * 0.3).toFixed(0)}px`);
       },
     });
 
+    let lastP = "";
     scrollTasks.push(() => {
       const top = visual.getBoundingClientRect().top;
       const vh = window.innerHeight;
-      const p = clamp((vh - top) / (vh * 0.7), 0, 1);
-      stage.style.setProperty("--p", p.toFixed(3));
+      const p = clamp((vh - top) / (vh * 0.7), 0, 1).toFixed(3);
+      if (p === lastP) return;
+      lastP = p;
+      return () => stage.style.setProperty("--p", p);
     });
   }
 
@@ -765,12 +781,7 @@
     let autoplay = !reducedMotion && root.dataset.autoplay !== "false";
     let inView = false;
 
-    const restartProgress = () => {
-      root.classList.remove("is-playing");
-      if (!autoplay || !inView) return;
-      void root.offsetWidth; // Animation neu starten
-      root.classList.add("is-playing");
-    };
+    const restartProgress = () => restartClass(root, "is-playing", autoplay && inView);
 
     const select = (index, { focus = false, byUser = false } = {}) => {
       current = (index + tabs.length) % tabs.length;
@@ -870,7 +881,7 @@
       const count = Math.round(p * words.length);
       if (count === lit) return;
       lit = count;
-      words.forEach((w, i) => w.classList.toggle("is-lit", i < count));
+      return () => words.forEach((w, i) => w.classList.toggle("is-lit", i < count));
     });
   }
 
@@ -1086,13 +1097,19 @@
     const listeners = [];
     const html = document.documentElement;
 
+    // Variablen am <html> nur, wenn sie vom Standard (Fallback im CSS) abweichen, und nur bei Änderung –
+    // jede Änderung dort berechnet den Stil der ganzen Seite neu
+    const setRootVar = (name, value, def = "") => {
+      const v = value === def ? "" : value;
+      if (html.style.getPropertyValue(name) === v) return;
+      if (v) html.style.setProperty(name, v);
+      else html.style.removeProperty(name);
+    };
     const apply = () => {
       roots.forEach((root) => paintTheme(root, state));
       // für alle übrigen Vorschauen (Portal-Köpfe, Warenkorb, Deal-Seite, Geschenkeshop …)
-      html.style.setProperty("--brand-btn", state.btn);
-      html.style.setProperty("--brand-btn-ink", toneOf(state.btn) === "dark" ? "#ffffff" : "#111111");
-      html.style.setProperty("--brand-nav", state.nav);
-      html.style.setProperty("--brand-nav-ink", toneOf(state.nav) === "dark" ? "#ffffff" : "#222222");
+      setRootVar("--brand-btn", state.btn, BRAND_DEFAULTS.btn);
+      setRootVar("--brand-btn-ink", toneOf(state.btn) === "dark" ? "#ffffff" : "#111111", "#ffffff");
       // Hintergrund der Live-Demo für Banner in anderen Vorschauen (ohne eigenes Bild: Standardbild aus dem CSS)
       const stageBg =
         state.bg === "solid"
@@ -1102,11 +1119,20 @@
             : state.bgImg
               ? `url("${state.bgImg}") center / cover no-repeat`
               : "";
-      if (stageBg) html.style.setProperty("--brand-stage", stageBg);
-      else html.style.removeProperty("--brand-stage");
-      html.dataset.brandStage = stageToneOf(state);
-      $$("[data-portal-name]").forEach((el) => (el.textContent = state.name || el.dataset.defaultName));
-      $$("[data-portal-host]").forEach((el) => (el.textContent = slugHost(state.name) || el.dataset.defaultHost));
+      setRootVar("--brand-stage", stageBg);
+      const tone = stageToneOf(state);
+      if ((html.dataset.brandStage || "light") !== tone) {
+        if (tone === "light") delete html.dataset.brandStage;
+        else html.dataset.brandStage = tone;
+      }
+      $$("[data-portal-name]").forEach((el) => {
+        const v = state.name || el.dataset.defaultName;
+        if (el.textContent !== v) el.textContent = v;
+      });
+      $$("[data-portal-host]").forEach((el) => {
+        const v = slugHost(state.name) || el.dataset.defaultHost;
+        if (el.textContent !== v) el.textContent = v;
+      });
       // nur in den Portalen, die der Live-Demo folgen (eigene Beispiel-Themes steuern ihr Logo selbst)
       roots.forEach((root) =>
         $$(".vp__logo-custom", root).forEach((img) => {
@@ -1397,9 +1423,7 @@
         field.hidden = !show;
         $$("input, select, textarea", field).forEach((el) => (el.disabled = !show));
         if (show && wasHidden && animate && !reducedMotion) {
-          field.classList.remove("is-entering");
-          void field.offsetWidth;
-          field.classList.add("is-entering");
+          restartClass(field, "is-entering");
         }
       });
     };
@@ -1526,12 +1550,7 @@
     let playing = !reducedMotion && root.dataset.autoplay !== "false";
     let inView = false;
 
-    const restart = () => {
-      root.classList.remove("is-playing");
-      if (!playing || !inView) return;
-      void root.offsetWidth;
-      root.classList.add("is-playing");
-    };
+    const restart = () => restartClass(root, "is-playing", playing && inView);
 
     const go = (n) => {
       index = (n + slides.length) % slides.length;
@@ -1661,13 +1680,16 @@
     if (!els.length || reducedMotion) return;
     scrollTasks.push(() => {
       const vh = window.innerHeight;
+      const set = [];
       els.forEach((el) => {
         // am unbewegten Elternelement messen, sonst schaukelt sich der Versatz auf
         const r = el.parentElement.getBoundingClientRect();
         if (!r.height || r.bottom < -vh * 0.5 || r.top > vh * 1.5) return;
         const p = clamp((r.top + r.height / 2 - vh / 2) / vh, -1, 1);
-        el.style.setProperty("--sy", `${(-p * (Number(el.dataset.parallax) || 32)).toFixed(1)}px`);
+        const v = `${(-p * (Number(el.dataset.parallax) || 32)).toFixed(1)}px`;
+        if (el._sy !== v) set.push([el, (el._sy = v)]);
       });
+      if (set.length) return () => set.forEach(([el, v]) => el.style.setProperty("--sy", v));
     });
   }
 
@@ -1719,12 +1741,17 @@
         steps.forEach((s) => s.classList.add("is-on"));
         return;
       }
+      let last = "";
       scrollTasks.push(() => {
         const r = root.getBoundingClientRect();
         const vh = window.innerHeight;
         const p = clamp((vh * 0.82 - r.top) / (r.height + vh * 0.25), 0, 1);
-        root.style.setProperty("--p", p.toFixed(3));
-        steps.forEach((s, i) => s.classList.toggle("is-on", p >= (i + 0.35) / steps.length));
+        if (p.toFixed(3) === last) return;
+        last = p.toFixed(3);
+        return () => {
+          root.style.setProperty("--p", last);
+          steps.forEach((s, i) => s.classList.toggle("is-on", p >= (i + 0.35) / steps.length));
+        };
       });
     });
   }
@@ -1817,9 +1844,7 @@
           const g = $("[data-v-greeting]", root);
           if (g) g.value = "";
           render();
-          card.classList.remove("is-swap");
-          void card.offsetWidth;
-          card.classList.add("is-swap");
+          restartClass(card, "is-swap");
         });
         b.addEventListener("keydown", (e) => arrowNav([...all], i, e));
       });
@@ -1857,9 +1882,7 @@
       root.voucherSet = (patch) => {
         Object.assign(state, patch);
         render();
-        card.classList.remove("is-swap");
-        void card.offsetWidth;
-        card.classList.add("is-swap");
+        restartClass(card, "is-swap");
       };
 
       // Wechselnde Motive (z. B. im Hero), solange niemand eingreift
@@ -1873,9 +1896,7 @@
           if (paused || document.hidden) return;
           state.motif = keys[++k % keys.length];
           render();
-          card.classList.remove("is-swap");
-          void card.offsetWidth;
-          card.classList.add("is-swap");
+          restartClass(card, "is-swap");
         }, 2800);
       }
       render();
@@ -1905,9 +1926,7 @@
       const state = { cat: root.dataset.cat || "technik", view: root.dataset.view || "start" };
       const set = (key, text) => $$(`[data-pl-out="${key}"]`, root).forEach((el) => (el.textContent = text));
       const pulse = () => {
-        root.classList.remove("is-swap");
-        void root.offsetWidth;
-        root.classList.add("is-swap");
+        restartClass(root, "is-swap");
       };
       const render = () => {
         const cat = cats.find((c) => c.dataset.plCat === state.cat) || cats[0];
@@ -2096,10 +2115,8 @@
         const count = out("count");
         if (count.textContent !== String(chosen.length)) {
           count.textContent = chosen.length;
-          count.classList.remove("is-bump");
-          void count.offsetWidth;
-          count.classList.add("is-bump");
-          setTimeout(() => count.classList.remove("is-bump"), 300);
+          restartClass(count, "is-bump");
+          setTimeout(() => count.classList.remove("is-bump"), 340);
         }
         tweenText(out("subtotal"), subtotal, (v) => euro(v));
         $("[data-voucher-row]", root).hidden = !redeemed;
@@ -2388,30 +2405,22 @@
       scrollWindow({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - offset()), behavior });
     };
 
-    // gleitende Markierung unter dem aktiven Bereich
-    const placeInd = (host) => {
-      const a = $('a[aria-current="page"]', host);
-      if (!a || !a.offsetWidth) return host.style.setProperty("--io", "0");
-      host.style.setProperty("--ix", `${a.offsetLeft}px`);
-      host.style.setProperty("--iy", `${a.offsetTop}px`);
-      host.style.setProperty("--iw", `${a.offsetWidth}px`);
-      host.style.setProperty("--ih", `${a.offsetHeight}px`);
-      host.style.setProperty("--io", "1");
-    };
-    // Textblock im Seitenkopf: Höhe weich an den aktiven Bereich anpassen statt an den längsten
-    const fitTexts = () => {
-      const w = cur();
-      const active = w && w.texts && $(`[data-mb-only="${html.dataset.mb}"]`, w.texts);
-      if (active) w.texts.style.height = `${active.offsetHeight}px`;
-    };
+    // Textblock im Seitenkopf: Höhe weich an den aktiven Bereich anpassen statt an den längsten.
+    // Erst messen, dann schreiben (sonst rechnet der Browser das Layout mehrfach); Werte nur bei Änderung setzen.
+    let lastOff = -1;
     const layoutBars = () => {
       const w = cur();
-      if (w) w.hosts.forEach(placeInd);
-      fitTexts();
-      html.style.scrollPaddingTop = `${offset()}px`;
-      // Builder: die Vorschau bleibt unter der Navigation stehen
-      html.style.setProperty("--pb-top", `${offset() - 6}px`);
+      const active = w && w.texts && $(`[data-mb-only="${html.dataset.mb}"]`, w.texts);
+      const textH = active ? `${active.offsetHeight}px` : "";
+      const off = offset();
+      if (active && w.texts.style.height !== textH) w.texts.style.height = textH;
+      if (off === lastOff) return;
+      lastOff = off;
+      html.style.scrollPaddingTop = `${off}px`;
+      // Builder: die Vorschau bleibt unter der Navigation stehen (Variable nur an der Live-Demo, nicht an der ganzen Seite)
+      if (studio) studio.style.setProperty("--pb-top", `${off - 6}px`);
     };
+
     const sync = () => {
       const w = cur();
       const id = html.dataset.mb;
@@ -2829,11 +2838,7 @@
       timers = [];
       $$(".is-demo", root).forEach((el) => el.classList.remove("is-demo"));
     };
-    const bump = (el, cls = "is-bump") => {
-      el.classList.remove(cls);
-      void el.offsetWidth;
-      el.classList.add(cls);
-    };
+    const bump = (el, cls = "is-bump") => restartClass(el, cls);
     const setValue = (v) => {
       value = v;
       $$("button", values).forEach((b) => {
@@ -3156,9 +3161,7 @@
       tweenText(balance, sum, (v) => euro(v), 320);
       if (k >= 0 && p[k] && !reducedMotion) {
         coin.textContent = `+${amount} €`;
-        coin.classList.remove("is-pop");
-        void coin.offsetWidth;
-        coin.classList.add("is-pop");
+        restartClass(coin, "is-pop");
       }
     };
     // ein Jahr durchlaufen, kurz stehen lassen, von vorn
@@ -3300,17 +3303,11 @@
     return [((t.left + t.width / 2 - r.left) / r.width) * 100, ((t.top + t.height / 2 - r.top) / r.height) * 100];
   };
   const bump = (el) => {
-    el.classList.remove("is-bump");
-    void el.offsetWidth;
-    el.classList.add("is-bump");
+    restartClass(el, "is-bump");
     clearTimeout(el._bump);
-    el._bump = setTimeout(() => el.classList.remove("is-bump"), 380);
+    el._bump = setTimeout(() => el.classList.remove("is-bump"), 420);
   };
-  const replay = (el, cls) => {
-    el.classList.remove(cls);
-    void el.offsetWidth;
-    el.classList.add(cls);
-  };
+  const replay = (el, cls) => restartClass(el, cls);
 
   // 1 · Mitarbeiterbindung: Benefits aus dem Portal gehen reihum ans Team, die Bindungsringe füllen sich
   function initAreaTeam(root) {
@@ -3800,8 +3797,11 @@
       hud.classList.toggle("is-last", st.index === st.steps.length - 1);
     };
 
-    const update = () => {
+    // erst alle Bereiche messen, dann umschalten (Scroll-Loop: Messen und Schreiben getrennt)
+    let hudKey = "";
+    const measure = () => {
       let active = null;
+      const go = [];
       steppers.forEach((st) => {
         if (!st.on) return;
         const box = st.spacer.getBoundingClientRect();
@@ -3817,21 +3817,34 @@
         }
         if (index === st.index) return;
         st.index = index;
-        st.steps[index].go();
+        go.push(st.steps[index]);
       });
-      showHud(active);
+      const key = active ? `${steppers.indexOf(active)}:${active.index}` : "";
+      if (!go.length && key === hudKey) return;
+      return () => {
+        go.forEach((step) => step.go());
+        hudKey = active ? `${steppers.indexOf(active)}:${active.index}` : "";
+        showHud(active);
+      };
+    };
+    const update = () => {
+      const write = measure();
+      if (write) write();
     };
 
+    // nur Bereiche, die gerade zu sehen sind (andere Welten/Bereiche richten sich beim Einblenden ein): erst alle
+    // prüfen (ein Layout), dann einrichten – sonst erzwänge jede Prüfung nach dem vorigen Umbau ein neues Layout
+    const layoutShown = () => steppers.filter((st) => st.pin || st.root.offsetHeight).forEach(layout);
     const refresh = () => {
       // neu messen nur bei geänderter Breite (Zeilenumbrüche), nicht wenn z. B. nur die Browserleiste ein-/ausfährt
       steppers.forEach((st) => st.mw !== window.innerWidth && (st.nh = 0));
-      steppers.forEach(layout);
+      layoutShown();
       update();
     };
-    steppers.forEach(layout);
+    layoutShown();
     // erst später sichtbare Bereiche (Bereichswechsel) beim Einblenden einrichten
     steppers.forEach((st) => new ResizeObserver(() => !st.pin && (layout(st), queueUpdate())).observe(st.root));
-    scrollTasks.push(update);
+    scrollTasks.push(measure);
     window.addEventListener("resize", refresh);
     stepDesktop.addEventListener("change", refresh);
 
@@ -3872,7 +3885,7 @@
     };
     document.addEventListener("stepper:target", (e) => {
       // frisch eingeblendete Bereiche zuerst einrichten, sonst verschieben ihre Abstandshalter das Ziel nachträglich
-      steppers.forEach(layout);
+      layoutShown();
       if (jump(e.detail.el, e.detail.behavior)) e.preventDefault();
     });
     // normale Anker außerhalb der Welten (die Welten springen selbst über stepper:target)
@@ -3883,72 +3896,6 @@
     window.addEventListener("hashchange", () => fromHash("smooth"));
     if (location.hash) window.addEventListener("load", () => fromHash("auto"), { once: true });
     update();
-  }
-
-  /* ---------- Weiches Scrollen: das Mausrad gleitet statt zu springen ----------
-     Das Rad setzt nur ein Ziel, die Seite zieht zeitbasiert dorthin nach (wie bei Lenis, ohne Abhängigkeit).
-     Beim Browser bleiben: Zoomen (Strg/Cmd + Rad), waagerechtes Scrollen (auch Umschalt + Rad), scrollbare
-     Bereiche im Inhalt (bis sie am Ende sind), Tastatur, Scrollleiste, Touch und alle Sprünge per Link –
-     ein fremder Scroll beendet das Gleiten sofort. Nicht bei „Bewegung reduzieren“. */
-  function initSmoothScroll() {
-    if (reducedMotion) return;
-    const root = document.documentElement;
-    const LERP = 0.1; // Anteil der Reststrecke pro Bild bei 60 fps
-    let target = 0;
-    let pos = 0;
-    let raf = 0;
-    let last = 0;
-    const maxScroll = () => Math.max(0, root.scrollHeight - window.innerHeight);
-    stopGlide = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
-    };
-    // Inhalt, der selbst in Radrichtung scrollen kann (Listen, Menüs, Dialoge)
-    const nativeScroller = (el, dy) => {
-      for (; el && el !== document.body && el !== root; el = el.parentElement) {
-        if (el.hasAttribute("data-native-scroll")) return true;
-        if (el.scrollHeight <= el.clientHeight + 1) continue;
-        const oy = getComputedStyle(el).overflowY;
-        if (oy !== "auto" && oy !== "scroll") continue;
-        if (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true;
-      }
-      return false;
-    };
-    const frame = (now) => {
-      // jemand anders hat gescrollt (Scrollleiste, Tastatur, Code) → dort übernehmen
-      if (Math.abs(window.scrollY - pos) > 1.5) {
-        raf = 0;
-        return;
-      }
-      const dt = last ? Math.min(64, now - last) : 16.7;
-      last = now;
-      target = clamp(target, 0, maxScroll());
-      pos += (target - pos) * (1 - Math.pow(1 - LERP, dt / 16.7));
-      if (Math.abs(target - pos) < 0.4) pos = target;
-      window.scrollTo({ top: pos, behavior: "instant" });
-      raf = pos === target ? 0 : requestAnimationFrame(frame);
-    };
-    window.addEventListener(
-      "wheel",
-      (e) => {
-        if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey) return;
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
-        if (document.body.classList.contains("menu-open")) return;
-        if (nativeScroller(e.target, e.deltaY)) return;
-        e.preventDefault();
-        if (!raf) {
-          pos = target = window.scrollY;
-          last = 0;
-          raf = requestAnimationFrame(frame);
-        }
-        const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
-        target = clamp(target + e.deltaY * unit, 0, maxScroll());
-      },
-      { passive: false }
-    );
-    // echter Klick oder Taste: Gleiten anhalten (z. B. Klick auf einen Link, der dann selbst scrollt) –
-    // nicht bei den Klicks, mit denen der Scroll-Stepper selbst weiterschaltet
-    ["pointerdown", "keydown", "click"].forEach((t) => window.addEventListener(t, (e) => e.isTrusted && stopGlide(), true));
   }
 
   /* ---------- Daueranimationen nur im Bild ----------
@@ -3965,29 +3912,14 @@
   }
 
   /* ---------- Start ---------- */
-  // Ladeanimation: weg, sobald die Seite geladen ist – mindestens kurz sichtbar, höchstens 2,5 s nach dem Start.
-  // Danach weiches Scrollen für Anker (siehe html.is-ready in main.css).
+  // Anker-Sprünge erst nach dem Laden weich (siehe html.is-ready in main.css) – der erste Sprung sitzt sofort
   {
-    const html = document.documentElement;
-    let loaded = false;
-    const finish = () => {
-      if (loaded) return;
-      loaded = true;
-      html.classList.add("is-loaded");
-      html.classList.remove("is-loading");
-      setTimeout(() => html.classList.add("is-ready"), 120);
-      // nach dem Ausblenden ganz entfernen – ein unsichtbarer Ladebalken liefe sonst endlos weiter
-      setTimeout(() => $(".loader")?.remove(), 700);
-    };
-    const MIN = reducedMotion ? 0 : 700;
-    const onLoad = () => setTimeout(finish, Math.max(0, MIN - performance.now()));
-    if (document.readyState === "complete") onLoad();
-    else window.addEventListener("load", onLoad, { once: true });
-    setTimeout(finish, 2500);
+    const ready = () => setTimeout(() => document.documentElement.classList.add("is-ready"), 120);
+    if (document.readyState === "complete") ready();
+    else window.addEventListener("load", ready, { once: true });
   }
   markScrollSteps();
   initAnimPause();
-  initSmoothScroll();
   initPartnerLogos();
   initDealTiles();
   initNav();
@@ -4034,6 +3966,13 @@
   initMotifLinks();
   initPriceCalc();
   brand.refresh();
-  initScrollSteps();
   runScrollTasks();
+  // Scroll-Stepper misst alle Punkte der sichtbaren Bereiche durch – erst nach dem ersten Bild, damit die Seite
+  // sofort erscheint (Sprungziele richten sich danach noch einmal aus, siehe initWorlds)
+  requestAnimationFrame(() =>
+    setTimeout(() => {
+      initScrollSteps();
+      runScrollTasks();
+    }, 0)
+  );
 })();
