@@ -270,6 +270,8 @@ ul, ol { padding: 0; list-style: none; }
   border: 1px solid transparent;
   transition: background-color .4s, border-color .4s, box-shadow .4s, padding .5s var(--ease-out), max-width .6s var(--ease-out);
 }
+/* nie schmaler als der Inhalt – in den Welten (z. B. Arbeitgeber mit sechs Einträgen) ragte sonst „Demo buchen“ heraus */
+@media (min-width: 1121px) { .nav__inner { min-width: max-content; } }
 .nav.is-scrolled .nav__inner {
   max-width: 1160px;
   padding: 8px 8px 8px 20px;
@@ -4365,7 +4367,7 @@ a.more-link:hover .i { transform: translateX(3px); }
 @media (prefers-reduced-motion: reduce) { .nav__list > li { animation: none; } }
 
 /* „Ihr Design“: eigener Bereich je Welt – die Live-Demo ist dort der Seitenkopf (Builder geöffnet) */
-.design-page { padding-top: calc(var(--nav-h) + clamp(28px, 4vw, 52px)); }
+.design-page { padding-top: calc(var(--nav-h) + clamp(28px, 4vw, 52px)); overflow-x: clip; } /* schwebende Kärtchen der Bühne nicht über den Fensterrand (clip statt hidden: der Builder bleibt sticky) */
 .design-next {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 32px;
   margin-top: clamp(36px, 5vw, 64px);
