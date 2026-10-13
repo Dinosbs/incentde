@@ -17,9 +17,11 @@ crumb: Karriere
         <a class="btn btn--ghost btn--lg" href="./#ueber-uns">Mehr über uns</a>
       </div>
     </div>
-    <figure class="sub-hero__media">
-      <img src="assets/img/about/about-team.webp" width="1600" height="893" alt="Firmensitz der INCENT Corporate Services GmbH in Germaringen" fetchpriority="high">
-      <figcaption class="sub-hero__badge"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>Seit 2012 in Germaringen im Allgäu</figcaption>
+    <figure class="sub-hero__media tilt-media" data-tilt-card data-rx="4" data-ry="7" data-tx="10" data-ty="6">
+      <div class="tilt-media__frame">
+        <img src="assets/img/about/about-team.webp" width="1600" height="893" alt="Firmensitz der INCENT Corporate Services GmbH in Germaringen" fetchpriority="high">
+      </div>
+      <figcaption class="sub-hero__badge tilt-media__float" style="--z:80px"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>Seit 2012 in Germaringen im Allgäu</figcaption>
     </figure>
   </div>
 </section>
@@ -30,19 +32,56 @@ crumb: Karriere
       <p class="eyebrow">Bewerbung</p>
       <h2 class="sub-h2" id="steps-title">So einfach <span class="grad-text">geht’s</span></h2>
     </div>
-    <ol class="apply">
-      <li class="apply__item">
-        <span class="apply__ico"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span>
+    <!-- Animation (CSS, startet im Bild): 01 Nachricht wird getippt und abgeschickt → 02 landet mit Lebenslauf und
+         Zeugnissen im Umschlag, der zugeht und weiterfliegt → 03 Umschlag kommt an, ein Auge öffnet ihn und liest -->
+    <ol class="apply" data-play>
+      <li class="apply__item apply__item--1">
+        <div class="apply__stage" aria-hidden="true">
+          <div class="ap-mail">
+            <div class="ap-mail__bar"><i></i><i></i><i></i><span>Neue Nachricht</span></div>
+            <div class="ap-mail__to"><span>An:</span> bewerbung@incent.de</div>
+            <div class="ap-mail__body">
+              <span class="ap-type ap-type--1">Hallo INCENT-Team,<b></b></span>
+              <span class="ap-type ap-type--2">ich bin neugierig &amp; motiviert<b></b></span>
+              <span class="ap-type ap-type--3">und will was bewegen!<b></b></span>
+            </div>
+            <span class="ap-mail__send">Senden<svg class="i" aria-hidden="true"><use href="#i-send"/></svg></span>
+            <span class="ap-plane"><svg class="i" aria-hidden="true"><use href="#i-send"/></svg></span>
+          </div>
+        </div>
         <h3>Erzähl uns, wer du bist</h3>
         <p>Ein paar Sätze zu dir, deiner Motivation und dem, was du mitbringst – gern ganz ohne Floskeln.</p>
       </li>
-      <li class="apply__item">
-        <span class="apply__ico"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span>
+      <li class="apply__item apply__item--2">
+        <div class="apply__stage" aria-hidden="true">
+          <div class="ap-env ap-env--pack">
+            <span class="ap-env__flap-open"></span>
+            <span class="ap-env__back"></span>
+            <span class="ap-letter"><i></i><i></i><i></i></span>
+            <span class="ap-file ap-file--1"><svg class="i" aria-hidden="true"><use href="#i-file"/></svg>Lebenslauf.pdf</span>
+            <span class="ap-file ap-file--2"><svg class="i" aria-hidden="true"><use href="#i-file"/></svg>Zeugnisse.pdf</span>
+            <span class="ap-env__front"></span>
+            <span class="ap-env__flap"></span>
+          </div>
+          <span class="ap-sent"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Gesendet</span>
+        </div>
         <h3>Schick uns deine Unterlagen</h3>
         <p>Per E-Mail an <a href="mailto:bewerbung@incent.de">bewerbung@incent.de</a> – Lebenslauf und Zeugnisse, wenn du magst.</p>
       </li>
-      <li class="apply__item">
-        <span class="apply__ico"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg></span>
+      <li class="apply__item apply__item--3">
+        <div class="apply__stage" aria-hidden="true">
+          <span class="ap-inbox">Posteingang</span>
+          <span class="ap-wait"><i></i><i></i><i></i></span>
+          <span class="ap-eye"><span class="ap-eye__lid"></span><span class="ap-eye__iris"></span></span>
+          <div class="ap-env ap-env--read">
+            <span class="ap-env__flap-open"></span>
+            <span class="ap-env__back"></span>
+            <span class="ap-letter"><i><b></b></i><i><b></b></i><i><b></b></i></span>
+            <span class="ap-env__front"></span>
+            <span class="ap-env__flap"></span>
+          </div>
+          <span class="ap-bubble"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg>Passt! Wir melden uns.</span>
+        </div>
         <h3>Wir melden uns bei dir</h3>
         <p>Wir lesen jede Bewerbung persönlich und melden uns bei dir für ein erstes Kennenlernen.</p>
       </li>

@@ -17,6 +17,7 @@ robots.txt, sitemap.xml für Suchmaschinen (sitemap.xml erzeugt tools/build-page
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
 assets/js/consent.js    Privatsphäre-Einstellungen (Einwilligung), auf allen Seiten, siehe „Privatsphäre“
+assets/js/sub.js        nur Unterseiten: Bilder folgen dem Cursor, Animationen starten erst im Bild
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
 assets/img/             INCENT-Logo (weiß + dunkel), Favicon
 assets/img/portal/      Bilder für den Portal-Nachbau (aus dem Dashboard, komprimiert)
@@ -301,19 +302,21 @@ jetzt 52–57 fps mit 2–10; Skriptzeit 0,2–0,5 s statt 1,7–4,9 s.
   sichtbar (LCP) nach ~0,3 s statt ~2,9 s.
 - **Deko ist kein Scroll-Anker** (`overflow-anchor: none` an `.hero__bg` und der Live-Demo): sonst verschiebt der
   Browser die Seite, wenn der Hero beim Umschalten Vorschau ⇄ Builder wächst.
-- **Veröffentlichung:** `main.js`, `consent.js` und `main.css` werden in der GitHub Action mit esbuild verkleinert (im
-  Repository bleiben sie lesbar).
+- **Veröffentlichung:** `main.js`, `consent.js`, `sub.js` und `main.css` werden in der GitHub Action mit esbuild
+  verkleinert (im Repository bleiben sie lesbar).
 
 ### Unterseiten: FAQ, Karriere, Impressum, Datenschutz
 
 Nur über den Footer erreichbar (Spalten „Informationen“ und „Rechtliches“), nicht über die Navigation. Gestaltet wie die
 Startseite (Kopfleiste mit Logo, „Zur Startseite“ und „Demo buchen“, Seitenkopf mit Eyebrow und großer Überschrift,
-Footer der Startseite), aber ohne `main.js` – nur `consent.js` wird geladen.
+Footer der Startseite), aber ohne `main.js` – geladen werden nur `consent.js` und das kleine `sub.js` (Bilder mit
+`data-tilt-card` neigen sich wie auf der Startseite zum Cursor; Elemente mit `data-play` starten ihre Animation erst im
+Bild und pausieren außerhalb).
 
 | Seite | Inhalt |
 |---|---|
 | `faq.html` | „Häufige Fragen zu Vorteilsportalen & Benefits“: das Wichtigste in vier Kacheln, die 7 Fragen zu Mitarbeiterportalen als Aufklapp-Liste (`<details>`, ohne Skript, per Tastatur bedienbar), Hinweis, Abschnitt „Modernes HR & nachhaltiges Kundenmarketing“ |
-| `karriere.html` | „Deine Karriere bei uns“ mit „Jetzt bewerben“ (E-Mail an bewerbung@incent.de), drei Schritte zur Bewerbung, Hinweis auf die Datenschutzerklärung |
+| `karriere.html` | „Deine Karriere bei uns“ mit „Jetzt bewerben“ (E-Mail an bewerbung@incent.de); das Foto folgt dem Cursor (Ortsschild schwebt davor). „So einfach geht’s“ als durchlaufende Animation über die drei Karten (18 s, Schleife): 01 eine Nachricht wird getippt und abgeschickt, der Flieger saust zu 02, dort landet sie mit Lebenslauf und Zeugnissen im Umschlag, der zugeht und weiterfliegt, in 03 kommt er im Posteingang an, öffnet sich, ein Auge liest Zeile für Zeile, blinzelt – „Passt! Wir melden uns.“ Die aktive Karte ist umrandet; untereinander (mobil) fliegt alles nach unten. Nur `transform`/`opacity`, ohne Bewegung (`prefers-reduced-motion`) steht das Endbild. Hinweis auf die Datenschutzerklärung |
 | `impressum.html` | Angaben nach § 5 DDG, Geschäftsführung, Register, Steuern, Verantwortlicher nach § 18 Abs. 2 MStV, Haftung, Bildnachweise & KI |
 | `datenschutz.html` | Datenschutzerklärung mit Inhaltsverzeichnis: Allgemeines, Hosting, Speicherung im Browser & Privatsphäre-Einstellungen, Kontaktformular, Bewerbungen, Social-Media-Links |
 
@@ -366,7 +369,7 @@ Einwilligungs-Werkzeug `assets/js/consent.js` (auf allen Seiten):
   Commit der Bildlisten-Action löst keine neue Veröffentlichung aus (Commits mit dem Standard-Token starten keine
   weiteren Workflows) – sonst wären neue Logos online erst nach dem nächsten Push sichtbar.
   Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
-  Außerdem hängt die Veröffentlichung an `main.css`, `main.js` und `consent.js` die Commit-Nummer an (`?v=…`), damit Browser nach
+  Außerdem hängt die Veröffentlichung an `main.css`, `main.js`, `consent.js` und `sub.js` die Commit-Nummer an (`?v=…`), damit Browser nach
   einem Update nicht die alte Fassung aus dem Cache nehmen. Im Repository bleiben die Verweise ohne Zusatz.
 - **Lösungen**: Mitarbeiterbindung, Kundenbindung, Markenplatzierung und Content Creator stehen als Welten in
   `index.html` (siehe „Aufbau der Seite“), mit eigener Seite je Bereich (siehe „Adressen“). FAQ, Karriere, Impressum

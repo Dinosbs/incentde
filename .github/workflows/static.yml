@@ -50,20 +50,21 @@ jobs:
         run: |
           node tools/build-pages.mjs
           rm -rf pages
-      # main.js, consent.js und main.css verkleinern (Leerzeichen, Kommentare, kurze Namen) – nur in der veröffentlichten
+      # main.js, consent.js, sub.js und main.css verkleinern (Leerzeichen, Kommentare, kurze Namen) – nur in der veröffentlichten
       # Fassung, im Repository bleiben sie lesbar. Komprimiert ~49 → 29 KB (JS) und ~55 → 42 KB (CSS).
       - name: CSS/JS verkleinern
         run: |
           npx --yes esbuild@0.24.0 assets/js/main.js --minify --outfile=assets/js/main.js --allow-overwrite
           npx --yes esbuild@0.24.0 assets/js/consent.js --minify --outfile=assets/js/consent.js --allow-overwrite
+          npx --yes esbuild@0.24.0 assets/js/sub.js --minify --outfile=assets/js/sub.js --allow-overwrite
           npx --yes esbuild@0.24.0 assets/css/main.css --minify --outfile=assets/css/main.css --allow-overwrite
-          ls -l assets/js/main.js assets/js/consent.js assets/css/main.css
+          ls -l assets/js/main.js assets/js/consent.js assets/js/sub.js assets/css/main.css
       # CSS und JS mit Versionsnummer einbinden (?v=Commit), damit Browser nach einer Veröffentlichung
       # nicht noch die alte Datei aus dem Cache nehmen (gilt nur für die veröffentlichte Fassung)
       - name: CSS/JS-Version setzen
         run: |
           v="${GITHUB_SHA::8}"
-          sed -i -e "s#assets/css/main.css\"#assets/css/main.css?v=$v\"#" -e "s#assets/js/main.js\"#assets/js/main.js?v=$v\"#" -e "s#assets/js/consent.js\"#assets/js/consent.js?v=$v\"#" ./*.html
+          sed -i -e "s#assets/css/main.css\"#assets/css/main.css?v=$v\"#" -e "s#assets/js/main.js\"#assets/js/main.js?v=$v\"#" -e "s#assets/js/consent.js\"#assets/js/consent.js?v=$v\"#" -e "s#assets/js/sub.js\"#assets/js/sub.js?v=$v\"#" ./*.html
           grep -c "main.css?v=$v" ./*.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

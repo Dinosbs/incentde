@@ -104,7 +104,8 @@ for (const [slug, panel] of Object.entries(pages)) {
 // Quelle: pages/<name>.html – oben ein Kommentar mit title, description, robots (index/noindex) und crumb (Name in den
 // Brotkrümeln), darunter der Inhalt von <main>. Dazu kommen Kopf, schlichte Kopfleiste, der Footer der Startseite (Sprungziele
 // zeigen auf ./#…) und nur die Icons, die die Seite braucht. Erreichbar nur über den Footer, nicht über die Navigation.
-// Kein main.js: Die Seiten brauchen nur consent.js (Privatsphäre-Einstellungen).
+// Kein main.js: Die Seiten laden nur consent.js (Privatsphäre-Einstellungen) und sub.js (Cursor-Neigung der Bilder,
+// Animationen erst im Bild starten).
 const between = (from, to) => {
   const i = src.indexOf(from);
   const j = src.indexOf(to, i);
@@ -207,6 +208,7 @@ ${
   ${preloads.join("\n  ")}
   <link rel="stylesheet" href="assets/css/main.css">
   <script defer src="assets/js/consent.js"></script>
+  <script defer src="assets/js/sub.js"></script>
 ${ld.map((x) => `  <script type="application/ld+json">${JSON.stringify(x)}</script>`).join("\n")}
 </head>
 <body class="sub">

@@ -4593,11 +4593,8 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
 }
 .facts__ico { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border-radius: 14px; color: #fff; background: var(--grad-btn); }
 .facts__item strong { font-family: var(--font-display); font-size: clamp(1.25rem, 2vw, 1.55rem); font-weight: 700; line-height: 1.1; color: var(--ink); }
-.sub-hero__media img {
-  display: block; width: 100%; height: auto; aspect-ratio: 1600 / 893; object-fit: cover;
-  border-radius: clamp(22px, 3vw, 32px);
-  box-shadow: var(--shadow-2);
-}
+.sub-hero__media img { display: block; width: 100%; height: auto; aspect-ratio: 1600 / 893; object-fit: cover; }
+.sub-hero__media .tilt-media__frame { border-radius: clamp(22px, 3vw, 32px); box-shadow: var(--shadow-2); }
 .sub-hero__badge {
   position: absolute; left: clamp(12px, 2vw, 22px); bottom: clamp(12px, 2vw, 22px);
   display: inline-flex; align-items: center; gap: 8px;
@@ -4663,23 +4660,320 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
 .faq__a { max-width: 72ch; padding: 0 22px 22px; color: var(--ink-2); font-size: 1.06rem; line-height: 1.65; }
 .faq__note { margin-top: 6px; font-size: .95rem; color: var(--ink-3); }
 
-/* Karriere: drei Schritte zur Bewerbung */
-.apply { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: step; }
+/* Karriere: „So einfach geht’s“ – drei Karten mit einer durchlaufenden Animation (18 s, Endlosschleife):
+   01 eine Nachricht wird getippt und abgeschickt → 02 sie landet mit Lebenslauf und Zeugnissen im Umschlag,
+   der zugeht und weiterfliegt → 03 der Umschlag kommt an, ein Auge öffnet ihn und liest, „Passt!“.
+   Ohne Bewegung (prefers-reduced-motion) oder ohne Skript steht das Endbild still. Animiert werden nur
+   transform und opacity; sub.js startet die Animation im Bild (is-on) und pausiert sie außerhalb (data-anim-off). */
+.apply { --ap: 18s; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: step; }
 .apply__item {
-  position: relative; padding: clamp(22px, 2.6vw, 30px);
+  position: relative; padding: clamp(16px, 1.8vw, 22px) clamp(16px, 1.8vw, 22px) clamp(22px, 2.6vw, 30px);
   border-radius: 24px; background: #fff;
   box-shadow: inset 0 0 0 1px var(--line), var(--shadow-1);
   counter-increment: step;
 }
-.apply__item::before {
-  content: counter(step, decimal-leading-zero);
-  position: absolute; right: 22px; top: 16px;
-  font-family: var(--font-display); font-size: 2.6rem; font-weight: 700; line-height: 1; color: rgba(43, 75, 255, .13);
+/* fliegende Teile laufen über die Nachbarkarte (Karte 1 über 2, 2 über 3) */
+.apply__item--1 { z-index: 3; }
+.apply__item--2 { z-index: 2; }
+.apply__item--3 { z-index: 1; }
+/* Rahmen der Karte, die gerade dran ist */
+.apply__item::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 2px rgba(43, 75, 255, .5), 0 26px 50px -30px rgba(26, 90, 255, .7);
+  opacity: 0;
 }
-.apply__ico { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; color: #fff; background: var(--grad-btn); box-shadow: 0 12px 24px -12px rgba(26, 90, 255, .8); }
-.apply__ico .i { width: 24px; height: 24px; }
-.apply__item h3 { margin: 18px 0 6px; font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; }
+.apply__item h3 { display: flex; align-items: center; gap: 10px; margin: 20px 0 6px; font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; }
+.apply__item h3::before {
+  content: counter(step, decimal-leading-zero);
+  display: inline-grid; place-items: center; min-width: 36px; height: 28px; padding: 0 8px;
+  border-radius: 999px; font-size: .92rem; color: #fff; background: var(--grad-btn);
+}
 .apply__item p { color: var(--ink-2); line-height: 1.6; }
+.apply__stage {
+  position: relative; display: grid; place-items: center; height: 186px;
+  border-radius: 18px; background: linear-gradient(180deg, #f5f8ff, #edf3ff);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* 01 – Mail-Fenster, Text wird getippt (weiße Abdeckung mit Schreibmarke gleitet in Schritten zur Seite) */
+.ap-mail {
+  position: relative; width: min(100% - 24px, 292px); padding-bottom: 40px;
+  border-radius: 14px; background: #fff; text-align: left;
+  box-shadow: inset 0 0 0 1px var(--line-strong), 0 16px 30px -22px rgba(0, 30, 90, .5);
+  font-size: .9rem; line-height: 1.4;
+}
+.ap-mail__bar { display: flex; align-items: center; gap: 5px; padding: 7px 10px; border-radius: 14px 14px 0 0; background: #eef3fb; font-size: .76rem; font-weight: 600; color: var(--ink-3); }
+.ap-mail__bar i { width: 8px; height: 8px; border-radius: 50%; background: #ff6b6b; }
+.ap-mail__bar i:nth-child(2) { background: #ffc24b; }
+.ap-mail__bar i:nth-child(3) { background: #2bd17e; }
+.ap-mail__bar span { margin-left: 6px; }
+.ap-mail__to { padding: 5px 12px; border-bottom: 1px solid var(--line); font-size: .8rem; color: var(--ink-2); }
+.ap-mail__to span { color: var(--ink-3); }
+.ap-mail__body { display: flex; flex-direction: column; align-items: flex-start; padding: 7px 12px 0; color: var(--ink); }
+.ap-type { position: relative; display: inline-block; overflow: hidden; white-space: nowrap; }
+.ap-type b { position: absolute; inset: 0; background: #fff; transform: translateX(101%); }
+.ap-type b::before { content: ""; position: absolute; left: 0; top: 12%; bottom: 12%; width: 2px; border-radius: 1px; background: var(--royal); opacity: 0; }
+.ap-mail__send {
+  position: absolute; right: 10px; bottom: 9px;
+  display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px;
+  border-radius: 999px; font-size: .78rem; font-weight: 600; color: #fff; background: var(--grad-btn);
+}
+.ap-mail__send .i { width: 13px; height: 13px; }
+.ap-plane {
+  position: absolute; right: 18px; bottom: 6px; display: grid; place-items: center; width: 32px; height: 32px;
+  border-radius: 50%; color: #fff; background: var(--grad-btn); box-shadow: 0 10px 20px -8px rgba(26, 90, 255, .8);
+  opacity: 0;
+}
+.ap-plane .i { width: 16px; height: 16px; }
+
+/* 02 / 03 – Umschlag aus Flächen: Rückseite, Brief, Tasche vorn, Lasche offen (hinten) bzw. zu (vorn) */
+.ap-env { position: relative; width: 150px; height: 92px; }
+.ap-env--pack { margin-top: 52px; }
+.ap-env__back { position: absolute; inset: 0; z-index: 1; border-radius: 10px; background: #c9d8ff; }
+.ap-env__front {
+  position: absolute; inset: 0; z-index: 3; border-radius: 10px;
+  background: linear-gradient(165deg, #e8efff, #d3e0ff);
+  clip-path: polygon(0 32%, 50% 70%, 100% 32%, 100% 100%, 0 100%);
+}
+.ap-env__flap-open {
+  position: absolute; left: 0; right: 0; bottom: 100%; z-index: 0; height: 50px;
+  background: #b7caff; clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  transform-origin: 50% 100%;
+}
+.ap-env__flap {
+  position: absolute; left: 0; right: 0; top: 0; z-index: 4; height: 58px;
+  background: linear-gradient(180deg, #bccfff, #d8e3ff); clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: 50% 0; transform: scaleY(0);
+}
+.ap-letter {
+  position: absolute; left: 14px; right: 14px; top: -40px; z-index: 2; height: 82px;
+  display: flex; flex-direction: column; gap: 7px; padding: 12px;
+  border-radius: 8px; background: #fff; box-shadow: 0 6px 14px -8px rgba(0, 30, 90, .45);
+}
+.ap-letter i { position: relative; display: block; height: 6px; overflow: hidden; border-radius: 3px; background: #dbe3f3; }
+.ap-letter i:nth-child(2) { width: 82%; }
+.ap-letter i:nth-child(3) { width: 58%; }
+.ap-letter b { position: absolute; inset: 0; background: var(--grad-btn); transform-origin: 0 50%; }
+.ap-file {
+  position: absolute; top: -40px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px;
+  border-radius: 8px; background: #fff; white-space: nowrap;
+  font-size: .72rem; font-weight: 600; color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px var(--line), 0 8px 16px -10px rgba(0, 30, 90, .5);
+}
+.ap-file .i { width: 13px; height: 13px; color: var(--royal); }
+.ap-file--1 { left: -58px; transform: rotate(-6deg); }
+.ap-file--2 { right: -56px; top: -16px; transform: rotate(5deg); }
+.ap-sent {
+  position: absolute; right: 12px; top: 12px;
+  display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px;
+  border-radius: 999px; font-size: .8rem; font-weight: 600; color: #137a46; background: #e5f7ed;
+  opacity: 0;
+}
+.ap-sent .i { width: 14px; height: 14px; }
+
+/* 03 – Posteingang, Auge liest den Brief, Antwort */
+.apply__item--3 .apply__stage { display: flex; align-items: flex-end; justify-content: center; gap: 14px; padding-bottom: 10px; }
+.ap-env--read .ap-letter { top: -44px; }
+.ap-inbox { position: absolute; right: 12px; top: 12px; display: inline-flex; align-items: center; gap: 6px; font-size: .74rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.ap-inbox::after { content: "1"; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: .72rem; letter-spacing: 0; color: #fff; background: #ff5a5f; }
+/* bis die Post kommt: leerer Platz mit hüpfenden Punkten */
+.ap-wait {
+  position: absolute; left: calc(50% - 36px); bottom: 10px; width: 150px; height: 92px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  border: 2px dashed #c3d2f5; border-radius: 12px;
+  opacity: 0;
+}
+.ap-wait i { width: 8px; height: 8px; border-radius: 50%; background: #9db5f5; }
+.ap-eye { position: relative; align-self: center; flex: none; width: 64px; height: 38px; margin-top: 18px; }
+.ap-eye__lid {
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 38'%3E%3Cpath d='M3 19C12 7 22 3 32 3s20 4 29 16c-9 12-19 16-29 16S12 31 3 19Z' fill='%23fff' stroke='%23000a1e' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.ap-eye__iris {
+  position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 34%, #fff 0 2px, transparent 2.6px), radial-gradient(circle, #000a1e 0 4px, transparent 4.6px), var(--grad-btn);
+  transform: translate(5px, -1px);
+}
+.ap-bubble {
+  position: absolute; left: 12px; top: 10px; z-index: 5;
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px;
+  border-radius: 14px 14px 14px 4px; font-size: .82rem; font-weight: 600; color: #fff; background: var(--grad-btn);
+  box-shadow: 0 12px 24px -12px rgba(26, 90, 255, .8);
+  transform-origin: 0 100%;
+}
+.ap-bubble .i { width: 14px; height: 14px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .apply.is-on .apply__item--1::after { animation: ap-ring1 var(--ap) linear infinite both; }
+  .apply.is-on .apply__item--2::after { animation: ap-ring2 var(--ap) linear infinite both; }
+  .apply.is-on .apply__item--3::after { animation: ap-ring3 var(--ap) linear infinite both; }
+  .apply.is-on .ap-type--1 b { animation: ap-type1 var(--ap) linear infinite both; }
+  .apply.is-on .ap-type--2 b { animation: ap-type2 var(--ap) linear infinite both; }
+  .apply.is-on .ap-type--3 b { animation: ap-type3 var(--ap) linear infinite both; }
+  .apply.is-on .ap-type--1 b::before { animation: ap-caret1 var(--ap) linear infinite both, ap-blink .8s steps(1) infinite; }
+  .apply.is-on .ap-type--2 b::before { animation: ap-caret2 var(--ap) linear infinite both, ap-blink .8s steps(1) infinite; }
+  .apply.is-on .ap-type--3 b::before { animation: ap-caret3 var(--ap) linear infinite both, ap-blink .8s steps(1) infinite; }
+  .apply.is-on .ap-mail__body { animation: ap-body var(--ap) linear infinite both; }
+  .apply.is-on .ap-mail__send { animation: ap-press var(--ap) ease-out infinite both; }
+  .apply.is-on .ap-plane { animation: ap-plane var(--ap) cubic-bezier(.5, 0, .75, 1) infinite both; }
+  .apply.is-on .ap-env--pack { animation: ap-env2 var(--ap) cubic-bezier(.5, 0, .75, 1) infinite both; }
+  .apply.is-on .ap-env--pack .ap-letter { animation: ap-letter2 var(--ap) var(--ease-out) infinite both; }
+  .apply.is-on .ap-file--1 { animation: ap-file1 var(--ap) var(--ease-out) infinite both; }
+  .apply.is-on .ap-file--2 { animation: ap-file2 var(--ap) var(--ease-out) infinite both; }
+  .apply.is-on .ap-env--pack .ap-env__flap-open { animation: ap-flapo2 var(--ap) ease-in infinite both; }
+  .apply.is-on .ap-env--pack .ap-env__flap { animation: ap-flapc2 var(--ap) ease-out infinite both; }
+  .apply.is-on .ap-sent { animation: ap-sent var(--ap) var(--ease-out) infinite both; }
+  .apply.is-on .ap-inbox::after { animation: ap-badge var(--ap) ease-out infinite both; }
+  .apply.is-on .ap-env--read { animation: ap-env3 var(--ap) var(--ease-out) infinite both; }
+  .apply.is-on .ap-env--read .ap-env__flap { animation: ap-flapc3 var(--ap) ease-in infinite both; }
+  .apply.is-on .ap-env--read .ap-env__flap-open { animation: ap-flapo3 var(--ap) ease-out infinite both; }
+  .apply.is-on .ap-env--read .ap-letter { animation: ap-letter3 var(--ap) var(--ease-out) infinite both; }
+  .apply.is-on .ap-env--read .ap-letter i:nth-child(1) b { animation: ap-hl1 var(--ap) linear infinite both; }
+  .apply.is-on .ap-env--read .ap-letter i:nth-child(2) b { animation: ap-hl2 var(--ap) linear infinite both; }
+  .apply.is-on .ap-env--read .ap-letter i:nth-child(3) b { animation: ap-hl3 var(--ap) linear infinite both; }
+  .apply.is-on .ap-eye { animation: ap-eye var(--ap) ease-in-out infinite both; }
+  .apply.is-on .ap-eye__iris { animation: ap-iris var(--ap) ease-in-out infinite both; }
+  .apply.is-on .ap-bubble { animation: ap-bubble var(--ap) var(--ease-out) infinite both; }
+  .apply.is-on .ap-wait { animation: ap-wait var(--ap) linear infinite both; }
+  .apply.is-on .ap-wait i { animation: ap-dot 1.2s ease-in-out infinite; }
+  .apply.is-on .ap-wait i:nth-child(2) { animation-delay: .15s; }
+  .apply.is-on .ap-wait i:nth-child(3) { animation-delay: .3s; }
+  /* untereinander (schmal): Flugbahnen nach unten statt zur Seite */
+  @media (max-width: 900px) {
+    .apply.is-on .ap-plane { animation-name: ap-plane-v; }
+    .apply.is-on .ap-env--pack .ap-letter { animation-name: ap-letter2-v; }
+    .apply.is-on .ap-env--pack { animation-name: ap-env2-v; }
+    .apply.is-on .ap-env--read { animation-name: ap-env3-v; }
+  }
+}
+/* aktive Karte */
+@keyframes ap-ring1 { 0% { opacity: 0; } 3%, 33% { opacity: 1; } 37%, 100% { opacity: 0; } }
+@keyframes ap-ring2 { 0%, 34% { opacity: 0; } 38%, 62% { opacity: 1; } 66%, 100% { opacity: 0; } }
+@keyframes ap-ring3 { 0%, 63% { opacity: 0; } 67%, 96% { opacity: 1; } 100% { opacity: 0; } }
+/* 01: tippen (Abdeckung in Zeichenschritten), Schreibmarke nur in der aktuellen Zeile, senden, losfliegen */
+@keyframes ap-type1 { 0%, 3% { transform: translateX(0); animation-timing-function: steps(18, end); } 10%, 100% { transform: translateX(101%); } }
+@keyframes ap-type2 { 0%, 11% { transform: translateX(0); animation-timing-function: steps(29, end); } 19%, 100% { transform: translateX(101%); } }
+@keyframes ap-type3 { 0%, 20% { transform: translateX(0); animation-timing-function: steps(21, end); } 27%, 100% { transform: translateX(101%); } }
+@keyframes ap-caret1 { 0%, 10% { opacity: 1; } 10.5%, 100% { opacity: 0; } }
+@keyframes ap-caret2 { 0%, 10.5% { opacity: 0; } 11%, 19% { opacity: 1; } 19.5%, 100% { opacity: 0; } }
+@keyframes ap-caret3 { 0%, 19.5% { opacity: 0; } 20%, 29% { opacity: 1; } 29.5%, 100% { opacity: 0; } }
+@keyframes ap-blink { 50% { transform: scaleY(0); } }
+@keyframes ap-body { 0%, 31% { opacity: 1; } 34%, 100% { opacity: 0; } }
+@keyframes ap-press { 0%, 27% { transform: none; } 29% { transform: scale(.84); } 31%, 100% { transform: none; } }
+@keyframes ap-plane {
+  0%, 29.5% { opacity: 0; transform: scale(.3); }
+  31% { opacity: 1; transform: scale(1.1); }
+  38% { opacity: 1; transform: translate(210px, -70px) rotate(-10deg) scale(.9); }
+  40%, 100% { opacity: 0; transform: translate(250px, -80px) rotate(-12deg) scale(.7); }
+}
+@keyframes ap-plane-v {
+  0%, 29.5% { opacity: 0; transform: scale(.3); }
+  31% { opacity: 1; transform: scale(1.1); }
+  38% { opacity: 1; transform: translate(-60px, 150px) rotate(70deg) scale(.9); }
+  40%, 100% { opacity: 0; transform: translate(-70px, 185px) rotate(80deg) scale(.7); }
+}
+/* 02: Brief fliegt ein, Lebenslauf und Zeugnisse fallen dazu, alles in den Umschlag, Lasche zu, weiterfliegen */
+@keyframes ap-letter2 {
+  0%, 36% { opacity: 0; transform: translate(-200px, -40px) rotate(-16deg) scale(.6); }
+  42% { opacity: 1; transform: none; }
+  52% { opacity: 1; transform: none; }
+  56% { opacity: 1; transform: translateY(44px); }
+  60%, 100% { opacity: 0; transform: translateY(44px); }
+}
+@keyframes ap-letter2-v {
+  0%, 36% { opacity: 0; transform: translate(-20px, -190px) rotate(-12deg) scale(.6); }
+  42% { opacity: 1; transform: none; }
+  52% { opacity: 1; transform: none; }
+  56% { opacity: 1; transform: translateY(44px); }
+  60%, 100% { opacity: 0; transform: translateY(44px); }
+}
+@keyframes ap-file1 {
+  0%, 42% { opacity: 0; transform: translateY(-30px) rotate(-6deg); }
+  45.5% { opacity: 1; transform: rotate(-6deg); }
+  51% { opacity: 1; transform: rotate(-6deg); }
+  55%, 100% { opacity: 0; transform: translate(70px, 50px) scale(.6); }
+}
+@keyframes ap-file2 {
+  0%, 46% { opacity: 0; transform: translateY(-30px) rotate(5deg); }
+  49.5% { opacity: 1; transform: rotate(5deg); }
+  52% { opacity: 1; transform: rotate(5deg); }
+  56%, 100% { opacity: 0; transform: translate(-70px, 34px) scale(.6); }
+}
+@keyframes ap-flapo2 { 0%, 56% { transform: scaleY(1); } 58%, 87% { transform: scaleY(0); } 87.5%, 100% { transform: scaleY(1); } }
+@keyframes ap-flapc2 { 0%, 58% { transform: scaleY(0); } 60.5%, 87% { transform: scaleY(1); } 87.5%, 100% { transform: scaleY(0); } }
+@keyframes ap-env2 {
+  0%, 61% { opacity: 1; transform: none; }
+  64% { opacity: 1; transform: translate(-10px, 4px) rotate(-4deg); }
+  69% { opacity: 0; transform: translate(220px, -40px) rotate(12deg) scale(.75); }
+  69.5%, 88% { opacity: 0; transform: none; }
+  94%, 100% { opacity: 1; transform: none; }
+}
+@keyframes ap-env2-v {
+  0%, 61% { opacity: 1; transform: none; }
+  64% { opacity: 1; transform: translate(4px, -10px) rotate(-4deg); }
+  69% { opacity: 0; transform: translate(30px, 200px) rotate(10deg) scale(.75); }
+  69.5%, 88% { opacity: 0; transform: none; }
+  94%, 100% { opacity: 1; transform: none; }
+}
+@keyframes ap-sent {
+  0%, 63% { opacity: 0; transform: translateY(6px) scale(.85); }
+  66%, 78% { opacity: 1; transform: none; }
+  82%, 100% { opacity: 0; transform: none; }
+}
+/* 03: Umschlag kommt an (Posteingang „1“), öffnet sich, Brief kommt heraus, Auge öffnet sich, liest Zeile für
+   Zeile (Zeilen färben sich), blinzelt – „Passt! Wir melden uns.“ */
+@keyframes ap-badge { 0%, 68% { transform: scale(0); } 70% { transform: scale(1.3); } 71.5%, 96% { transform: scale(1); } 99%, 100% { transform: scale(0); } }
+@keyframes ap-env3 {
+  0%, 63.5% { opacity: 0; transform: translate(-210px, -40px) rotate(-12deg) scale(.75); }
+  69% { opacity: 1; transform: none; }
+  97% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: none; }
+}
+@keyframes ap-env3-v {
+  0%, 63.5% { opacity: 0; transform: translate(-20px, -200px) rotate(-10deg) scale(.75); }
+  69% { opacity: 1; transform: none; }
+  97% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: none; }
+}
+@keyframes ap-flapc3 { 0%, 70% { transform: scaleY(1); } 72%, 100% { transform: scaleY(0); } }
+@keyframes ap-flapo3 { 0%, 72% { transform: scaleY(0); } 74%, 100% { transform: scaleY(1); } }
+@keyframes ap-letter3 {
+  0%, 72.5% { opacity: 0; transform: translateY(44px); }
+  73% { opacity: 1; transform: translateY(44px); }
+  77%, 100% { opacity: 1; transform: none; }
+}
+@keyframes ap-hl1 { 0%, 79% { transform: scaleX(0); } 81.7%, 100% { transform: scaleX(1); } }
+@keyframes ap-hl2 { 0%, 81.9% { transform: scaleX(0); } 84.4%, 100% { transform: scaleX(1); } }
+@keyframes ap-hl3 { 0%, 84.6% { transform: scaleX(0); } 87%, 100% { transform: scaleX(1); } }
+@keyframes ap-eye {
+  0%, 73% { opacity: 0; transform: scaleY(.08); }
+  75% { opacity: 1; transform: scaleY(.08); }
+  77.5% { opacity: 1; transform: scaleY(1); }
+  87.5% { transform: scaleY(1); }
+  88.2% { transform: scaleY(.08); }
+  89%, 97% { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(1); }
+}
+@keyframes ap-iris {
+  0%, 77.5% { transform: translate(5px, -1px); }
+  79% { transform: translate(-3px, -5px); }
+  81.7% { transform: translate(9px, -5px); }
+  81.9% { transform: translate(-3px, -1px); }
+  84.4% { transform: translate(9px, -1px); }
+  84.6% { transform: translate(-3px, 3px); }
+  87% { transform: translate(7px, 3px); }
+  89%, 100% { transform: translate(5px, -1px); }
+}
+@keyframes ap-wait { 0% { opacity: 0; } 2%, 62% { opacity: 1; } 64.5%, 100% { opacity: 0; } }
+@keyframes ap-dot { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-7px); } }
+@keyframes ap-bubble {
+  0%, 88.5% { opacity: 0; transform: translateY(10px) scale(.6); }
+  90.5% { opacity: 1; transform: scale(1.06); }
+  92%, 97% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: none; }
+}
 
 /* Impressum und Datenschutz: gut lesbar, Inhaltsverzeichnis neben dem Text */
 .legal-wrap { display: grid; gap: 20px; max-width: 1040px; }
