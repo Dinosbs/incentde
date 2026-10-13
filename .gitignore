@@ -12,3 +12,8 @@
 /newsletter-platzierung.html
 /content-creator.html
 /community-shop-design.html
+# Unterseiten, erzeugt aus pages/ (tools/build-pages.mjs)
+/faq.html
+/karriere.html
+/impressum.html
+/datenschutz.html

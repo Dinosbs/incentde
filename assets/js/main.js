@@ -57,6 +57,8 @@
     creator: { form: "Creator" },
   };
   const AUD_KEY = "incent-audience";
+  // im Browser merken (Zielgruppe, Live-Demo-Design) nur mit Einwilligung „Funktional“ (assets/js/consent.js)
+  const mayStore = () => !!(window.incentConsent && window.incentConsent.has("functional"));
   const scrollWindow = (opts) => window.scrollTo(opts);
 
   /* ---------- Bildordner automatisch auslesen ----------
@@ -1093,7 +1095,7 @@
 
   function createPortalTheme() {
     const roots = $$(".vp-theme:not([data-theme-local])");
-    const state = { ...BRAND_DEFAULTS, ...readBrand() };
+    const state = { ...BRAND_DEFAULTS, ...(mayStore() ? readBrand() : {}) };
     const listeners = [];
     const html = document.documentElement;
 
@@ -1162,10 +1164,12 @@
       });
     };
 
-    // speichern (verzögert – Farbregler feuern sehr oft); false, wenn der Speicher voll oder gesperrt ist
+    // speichern (verzögert – Farbregler feuern sehr oft); false, wenn der Speicher voll oder gesperrt ist.
+    // Ohne Einwilligung gilt die Gestaltung nur für diesen Besuch.
     let saveTimer = 0;
     const persist = () => {
       clearTimeout(saveTimer);
+      if (!mayStore()) return true;
       try {
         if (isDefaultBrand(state)) localStorage.removeItem(BRAND_KEY);
         else localStorage.setItem(BRAND_KEY, JSON.stringify(state));
@@ -1175,9 +1179,11 @@
       }
     };
     const notify = () => listeners.forEach((fn) => fn(state));
+    // Einwilligung erteilt: bisherige Gestaltung ab jetzt merken (beim Widerruf löscht consent.js den Speicher)
+    document.addEventListener("incent:consent", (e) => e.detail.functional && persist());
     // in einem anderen Tab geändert: übernehmen
     window.addEventListener("storage", (e) => {
-      if (e.key !== BRAND_KEY) return;
+      if (e.key !== BRAND_KEY || !mayStore()) return;
       Object.assign(state, BRAND_DEFAULTS, readBrand());
       apply();
       notify();
@@ -2332,7 +2338,7 @@
     const home = { title: (heroEl && heroEl.dataset.title) || document.title, desc: (heroEl && heroEl.dataset.desc) || (meta ? meta.content : "") };
     const store = (v) => {
       try {
-        v ? localStorage.setItem(AUD_KEY, v) : localStorage.removeItem(AUD_KEY);
+        v && mayStore() ? localStorage.setItem(AUD_KEY, v) : localStorage.removeItem(AUD_KEY);
       } catch (err) {
         /* nicht speicherbar – gilt dann nur für diesen Besuch */
       }
@@ -2608,6 +2614,8 @@
       html.dataset.world = worldOf(firstTab).key;
       html.dataset.mb = firstTab;
     }
+    // Einwilligung erteilt (auch in einem anderen Tab): gezeigte Zielgruppe ab jetzt merken
+    document.addEventListener("incent:consent", (e) => e.detail.functional && store(html.dataset.world || ""));
     if (html.dataset.world) {
       store(html.dataset.world);
       preselect(html.dataset.world);
@@ -3626,7 +3634,7 @@
 
   /* ---------- Scroll-Stepper: klickbare Elemente beim Scrollen durchschalten ----------
      Reiter, Vorteile (Umschalter × Akkordeon), Akkordeons, Hotspots, Plattform-Features, Kundenstimmen,
-     Kontaktkalender, Pakete, Einnahmen und Anlass-Finder: Am Desktop bleibt der Bereich stehen (sticky),
+     Kontaktkalender, Pakete und Einnahmen: Am Desktop bleibt der Bereich stehen (sticky),
      das Scrollen wählt die Punkte nacheinander an, danach geht die Seite normal weiter – rückwärts genauso.
      Gewählt wird der größte umgebende Block, der ins Fenster passt (z. B. Überschrift + Reiter). Ist schon
      das Element selbst etwas zu hoch, wird es verkleinert (zoom, höchstens auf STEP_ZMIN); passt es auch so
@@ -3681,14 +3689,6 @@
     { sel: "[data-touchpoints]", steps: (root) => pressSteps($$("[data-tp-mode]", root), "aria-pressed") },
     { sel: "[data-earn]", steps: (root) => pressSteps($$("[data-earn-mode]", root), "aria-pressed") },
     { sel: "[data-packages]", steps: (root) => pressSteps($$(".pk", root), "aria-checked") },
-    {
-      sel: "[data-finder]",
-      steps: (root) =>
-        $$("[data-motif]", root)
-          .filter((el) => !el.matches("[data-v-card]"))
-          // Kacheln sind Links: Auswahl wie beim Darüberfahren, ohne Navigation
-          .map((c) => stepOf([], () => !c.classList.contains("is-on") && c.dispatchEvent(new PointerEvent("pointerenter", { pointerType: "mouse" })))),
-    },
   ];
   const stepRoots = () =>
     STEPPERS.flatMap((def) => $$(def.sel).filter((el) => !(def.skip && def.skip(el))).map((el) => ({ el, def })));

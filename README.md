@@ -10,15 +10,17 @@ index.html              die ganze Website als One-Pager: Übersicht mit „Wer s
                         (Arbeitgeber, Unternehmen, Marken, Creator), siehe „Aufbau der Seite“
 mitarbeiterrabatte.html …  eigene Seite je Bereich – werden aus index.html erzeugt (tools/build-pages.mjs),
                         nicht eingecheckt (.gitignore), siehe „Adressen“
-impressum.html          Impressum (Entwurf: markierte Angaben ergänzen)
-datenschutz.html        Datenschutzerklärung (Entwurf: markierte Angaben ergänzen, rechtlich prüfen)
+pages/                  Unterseiten FAQ, Karriere, Impressum, Datenschutz (nur der Inhalt) – daraus erzeugt
+                        tools/build-pages.mjs faq.html, karriere.html, impressum.html, datenschutz.html (nicht eingecheckt),
+                        siehe „Unterseiten“
 robots.txt, sitemap.xml für Suchmaschinen (sitemap.xml erzeugt tools/build-pages.mjs)
 assets/css/main.css     Styles, Design-Tokens in :root
 assets/js/main.js       Interaktionen (Vanilla JS, keine Abhängigkeiten)
+assets/js/consent.js    Privatsphäre-Einstellungen (Einwilligung), auf allen Seiten, siehe „Privatsphäre“
 assets/fonts/           Barlow Semi Condensed, selbst gehostet (SIL OFL, siehe LICENSE.txt)
 assets/img/             INCENT-Logo (weiß + dunkel), Favicon
 assets/img/portal/      Bilder für den Portal-Nachbau (aus dem Dashboard, komprimiert)
-assets/img/about/       Teamfoto für „Über uns“ (die Kernbereiche sind gezeichnet, keine Bilder mehr)
+assets/img/about/       Foto des Firmensitzes für „Über uns“ und Karriere (die Kernbereiche sind gezeichnet, keine Bilder mehr)
 assets/img/partner-logos/  Logos für das Laufband „Partner, die uns vertrauen“ – werden automatisch eingelesen
 assets/img/deal-tiles/     Bilder für die Mini-Deal-Kacheln (technik.jpg, wohnen.jpg …) – werden automatisch eingelesen
 assets/img/testimonials/   Logos für die Kundenstimmen
@@ -28,17 +30,18 @@ assets/img/kundenbindung/       Fotos und Isometrien der Kundenbindung
 assets/img/markenplatzierung/   Fotos, Isometrien und Screenshots der Markenplatzierung
 assets/img/content-creator/     Fotos, Isometrien und Shop-Screenshots für Creator
 tools/update-image-manifests.mjs  erzeugt die Bildlisten (manifest.json) für die beiden Ordner oben
-tools/build-pages.mjs   erzeugt die Seiten je Bereich und sitemap.xml
+tools/build-pages.mjs   erzeugt die Seiten je Bereich, die Unterseiten aus pages/ und sitemap.xml
 tools/optimize-images.mjs  verkleinert zu große Bilder (nur bei der Veröffentlichung)
 ```
 
-Gepflegt wird nur `index.html` (plus CSS/JS). Die GitHub Action (`.github/workflows/static.yml`) erzeugt daraus
-bei jeder Veröffentlichung die Seiten je Bereich, verkleinert Bilder, CSS und JS und lädt alles hoch. Wer die Dateien
+Gepflegt werden nur `index.html` und `pages/` (plus CSS/JS). Die GitHub Action (`.github/workflows/static.yml`) erzeugt
+daraus bei jeder Veröffentlichung die Seiten je Bereich und die Unterseiten, verkleinert Bilder, CSS und JS und lädt
+alles hoch (ohne den Ordner `pages/`). Wer die Dateien
 anders hochlädt, führt vorher `node tools/build-pages.mjs` aus.
 
 ## Lokal ansehen
 
-Einmal `node tools/build-pages.mjs` ausführen (erzeugt die Seiten je Bereich), dann `index.html` per Doppelklick im
+Einmal `node tools/build-pages.mjs` ausführen (erzeugt die Seiten je Bereich und die Unterseiten), dann `index.html` per Doppelklick im
 Browser öffnen – alle Seiten und Links funktionieren auch ohne Server (ohne Server wechselt die Adresszeile beim
 Umschalten nicht mit, das erlauben Browser für lokale Dateien nicht).
 Einzige Ausnahme: Neue Bilder in `assets/img/partner-logos/` und `assets/img/deal-tiles/` erscheinen lokal nur
@@ -57,8 +60,7 @@ Die Seite entscheidet von Beginn an, wer sie ansieht, und zeigt dann nur, was f�
    Unternehmen, Marken, Creator, jeweils mit den Lösungen in Kurzform. Darunter allgemeine Abschnitte für alle
    (Partner, Versprechen, Plattform, Kundenstimmen, Über uns, Kontakt).
 2. **Welt** (nach der Wahl): Die Übersicht verschwindet, oben steht die Welt der Zielgruppe – alles für sie unter
-   einem Dach. Ganz oben ein Umschalter „Übersicht | Ansicht für: Arbeitgeber · Unternehmen · Marken · Creator“
-   (große Klickflächen, mobil als 2×2-Raster). Die **Hauptnavigation wird zur Absprungzone**: statt der Zielgruppen
+   einem Dach. Die **Hauptnavigation wird zur Absprungzone**: statt der Zielgruppen
    zeigt sie die Bereiche der Welt, z. B. bei Arbeitgebern „Übersicht · Ihr Design · 2-in-1-Benefits ·
    Mitarbeiterrabatte · Mitarbeitergutscheine · Geschenkanlässe“ – ein Klick tauscht den Inhalt, ohne neue Seite und
    ohne zweite Leiste. **„Ihr Design“** (Creator: „Dein Design“) ist ein eigener Bereich mit der Live-Demo
@@ -80,13 +82,14 @@ Die Zuordnung steht als `data-for="start arbeitgeber …"` am Abschnitt (`start`
 stehen überall. Es gibt keinen Filter und keinen „Alle Inhalte“-Schalter mehr.
 
 **Wechseln:** in der Übersicht Navigation (Arbeitgeber, Unternehmen, Marken, Creator als direkte Links) und Karten,
-in der Welt der Umschalter oben und die Bereiche in der Navigation (der aktuelle ist blau hinterlegt; beim Wechsel der
-Welt tauschen sich die Einträge sichtbar aus). Logo und „Übersicht“ (in der Navigation und im Umschalter) führen
-zurück zur Wahl. Der Wechsel blendet weich über; wer schon weiter unten war, beginnt im neuen Bereich oben. Der
+in der Welt die Bereiche in der Navigation (der aktuelle ist blau hinterlegt; beim Wechsel der Welt tauschen sich die
+Einträge sichtbar aus). Eine andere Zielgruppe wählt man über die Übersicht: Logo und „Übersicht“ in der Navigation
+führen zurück zur Wahl (eine eigene Umschalt-Leiste in der Welt gibt es nicht mehr). Der Wechsel blendet weich über; wer schon weiter unten war, beginnt im neuen Bereich oben. Der
 Seitentitel wechselt mit. Unten rechts erscheint nach dem ersten Bildschirm der Knopf **„Nach oben“** (Pfeil im Kasten).
 
-**Merken:** Die gewählte Zielgruppe merkt sich der Browser (`localStorage`, `incent-audience`). Wer wiederkommt, landet
-direkt in seiner Welt; „Übersicht“ vergisst die Wahl. Das Kontaktformular ist passend vorbelegt („Ich bin …“).
+**Merken:** Mit Einwilligung „Funktional“ (siehe „Privatsphäre“) merkt sich der Browser die gewählte Zielgruppe
+(`localStorage`, `incent-audience`). Wer wiederkommt, landet direkt in seiner Welt; „Übersicht“ vergisst die Wahl.
+Ohne Einwilligung gilt die Wahl nur für den Besuch. Das Kontaktformular ist passend vorbelegt („Ich bin …“).
 
 **Adressen:** Jeder Bereich hat eine eigene Adresse (`index.html#benefitportal`, `#kundenrabatte`,
 `#newsletter-platzierung`, `#community-shop` …), Abschnitte darin ebenso (`#gestalten`, `#unternehmen-gestalten`);
@@ -94,7 +97,7 @@ die Welt allein geht auch (`#arbeitgeber`, `#unternehmen`, `#marken`, `#creator`
 Für Kampagnen: `index.html?fuer=arbeitgeber` (bzw. `unternehmen`, `marken`, `creator`) öffnet die Welt direkt.
 
 **Technik:** Ein kleines Skript im `<head>` setzt Welt und Bereich (`<html data-world="…" data-mb="…">`) schon vor dem
-ersten Zeichnen – aus der Adresse, sonst `?fuer=`, sonst der gemerkten Wahl. Es kennt dafür alle Sprungziele
+ersten Zeichnen – aus der Adresse, sonst `?fuer=`, sonst der gemerkten Wahl (nur mit Einwilligung). Es kennt dafür alle Sprungziele
 (`map`); die passenden CSS-Regeln stehen ebenfalls im `<head>`, so blitzt nichts Falsches auf. Die Logik steckt in
 `initWorlds()` in `main.js`. Jede ID steht nur einmal auf der Seite: Gleichnamige Abschnitte der Welten haben ein
 Präfix (`unternehmen-…`, `marken-…`, `creator-…`; Arbeitgeber behält seine IDs). Ohne JavaScript stehen alle Welten
@@ -132,7 +135,7 @@ Ein einziger Baustein (`#live-vorschau`, `[data-pb]`) statt getrennter Vorschau 
 | --- | --- |
 | Navigation | Flach und ohne Ausklapp-Menüs. Übersicht: „Arbeitgeber“, „Unternehmen“, „Marken“, „Creator“ führen direkt in ihre Welt, dazu „Über uns“ und „Kontakt“. In einer Welt tauscht sie sich aus gegen deren Bereiche (eigene Liste je Welt, `.nav__list--world`): „Übersicht“, „Ihr Design“ und die Lösungen; der aktuelle Bereich ist blau hinterlegt. Bei knappem Platz (bis 1360 px) steht „Übersicht“ nur als Symbol da und Telefon/vorteile.net verschwinden aus der Leiste. Helle Glas-Leiste beim Scrollen, auf Mobilgeräten Vollbild-Menü mit großen Einträgen. Logo: `assets/img/incent-logo-nav-dark.png` (dunkle Fassung des zentrierten `incent-logo-nav.png`, gleiche Maße und Lage; oben 48 px hoch, nach dem Scrollen weich auf 34 px verkleinert) |
 | Hero | Heller Verlauf (ohne Gittertextur), Lichtkegel folgt dem Cursor, wechselnde Begriffe in der Headline (alle 2 s, kippen in 3D ein). Darunter im ersten Bildschirm die Frage **„Wer sind Sie?“** (groß, „Sie“ im Verlauf, eine Linie zeichnet sich darunter, ein Pfeil wippt zu den Karten) mit vier Einstiegen – Arbeitgeber, Unternehmen, Marken, Creator – jeweils mit den Lösungen in Kurzform. Die Hervorhebung wandert mit der Headline: Zeigt sie „Mitarbeiterbindung“ oder „Steuerfreie Sachbezüge“, gleitet ein leuchtender Rahmen auf „Arbeitgeber“ und ein Fähnchen nennt den Begriff („Kundenbindung“ → Unternehmen, „Brand Awareness“ → Marken, „Social Communities“ → Creator; Zuordnung in `data-aud-terms` an der Karte, `initAudSpot` in `main.js`). Zeiger oder Fokus auf einer Karte halten den Rahmen dort und die Headline zeigt deren Begriff. Jede Karte öffnet die Welt dieser Zielgruppe (siehe „Aufbau der Seite“). Danach die Live-Demo (Vorschau ⇄ Builder, siehe oben) |
-| Seitenkopf der Welten | Umschalter „Übersicht · Ansicht für …“, Titel, Text und Bild wechseln mit dem Bereich, Lichtkegel folgt dem Cursor (die Bereiche stehen in der Navigation) |
+| Seitenkopf der Welten | Titel, Text und Bild wechseln mit dem Bereich, Lichtkegel folgt dem Cursor (die Bereiche stehen in der Navigation; Zielgruppe wechseln über „Übersicht“) |
 | Nach oben | Quadratischer Knopf mit Pfeil unten rechts, erscheint nach dem ersten Bildschirm, scrollt weich nach oben (`initToTop`) |
 | Kennzahlen | Zählen beim Einblenden hoch (4.400+, 1,3 Mio, 3.500+, 100 %) |
 | Partner | Endlos-Laufband aus `assets/img/partner-logos/` – jede Datei wird automatisch eine Kachel, gelöschte Dateien verschwinden (keine Liste im HTML); Dateien, die nicht laden oder leer sind, bekommen keine Kachel. Tempo passt sich der Anzahl an, pausiert bei Hover. Transparenter oder weißer Rand der Logo-Dateien wird automatisch abgeschnitten, danach bekommen alle Logos etwa dieselbe Fläche (`fitLogo` in `main.js`); pro Partner erscheint nur ein Logo. Markennamen für Kurz-Dateinamen (z. B. „UI“ → „Union Investment“) stehen in `BRAND_NAMES` |
@@ -147,7 +150,7 @@ Ein einziger Baustein (`#live-vorschau`, `[data-pb]`) statt getrennter Vorschau 
 | Cursor-Folgen (alle Seiten) | Alle Kipp-Elemente folgen dem Cursor im ganzen Fenster, nicht nur über ihrer Fläche: Portal der Live-Demo, Vorschauen, Fotos im Seitenkopf, Bilder neben Text, Gutschein-Gestalter, Checkout-Demo „Wertgutscheine einlösen“ und das Kontaktformular. Ein gemeinsamer Listener (`createTilt` in `main.js`) rechnet nur für sichtbare Elemente (auch nicht für ausgeblendete Reiter-Inhalte). Liegt der Fokus im Element (Tippen im Formular), hält es weitgehend still; verlässt die Maus das Fenster, richtet sich alles auf. Nur bei Maus/Stift, nicht bei „Bewegung reduzieren“. |
 | Bilder neben Text (alle Seiten) | Kippen zum Cursor (`.tilt-media` mit `data-tilt-card`), Ebenen davor (z. B. „Seit 2012“) schweben in der Tiefe. Beim Scrollen driften die Bilder leicht hinter der Seite her (`data-parallax`, auch Fotos im Seitenkopf und Geräte-Bühne). |
 | Schwebende Tags (alle Seiten) | Beim Darüberfahren hebt sich der Tag an, das Icon spielt eine kleine Animation passend zum Motiv (Herz schlägt, Flugzeug fliegt davon, Haken zeichnet sich, Zahnrad dreht sich …). Die Zuordnung Icon → Animation steht in `TAG_ANIMS` in `main.js`, die Animationen als `ico-*` in `main.css`; neue Tags bekommen sie automatisch. Nur bei echter Hover-Maus aktiv. |
-| Scroll-Stepper (alle Seiten) | Alles, was man durchklicken kann (Tabs, Akkordeons, Vorteile mit Umschalter, Karussells, Touchpoints, Pakete, Anlass-Finder …), bleibt am Desktop beim Scrollen stehen und schaltet mit dem Scrollen Punkt für Punkt weiter, erst danach geht die Seite weiter (bei „Warum INCENT?“ erst alle Arbeitgeber-Vorteile, dann alle für Mitarbeitende). Rückwärts scrollen läuft die Punkte rückwärts ab. Rechts zeigt eine kleine Punktleiste, wo man steht. Ein Klick auf einen Punkt springt an die passende Scroll-Stelle; Links und Anker auf einen Punkt (z. B. `#sc-panel-3`) öffnen ihn direkt. Das automatische Weiterschalten dieser Elemente ist am Desktop aus, weil das Scrollen es übernimmt. Die Zuordnung steht in `STEPPERS` in `main.js` (`initScrollSteps`). Vorab wird die Höhe aller Punkte gemessen (unsichtbar, ohne Animation), damit ein Bereich nicht mitten im Scrollen abschaltet, wenn ein späterer Punkt mehr Text hat. Angeheftet wird der größte umgebende Block, der ganz ins Fenster passt (unter der Navigation); ist schon das Element selbst etwas zu hoch (kleine Laptop-Fenster), wird es verkleinert, höchstens auf 75 % (`STEP_ZMIN`), sonst bleibt es normal klickbar. `data-sstep-pin` legt den stehenden Block fest (bei „Bindung und Recruiting“ nur die Vorteile, die Grafik läuft daneben mit). Bereiche, die erst beim Wechsel über die Navigation sichtbar werden, richten sich dabei ein. Bei den Newsletter-Paketen beginnt der Durchlauf mit „Starter“ (ohne Stepper ist „Business“ vorausgewählt). Geprüft von 1280×720 bis 1920×1080 (alle 24 Bereiche). Nicht auf Mobilgeräten (unter 981 px) und nicht bei „Bewegung reduzieren“. |
+| Scroll-Stepper (alle Seiten) | Alles, was man durchklicken kann (Tabs, Akkordeons, Vorteile mit Umschalter, Karussells, Touchpoints, Pakete …), bleibt am Desktop beim Scrollen stehen und schaltet mit dem Scrollen Punkt für Punkt weiter, erst danach geht die Seite weiter (bei „Warum INCENT?“ erst alle Arbeitgeber-Vorteile, dann alle für Mitarbeitende). Rückwärts scrollen läuft die Punkte rückwärts ab. Rechts zeigt eine kleine Punktleiste, wo man steht. Ein Klick auf einen Punkt springt an die passende Scroll-Stelle; Links und Anker auf einen Punkt (z. B. `#sc-panel-3`) öffnen ihn direkt. Das automatische Weiterschalten dieser Elemente ist am Desktop aus, weil das Scrollen es übernimmt. Die Zuordnung steht in `STEPPERS` in `main.js` (`initScrollSteps`). Vorab wird die Höhe aller Punkte gemessen (unsichtbar, ohne Animation), damit ein Bereich nicht mitten im Scrollen abschaltet, wenn ein späterer Punkt mehr Text hat. Angeheftet wird der größte umgebende Block, der ganz ins Fenster passt (unter der Navigation); ist schon das Element selbst etwas zu hoch (kleine Laptop-Fenster), wird es verkleinert, höchstens auf 75 % (`STEP_ZMIN`), sonst bleibt es normal klickbar. `data-sstep-pin` legt den stehenden Block fest (bei „Bindung und Recruiting“ nur die Vorteile, die Grafik läuft daneben mit). Bereiche, die erst beim Wechsel über die Navigation sichtbar werden, richten sich dabei ein. Bei den Newsletter-Paketen beginnt der Durchlauf mit „Starter“ (ohne Stepper ist „Business“ vorausgewählt). Geprüft von 1280×720 bis 1920×1080 (alle 24 Bereiche). Nicht auf Mobilgeräten (unter 981 px) und nicht bei „Bewegung reduzieren“. |
 | Scrollen (alle Seiten) | Nativ: Der Browser scrollt selbst (in seinem eigenen Thread, dadurch flüssig auch während das Skript arbeitet); Sprünge per Link und „Nach oben“ gleiten (`scroll-behavior: smooth`, erst nach dem Laden). Das frühere Gleiten per Skript ist aus Leistungsgründen entfallen. |
 
 ### Welt Arbeitgeber: Mitarbeiterbindung, vier Bereiche
@@ -161,7 +164,7 @@ Jeder Bereich hat eine eigene Adresse, die Zurück-Taste funktioniert, und der S
 | Mitarbeiterrabatte | `#mitarbeiterrabatte` | Rabatt-Explorer „Vielfältige Rabatte für alle Lebensbereiche“ mit den Kategorien des Vorteilsportals (Mobilfunk & Internet, Mobilität, Home & Living, Reisen, Sport, Mode & Accessoires, Freizeit & Familie) und je bis zu vier echten Angeboten aus den Kategorieseiten des Shops (Bilder unter `assets/img/portal/`, Stand Oktober 2026), „Bindung und Recruiting“ (`#arbeitgebermarke`) mit eigener Visualisierung „Arbeitgeber-Magnet“ statt Bild (Team auf einer Umlaufbahn, Bewerbungen werden angezogen; die Grafik zeigt den im Akkordeon geöffneten Vorteil und steht vertikal mittig; am Desktop bleiben beim Durchscrollen der Vorteile Akkordeon und Grafik nebeneinander stehen), Verweise auf Portal, Ablauf und Gutscheine |
 | Mitarbeitergutscheine | `#mitarbeitergutscheine` | „Ein Gutschein, drei gute Gründe“ (`#gutschein-gruende`) als helles Showcase mit eigenen, interaktiven Illustrationen statt Bildern: 1 Formate – PDF, Print (DIN lang) und Excel gefächert, Format, Design-Farbe und Logo wählbar (Klick auf ein hinteres Format holt es nach vorn); 2 Aufladungen – Karte, Kennzahlen und Monatsleiste, Rhythmus (monatlich, quartalsweise, anlassbezogen) und Betrag wählbar, das Jahr läuft durch, Gebühren immer 0,00 €; 3 Einlösung – der hauseigene Warenkorb im Branding aus dem Marken-Profil (Logo, Name, Adresse, Buttonfarbe, Hintergrund als Banner) als Endlosschleife: ein Zeiger tippt den Gutscheincode ein, löst ein, die Gesamtsumme sinkt von 57,95 € auf 7,95 €, Bezahlen, Danke – und von vorn (`initGiftReasons` / `initGiftCart` in `main.js`; Demos 1 und 2 laufen bis zur ersten eigenen Wahl; bei „Bewegung reduzieren“ steht der Warenkorb eingelöst), Vorteile Arbeitgeber/Mitarbeitende, Gutschein-Konfigurator (`#gestalten`, mit Logo-Upload – das Logo landet im Marken-Profil), Vorteile mit SELECT, Preisrechner (`#preise`), Warenkorb-Demo im Look des Portal-Checkouts (`#einloesen`), Ablauf |
 | Ihr Design | `#ihr-design` | Live-Demo mit geöffnetem Builder (siehe „Live-Demo“), darunter „Demo buchen“ und „Weiter zum 2-in-1-Benefitportal“ |
-| Geschenkanlässe | `#geschenkanlaesse` | Anlass-Finder mit Gutschein-Vorschau (`#anlaesse`; die Kacheln sind keine Links, Darüberfahren, Antippen oder Tab wechselt das Motiv), Text ohne externe Links |
+| Geschenkanlässe | `#geschenkanlaesse` | Anlass-Finder mit Gutschein-Vorschau (`#anlaesse`; die Kacheln sind keine Links, Darüberfahren, Antippen oder Tab wechselt das Motiv; bewusst ohne Scroll-Stepper, die Seite scrollt normal weiter), Text ohne externe Links |
 
 Links auf einen Abschnitt in einem anderen Bereich (z. B. `#gestalten` aus dem Benefitportal) wechseln erst den Bereich und
 springen dann zum Abschnitt. Jedes Element steht nur einmal auf der Seite; andere Bereiche verweisen darauf.
@@ -217,8 +220,8 @@ aus dem Marken-Profil sitzt oben rechts in einem festen Rechteck und wird darin 
 (Container-Einheiten `cqi`), der Gutschein sieht daher in jeder Größe gleich aus.
 
 Die Angebote im Rabatt-Explorer sind eine Momentaufnahme (Stand Oktober 2026) und stehen direkt im HTML.
-Es gibt keine Links mehr auf die alte WordPress-Seite: Impressum und Datenschutz sind eigene Seiten, FAQ und Karriere
-sind aus dem Footer entfernt, „Vorteilsportal live ansehen“ (Über uns) öffnet die Live-Demo.
+Es gibt keine Links mehr auf die alte WordPress-Seite: FAQ, Karriere, Impressum und Datenschutz sind eigene Seiten
+(siehe „Unterseiten“), „Vorteilsportal live ansehen“ (Über uns) öffnet die Live-Demo.
 
 **Inhalte pflegen:** Alles steht in `index.html`. Die Welten liegen in `<div class="worlds">` direkt nach dem Hero
 (`<div class="world" id="arbeitgeber">` …), jeder Bereich ist ein `<div class="mb-panel" id="…">` mit `data-title` und
@@ -258,7 +261,8 @@ Ohne JavaScript bleiben alle Inhalte lesbar.
 ### Suchmaschinen (SEO)
 
 - `robots.txt` und `sitemap.xml` im Hauptordner (Domain `https://www.incent.de/`; die Sitemap mit allen Seiten je
-  Bereich erzeugt `tools/build-pages.mjs`).
+  Bereich sowie FAQ und Karriere erzeugt `tools/build-pages.mjs`; Impressum und Datenschutz sind `noindex`).
+- FAQ: strukturierte Daten `FAQPage` (aus den Fragen der Seite erzeugt), FAQ und Karriere mit Brotkrümeln.
 - Strukturierte Daten (JSON-LD im `<head>`): Firma (`Organization` mit Adresse, Telefon, E-Mail, LinkedIn/Instagram/
   Facebook) und `WebSite`. Bei geänderten Firmendaten dort mitpflegen.
 - Vorschaubild für Social Media: `assets/img/og-incent.png` (1200 × 630, liegt jetzt auf der eigenen Domain statt im
@@ -297,8 +301,50 @@ jetzt 52–57 fps mit 2–10; Skriptzeit 0,2–0,5 s statt 1,7–4,9 s.
   sichtbar (LCP) nach ~0,3 s statt ~2,9 s.
 - **Deko ist kein Scroll-Anker** (`overflow-anchor: none` an `.hero__bg` und der Live-Demo): sonst verschiebt der
   Browser die Seite, wenn der Hero beim Umschalten Vorschau ⇄ Builder wächst.
-- **Veröffentlichung:** `main.js` und `main.css` werden in der GitHub Action mit esbuild verkleinert (im Repository
-  bleiben sie lesbar).
+- **Veröffentlichung:** `main.js`, `consent.js` und `main.css` werden in der GitHub Action mit esbuild verkleinert (im
+  Repository bleiben sie lesbar).
+
+### Unterseiten: FAQ, Karriere, Impressum, Datenschutz
+
+Nur über den Footer erreichbar (Spalten „Informationen“ und „Rechtliches“), nicht über die Navigation. Gestaltet wie die
+Startseite (Kopfleiste mit Logo, „Zur Startseite“ und „Demo buchen“, Seitenkopf mit Eyebrow und großer Überschrift,
+Footer der Startseite), aber ohne `main.js` – nur `consent.js` wird geladen.
+
+| Seite | Inhalt |
+|---|---|
+| `faq.html` | „Häufige Fragen zu Vorteilsportalen & Benefits“: das Wichtigste in vier Kacheln, die 7 Fragen zu Mitarbeiterportalen als Aufklapp-Liste (`<details>`, ohne Skript, per Tastatur bedienbar), Hinweis, Abschnitt „Modernes HR & nachhaltiges Kundenmarketing“ |
+| `karriere.html` | „Deine Karriere bei uns“ mit „Jetzt bewerben“ (E-Mail an bewerbung@incent.de), drei Schritte zur Bewerbung, Hinweis auf die Datenschutzerklärung |
+| `impressum.html` | Angaben nach § 5 DDG, Geschäftsführung, Register, Steuern, Verantwortlicher nach § 18 Abs. 2 MStV, Haftung, Bildnachweise & KI |
+| `datenschutz.html` | Datenschutzerklärung mit Inhaltsverzeichnis: Allgemeines, Hosting, Speicherung im Browser & Privatsphäre-Einstellungen, Kontaktformular, Bewerbungen, Social-Media-Links |
+
+**Bearbeiten:** in `pages/<seite>.html`. Oben steht ein Kommentar mit `title`, `description`, `robots` (`index` oder
+`noindex`) und `crumb` (Name in den Brotkrümeln), darunter der Inhalt von `<main>`. `tools/build-pages.mjs` setzt Kopf,
+Kopfleiste, Footer (Sprungziele zeigen auf `./#…`) und nur die benötigten Icons aus dem Sprite von `index.html` dazu.
+Neue Seite: Datei in `pages/` anlegen, in `.gitignore` eintragen und im Footer von `index.html` verlinken.
+
+### Privatsphäre (Einwilligung)
+
+Die Seite setzt **keine Cookies**, keine Analyse-, Tracking- oder Werbedienste und lädt nichts von Drittanbietern
+(Schriften, Bilder und Skripte liegen auf dem eigenen Server). Was der Browser speichern darf, regelt das eigene
+Einwilligungs-Werkzeug `assets/js/consent.js` (auf allen Seiten):
+
+- **Banner beim ersten Besuch** (unten, verschiebt nichts): „Alle akzeptieren“ und „Nur essenzielle“ gleich groß und
+  gleich gestaltet, dazu „Individuelle Privatsphäre-Einstellungen“ und Links zu Datenschutz und Impressum. Steht früh in
+  der Tab-Reihenfolge, nimmt aber nicht den Fokus. Ohne Entscheidung funktioniert die Seite normal, merkt sich nur nichts.
+- **Dialog „Individuelle Privatsphäre-Einstellungen“** (`<dialog>`, Esc schließt, Fokus kehrt zurück): Kategorien
+  **Essenziell** (immer aktiv: `incent-consent`, die Entscheidung selbst, § 25 Abs. 2 Nr. 2 TDDDG), **Funktional**
+  (Schalter: `incent-audience` = gewählte Zielgruppe, `incent-brand` = Live-Demo-Design, § 25 Abs. 1 TDDDG) und
+  **Statistik & Marketing** (nicht im Einsatz). „Details anzeigen“ nennt je Eintrag Name, Zweck, Art, Dauer, Empfänger
+  und Rechtsgrundlage.
+- **Gespeichert** wird `{v, ts, functional}` unter `incent-consent`; nach 12 Monaten oder mit neuer Version (`VERSION`
+  in `consent.js` und im Kopf-Skript von `index.html`) wird erneut gefragt, bis dahin Gemerktes gelöscht.
+- **Widerruf** jederzeit über „Privatsphäre-Einstellungen“ im Footer jeder Seite (auch im Text der
+  Datenschutzerklärung): Funktionales wird sofort gelöscht. Entscheidungen gelten sofort auch in anderen offenen Tabs.
+- **Technik:** Das Kopf-Skript liest die gemerkte Zielgruppe nur bei gültiger Einwilligung; `main.js` fragt vor jedem
+  Speichern `window.incentConsent.has("functional")` und speichert bei einer neuen Einwilligung (Ereignis
+  `incent:consent`) den aktuellen Stand. Jedes Element mit `data-consent-open` öffnet den Dialog.
+- Kommt ein neuer Dienst hinzu (z. B. Statistik), braucht er eine eigene Kategorie im Dialog, darf erst nach Einwilligung
+  geladen werden und gehört in die Datenschutzerklärung (`pages/datenschutz.html`).
 
 ## Anpassen
 
@@ -320,11 +366,11 @@ jetzt 52–57 fps mit 2–10; Skriptzeit 0,2–0,5 s statt 1,7–4,9 s.
   Commit der Bildlisten-Action löst keine neue Veröffentlichung aus (Commits mit dem Standard-Token starten keine
   weiteren Workflows) – sonst wären neue Logos online erst nach dem nächsten Push sichtbar.
   Fehlt die Datei, nutzt die Seite die Verzeichnisliste des Servers (falls aktiviert).
-  Außerdem hängt die Veröffentlichung an `main.css` und `main.js` die Commit-Nummer an (`?v=…`), damit Browser nach
+  Außerdem hängt die Veröffentlichung an `main.css`, `main.js` und `consent.js` die Commit-Nummer an (`?v=…`), damit Browser nach
   einem Update nicht die alte Fassung aus dem Cache nehmen. Im Repository bleiben die Verweise ohne Zusatz.
 - **Lösungen**: Mitarbeiterbindung, Kundenbindung, Markenplatzierung und Content Creator stehen als Welten in
-  `index.html` (siehe „Aufbau der Seite“), mit eigener Seite je Bereich (siehe „Adressen“). Impressum und
-  Datenschutz sind eigene Seiten (`impressum.html`, `datenschutz.html` – markierte Angaben vor dem Livegang ergänzen).
+  `index.html` (siehe „Aufbau der Seite“), mit eigener Seite je Bereich (siehe „Adressen“). FAQ, Karriere, Impressum
+  und Datenschutz sind eigene Seiten (siehe „Unterseiten“).
   „Über uns“ und „Kontakt“ sind Abschnitte dieser Seite (`#ueber-uns`, `#kontakt`).
 - **Kontaktformular**: Ohne Backend öffnet „Absenden“ das E-Mail-Programm mit einer vorbereiteten Nachricht an
   info@incent.de. Für den echten Versand am `<form data-contact-form>` das Attribut `data-endpoint="https://…"` setzen,
@@ -332,8 +378,9 @@ jetzt 52–57 fps mit 2–10; Skriptzeit 0,2–0,5 s statt 1,7–4,9 s.
   (z. B. Unternehmensgröße für Arbeitgeber, Plattform/Profil-URL für Creator) sind nachgebaut, da sie in der
   gespeicherten Seite nicht enthalten waren – bitte mit dem bisherigen Formular abgleichen.
 - **Marken-Profil** (Builder der Live-Demo, Logo-Feld im Gutschein-Gestalter): Logo, Hintergrundbild,
-  Unternehmensname und Farben werden nur im Browser gespeichert (`localStorage`, Schlüssel `incent-brand`) und nirgendwohin
-  übertragen. Bilder werden vorher verkleinert (Logo max. 640 px als WebP, ohne leeren Rand; Hintergrund max. 1600 px als JPEG).
+  Unternehmensname und Farben bleiben im Browser und werden nirgendwohin übertragen; über den Besuch hinaus gespeichert
+  (`localStorage`, Schlüssel `incent-brand`) nur mit Einwilligung „Funktional“ – sonst zeigt die Live-Demo einen Link
+  zu den Privatsphäre-Einstellungen. Bilder werden vorher verkleinert (Logo max. 640 px als WebP, ohne leeren Rand; Hintergrund max. 1600 px als JPEG).
   Alle Vorschauen auf allen Seiten übernehmen das Profil – auch in anderen offenen Tabs sofort:
   Portal der Live-Demo (Farben, Hintergrund, Logo, Adresszeile), Corporate-Design-Vorschau
   („Ihr Design“ als erster Punkt), Portal-Köpfe der Vorschauen, SELECT-Gutscheine (Logo statt „Ihr Logo“),
@@ -376,5 +423,12 @@ jetzt 52–57 fps mit 2–10; Skriptzeit 0,2–0,5 s statt 1,7–4,9 s.
   stehen nur bei „Anbieter werden“, die Newsletter-Kennzahlen nur bei der Newsletter-Platzierung; der Newsletter-Abschnitt und
   der Abschlusstext der Anbieter-Seite sind zu einem Verweis zusammengefasst. Seitenkopf ohne „Kostenfrei“, weil Marken Pakete
   buchen. Tippfehler korrigiert („Abgebotslistung“, „Potrale“, „Markenparter“).
-- Google Fonts, Google Tag Manager und Cookie-Banner sind entfallen. Die Schriften liegen lokal.
-  Falls Tracking wieder eingebaut wird, gehört auch der Link „Privatsphäre-Einstellungen“ zurück in den Footer.
+- Google Fonts, Google Tag Manager, Google Analytics, reCAPTCHA und der Real Cookie Banner sind entfallen. Die Schriften
+  liegen lokal. Die Einwilligung regelt ein eigenes, schlankes Werkzeug (siehe „Privatsphäre“); „Privatsphäre-Einstellungen“
+  steht im Footer jeder Seite.
+- FAQ, Karriere, Impressum und Datenschutz im neuen Design (siehe „Unterseiten“). Impressum: „§ 55 RStV“ ist heute
+  „§ 18 Abs. 2 MStV“; die Haftungsabsätze nannten §§ 7–10 TMG (das TMG gilt seit Mai 2024 nicht mehr, heute DDG) und
+  kommen jetzt ohne Paragrafen aus. Datenschutz: Abschnitte zu Real Cookie Banner, Google Consent Mode, reCAPTCHA/Honeypot,
+  Tag Manager und Analytics ersetzt durch „Speicherung im Browser & Privatsphäre-Einstellungen“; das Kontaktformular
+  öffnet das E-Mail-Programm statt Daten an den Server zu senden. Die FAQ-Reiter „Gutscheine“, „Partner / Anbieter“ und
+  „Loyalty Portale“ waren in der gespeicherten Seite leer und fehlen deshalb.
