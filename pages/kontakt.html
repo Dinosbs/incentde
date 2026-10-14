@@ -5,45 +5,77 @@ robots: index
 crumb: Kontakt
 scripts: contact
 -->
-<section class="contact contact-page" aria-labelledby="page-title">
-  <div class="container">
-    <div class="contact__panel" data-spot-panel>
-      <div class="cta__bg" aria-hidden="true"><span></span><span></span></div>
-
-      <div class="contact__intro">
-        <p class="eyebrow eyebrow--onbrand">Kontakt</p>
-        <h1 class="contact__title" id="page-title">Jetzt Kontakt aufnehmen</h1>
-        <p class="contact__text">
-          <strong>Erfolg beginnt im Gespräch.</strong> In einem persönlichen Videogespräch werfen wir gemeinsam einen Blick
-          auf die wichtigsten Fragen:
-        </p>
-        <ul class="contact__questions">
-          <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Was sind die individuellen Anforderungen?</li>
-          <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Was braucht das Unternehmen oder die Marke?</li>
-          <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Wie sieht die ideale Unterstützung aus?</li>
-          <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Welches Potenzial steckt in maßgeschneiderten Corporate Benefits für Mitarbeitende, Kund:innen und Communities?</li>
-        </ul>
-        <div class="contact__direct">
-          <a href="tel:+49834193450"><svg class="i i--sm" aria-hidden="true"><use href="#i-phone"/></svg>08341&nbsp;93450</a>
-          <a href="mailto:info@incent.de"><svg class="i i--sm" aria-hidden="true"><use href="#i-mail"/></svg>info@incent.de</a>
-          <span><svg class="i i--sm" aria-hidden="true"><use href="#i-pin"/></svg>Rudolf-Diesel-Straße 2, 87656 Germaringen</span>
+<section class="kp" aria-labelledby="page-title">
+  <div class="container kp__grid">
+    <!-- links: Überschrift, „So geht es weiter“, direkter Kontakt (am Desktop bleibt die Spalte beim Scrollen stehen;
+         mobil steht das Formular gleich nach der Überschrift) -->
+    <div class="kp__side">
+      <div class="kp__intro">
+        <p class="eyebrow">Kontakt</p>
+        <h1 class="kp__title" id="page-title">Jetzt Kontakt <span class="grad-text">aufnehmen</span></h1>
+        <p class="lead"><strong>Erfolg beginnt im Gespräch.</strong> In einem persönlichen Videogespräch werfen wir gemeinsam einen
+          Blick auf Ihre Anforderungen – und auf das Potenzial maßgeschneiderter Corporate Benefits für Mitarbeitende, Kund:innen und
+          Communities.</p>
+      </div>
+      <div class="kp__aside">
+        <h2 class="kp__h2">So geht es weiter</h2>
+        <ol class="kp-next">
+          <li><strong>Anfrage senden</strong>Wer Sie sind und wie wir Sie erreichen – mehr braucht es nicht.</li>
+          <li><strong>Wir melden uns</strong>Persönlich, um einen Termin für ein Videogespräch zu finden.</li>
+          <li><strong>Gemeinsam besprechen</strong>Ihre Anforderungen, Ihr Bedarf und wie die ideale Unterstützung aussieht.</li>
+        </ol>
+        <div class="kp-direct">
+          <p class="kp-direct__h">Lieber direkt sprechen?</p>
+          <a class="kp-direct__row" href="tel:+49834193450"><span class="kp-direct__ico"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></span><span><small>Telefon</small>08341&nbsp;93450</span></a>
+          <a class="kp-direct__row" href="mailto:info@incent.de"><span class="kp-direct__ico"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span><span><small>E-Mail</small>info@incent.de</span></a>
+          <p class="kp-direct__addr"><svg class="i i--sm" aria-hidden="true"><use href="#i-pin"/></svg><span>INCENT Corporate Services GmbH<br>Rudolf-Diesel-Straße 2, 87656 Germaringen</span></p>
         </div>
       </div>
+    </div>
 
-      <!-- Kontaktformular: ohne data-endpoint öffnet es das E-Mail-Programm (assets/js/contact.js) -->
-      <form class="form" data-contact-form data-tilt-card data-rx="2" data-ry="3" data-tx="6" data-ty="4" novalidate aria-labelledby="page-title">
-        <p class="form__step form__step--two">Schritt 2 von 2 · Ihre Angaben</p>
-        <fieldset class="form__choice">
-          <legend class="form__label">Ich bin …<span class="form__req" aria-hidden="true">*</span></legend>
-          <div class="choice">
-            <label class="choice__item"><input type="radio" name="sender_type" value="Arbeitgeber" required><span>Arbeitgeber</span></label>
-            <label class="choice__item"><input type="radio" name="sender_type" value="Unternehmen"><span>Unternehmen</span></label>
-            <label class="choice__item"><input type="radio" name="sender_type" value="Markenpartner"><span>Markenpartner</span></label>
-            <label class="choice__item"><input type="radio" name="sender_type" value="Creator"><span>Creator</span></label>
-          </div>
-          <p class="form__error" data-error-for="sender_type"></p>
-        </fieldset>
+    <!-- Kontaktformular: ohne data-endpoint öffnet es das E-Mail-Programm (assets/js/contact.js). Vorbelegung aus dem
+         kleinen Formular: ?ich=Arbeitgeber, dazu ?thema=<Bereich> (z. B. mitarbeiterrabatte → Thema angehakt) -->
+    <form class="form kp-form" data-contact-form data-tilt-card data-rx="1.5" data-ry="2.5" data-tx="5" data-ty="3" novalidate aria-labelledby="page-title">
+      <div class="kp-progress">
+        <ol class="kp-steps">
+          <li class="kp-steps__item" data-kp-step="1"><span class="kp-steps__num"><b>1</b><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></span><span class="kp-steps__txt">Wer Sie sind<small data-kp-type>Bitte auswählen</small></span></li>
+          <li class="kp-steps__item" data-kp-step="2"><span class="kp-steps__num"><b>2</b><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></span><span class="kp-steps__txt">Ihre Angaben<small data-kp-left>Name, E-Mail, Anliegen</small></span></li>
+        </ol>
+        <span class="kp-bar" aria-hidden="true"><i data-kp-bar></i></span>
+      </div>
 
+      <fieldset class="form__choice kp-group">
+        <legend class="kp-group__title"><span>Ich bin …<span class="form__req" aria-hidden="true">*</span></span></legend>
+        <div class="choice choice--cards kp-choice">
+          <label class="choice__item"><input type="radio" name="sender_type" value="Arbeitgeber" required><span><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Arbeitgeber<small>Mitarbeitende binden</small></span></label>
+          <label class="choice__item"><input type="radio" name="sender_type" value="Unternehmen"><span><svg class="i" aria-hidden="true"><use href="#i-building"/></svg>Unternehmen<small>Kund:innen binden</small></span></label>
+          <label class="choice__item"><input type="radio" name="sender_type" value="Markenpartner"><span><svg class="i" aria-hidden="true"><use href="#i-megaphone"/></svg>Markenpartner<small>Reichweite gewinnen</small></span></label>
+          <label class="choice__item"><input type="radio" name="sender_type" value="Creator"><span><svg class="i" aria-hidden="true"><use href="#i-video"/></svg>Creator<small>Community-Shop starten</small></span></label>
+        </div>
+        <p class="form__error" data-error-for="sender_type"></p>
+      </fieldset>
+
+      <fieldset class="kp-group" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+        <legend class="kp-group__title">Worum geht es?<span class="kp-group__opt">optional, mehrere möglich</span></legend>
+        <div class="kp-chips" data-show-for="Arbeitgeber" hidden>
+          <label class="kp-chip"><input type="checkbox" name="interest" value="2-in-1-Benefitportal" data-topic="benefitportal ihr-design"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>2-in-1-Benefitportal</span></label>
+          <label class="kp-chip"><input type="checkbox" name="interest" value="Mitarbeiterrabatte" data-topic="mitarbeiterrabatte"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Mitarbeiterrabatte</span></label>
+          <label class="kp-chip"><input type="checkbox" name="interest" value="Mitarbeitergutscheine" data-topic="mitarbeitergutscheine"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Mitarbeitergutscheine</span></label>
+          <label class="kp-chip"><input type="checkbox" name="interest" value="Geschenkanlässe" data-topic="geschenkanlaesse"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Geschenkanlässe</span></label>
+        </div>
+        <div class="kp-chips" data-show-for="Unternehmen" hidden>
+          <label class="kp-chip"><input type="checkbox" name="interest" value="Loyalty-Portal" data-topic="loyalty-portal unternehmen-ihr-design"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Loyalty-Portal</span></label>
+          <label class="kp-chip"><input type="checkbox" name="interest" value="Kundenrabatte" data-topic="kundenrabatte"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Kundenrabatte</span></label>
+          <label class="kp-chip"><input type="checkbox" name="interest" value="Kundengutscheine" data-topic="kundengutscheine"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Kundengutscheine</span></label>
+        </div>
+        <div class="kp-chips" data-show-for="Markenpartner" hidden>
+          <label class="kp-chip"><input type="checkbox" name="interest" value="Anbieter werden" data-topic="anbieter-werden"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Anbieter werden</span></label>
+          <label class="kp-chip"><input type="checkbox" name="interest" value="Newsletter-Platzierung" data-topic="newsletter-platzierung"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Newsletter-Platzierung</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="kp-group">
+        <legend class="kp-group__title">Ihre Kontaktdaten</legend>
         <div class="form__grid">
           <div class="form__field span-2">
             <label for="cf-salutation">Anrede</label>
@@ -65,21 +97,26 @@ scripts: contact
           </div>
           <div class="form__field span-3">
             <label for="cf-email">E-Mail-Adresse<span class="form__req" aria-hidden="true">*</span></label>
-            <input id="cf-email" name="email" type="email" autocomplete="email" required>
+            <input id="cf-email" name="email" type="email" autocomplete="email" placeholder="name@firma.de" required>
             <p class="form__error"></p>
           </div>
           <div class="form__field span-3">
-            <label for="cf-phone">Telefon</label>
+            <label for="cf-phone">Telefon <span class="form__opt">(für Rückfragen)</span></label>
             <input id="cf-phone" name="phone" type="tel" autocomplete="tel">
             <p class="form__error"></p>
           </div>
+        </div>
+      </fieldset>
 
-          <div class="form__field span-3" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+      <fieldset class="kp-group" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+        <legend class="kp-group__title">Ihr Unternehmen</legend>
+        <div class="form__grid">
+          <div class="form__field span-3">
             <label for="cf-company">Unternehmen<span class="form__req" aria-hidden="true">*</span></label>
             <input id="cf-company" name="company_name" type="text" autocomplete="organization" required>
             <p class="form__error"></p>
           </div>
-          <div class="form__field span-3" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+          <div class="form__field span-3">
             <label for="cf-position">Position</label>
             <input id="cf-position" name="position" type="text" autocomplete="organization-title">
           </div>
@@ -99,48 +136,58 @@ scripts: contact
             <input id="cf-url" name="company_url" type="url" inputmode="url" placeholder="https://" autocomplete="url">
             <p class="form__error"></p>
           </div>
-          <div class="form__field span-3" data-show-for="Creator" hidden>
+          <div class="form__field span-4">
+            <label for="cf-street">Anschrift</label>
+            <input id="cf-street" name="street" type="text" autocomplete="address-line1" placeholder="Straße und Hausnummer">
+          </div>
+          <div class="form__field span-2">
+            <label for="cf-zip">PLZ</label>
+            <input id="cf-zip" name="postal_code" type="text" inputmode="numeric" autocomplete="postal-code">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="kp-group" data-show-for="Creator" hidden>
+        <legend class="kp-group__title">Ihr Kanal</legend>
+        <div class="form__grid">
+          <div class="form__field span-3">
             <label for="cf-platform">Plattform<span class="form__req" aria-hidden="true">*</span></label>
             <input id="cf-platform" name="platform" type="text" placeholder="z. B. Instagram, TikTok, YouTube" required>
             <p class="form__error"></p>
           </div>
-          <div class="form__field span-3" data-show-for="Creator" hidden>
+          <div class="form__field span-3">
             <label for="cf-profile">Profil-URL<span class="form__req" aria-hidden="true">*</span></label>
             <input id="cf-profile" name="profile_url" type="url" inputmode="url" placeholder="https://" required>
             <p class="form__error"></p>
           </div>
-          <div class="form__field span-6" data-show-for="Creator" hidden>
+          <div class="form__field span-6">
             <label for="cf-agency">Agentur</label>
             <input id="cf-agency" name="agentur" type="text">
           </div>
-
-          <div class="form__field span-4" data-show-for="none Arbeitgeber Unternehmen Markenpartner">
-            <label for="cf-street">Anschrift Unternehmen</label>
-            <input id="cf-street" name="street" type="text" autocomplete="address-line1">
-          </div>
-          <div class="form__field span-2" data-show-for="none Arbeitgeber Unternehmen Markenpartner">
-            <label for="cf-zip">PLZ</label>
-            <input id="cf-zip" name="postal_code" type="text" inputmode="numeric" autocomplete="postal-code">
-          </div>
-          <div class="form__field span-6">
-            <label for="cf-message">Nachricht</label>
-            <textarea id="cf-message" name="message" rows="4" placeholder="Was Sie uns noch mitteilen möchten …"></textarea>
-          </div>
         </div>
+      </fieldset>
 
-        <div class="form__footer">
-          <p class="form__legal">Hinweise zum Schutz Ihrer Daten finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
-          <button class="btn btn--primary btn--lg form__submit" type="submit">Absenden <svg class="i" aria-hidden="true"><use href="#i-send"/></svg></button>
-          <p class="form__error" data-form-error role="alert"></p>
+      <fieldset class="kp-group">
+        <legend class="kp-group__title">Ihre Nachricht<span class="kp-group__opt">optional</span></legend>
+        <div class="form__field">
+          <label class="sr-only" for="cf-message">Nachricht</label>
+          <textarea id="cf-message" name="message" rows="4" placeholder="Was Sie uns noch mitteilen möchten …"></textarea>
         </div>
+      </fieldset>
 
-        <div class="form__success" data-form-success role="status" hidden>
-          <span class="form__success-icon" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
-          <strong>Vielen Dank für Ihre Anfrage!</strong>
-          <p data-form-success-text></p>
-          <button type="button" class="btn btn--dark btn--sm" data-form-reset>Neue Anfrage</button>
-        </div>
-      </form>
-    </div>
+      <div class="form__footer">
+        <p class="form__legal"><span class="form__req" aria-hidden="true">*</span> Pflichtangabe. Hinweise zum Schutz Ihrer Daten finden
+          Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+        <button class="btn btn--primary btn--lg form__submit" type="submit">Anfrage senden <svg class="i" aria-hidden="true"><use href="#i-send"/></svg></button>
+        <p class="form__error" data-form-error role="alert"></p>
+      </div>
+
+      <div class="form__success" data-form-success role="status" hidden>
+        <span class="form__success-icon" aria-hidden="true"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></span>
+        <strong>Vielen Dank für Ihre Anfrage!</strong>
+        <p data-form-success-text></p>
+        <button type="button" class="btn btn--dark btn--sm" data-form-reset>Neue Anfrage</button>
+      </div>
+    </form>
   </div>
 </section>

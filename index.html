@@ -5463,6 +5463,9 @@
                 <label class="choice__item"><input type="radio" name="ich" value="Creator"><span><svg class="i" aria-hidden="true"><use href="#i-video"/></svg>Creator</span></label>
               </div>
             </fieldset>
+            <!-- Bereich, aus dem die Anfrage kommt (z. B. mitarbeiterrabatte): hakt auf der Formularseite das Thema an.
+                 Nur in einem Bereich gesetzt (main.js: initWorlds), sonst bleibt das Feld aus und die Adresse kurz -->
+            <input type="hidden" name="thema" value="" disabled data-contact-topic>
             <button class="btn btn--primary btn--lg form__submit" type="submit">Weiter zum Formular <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
             <p class="form__hint">Im nächsten Schritt nur noch Name, E-Mail und Ihr Anliegen – dauert keine Minute.</p>
           </form>

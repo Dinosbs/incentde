@@ -2042,7 +2042,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   align-self: flex-start; padding: 5px 12px; border-radius: 999px;
   font-size: .85rem; font-weight: 600; letter-spacing: .04em; color: var(--royal); background: #eef3ff;
 }
-.form:not(.is-step2) .form__step--two { display: none; }
 .form__label--big { margin-bottom: 12px; font-family: var(--font-display); font-size: clamp(1.4rem, 2.2vw, 1.75rem); font-weight: 700; color: var(--ink); }
 .choice--cards { grid-template-columns: 1fr 1fr; gap: 10px; }
 .choice--cards .choice__item span { display: flex; flex-direction: column; justify-content: center; gap: 6px; height: auto; min-height: 84px; padding: 12px; font-size: 1.05rem; }
@@ -2050,9 +2049,134 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .choice--cards .choice__item input:checked + span .i { color: #fff; }
 .form--mini .form__submit { justify-content: center; }
 .form__hint { margin-top: -6px; font-size: .92rem; color: var(--ink-3); text-align: center; }
-.contact-page { padding-top: calc(var(--nav-h) + 28px + clamp(12px, 2.6vw, 36px)); }
-.contact-page .contact__panel { grid-template-columns: .85fr 1.15fr; }
-@media (max-width: 980px) { .contact-page .contact__panel { grid-template-columns: 1fr; } }
+
+/* ---------- Kontaktseite (kontakt.html): hell wie die übrigen Unterseiten, links Orientierung, rechts das Formular in
+   Abschnitten mit Fortschritt (contact.js). Mobil: Überschrift → Formular → „So geht es weiter“ und Direktkontakt ---------- */
+.kp { position: relative; isolation: isolate; overflow: clip; padding: calc(var(--nav-h) + 28px + clamp(24px, 4vw, 56px)) 0 clamp(56px, 8vw, 110px); }
+/* getönter Kopfbereich und eine ruhige Farbfläche (wie .sub-hero, ohne filter) */
+.kp::before {
+  content: ""; position: absolute; inset: 0 0 auto; z-index: -2; height: clamp(440px, 50vw, 640px);
+  background: var(--tint); border-radius: 0 0 clamp(28px, 4vw, 48px) clamp(28px, 4vw, 48px);
+}
+.kp::after {
+  content: ""; position: absolute; right: -12%; top: -24%; z-index: -1; width: 60vw; max-width: 760px; aspect-ratio: 1;
+  border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 242, 254, .2), rgba(0, 242, 254, 0)); pointer-events: none;
+}
+.kp__grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: start; gap: clamp(28px, 5vw, 72px); }
+.kp__side { display: flex; flex-direction: column; gap: clamp(28px, 4vw, 44px); }
+/* Desktop: die linke Spalte bleibt beim Ausfüllen stehen (nur wenn sie ganz ins Fenster passt) */
+@media (min-width: 981px) and (min-height: 880px) { .kp__side { position: sticky; top: calc(var(--nav-h) + 44px); } }
+.kp__intro { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.kp__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.5rem, 5vw, 4.3rem); line-height: 1; letter-spacing: -.005em; text-wrap: balance; }
+.kp__intro .lead strong { color: var(--ink); }
+.kp__aside { display: flex; flex-direction: column; gap: clamp(24px, 3vw, 32px); }
+.kp__h2 { margin-bottom: -4px; font-size: .82rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+/* So geht es weiter: drei Schritte an einer Linie */
+.kp-next { counter-reset: kp; }
+.kp-next li {
+  position: relative; display: flex; flex-direction: column; gap: 2px; padding: 0 0 20px 50px;
+  counter-increment: kp; color: var(--ink-2); line-height: 1.45;
+}
+.kp-next li:last-child { padding-bottom: 0; }
+.kp-next li::before {
+  content: counter(kp); position: absolute; left: 0; top: -3px; display: grid; place-items: center; width: 34px; height: 34px;
+  border-radius: 50%; font-weight: 700; color: var(--royal); background: #fff; box-shadow: inset 0 0 0 1.5px rgba(43, 75, 255, .32);
+}
+.kp-next li:first-child::before { color: #fff; background: var(--grad-btn); box-shadow: 0 8px 16px -8px rgba(26, 90, 255, .8); }
+.kp-next li:not(:last-child)::after {
+  content: ""; position: absolute; left: 16.5px; top: 36px; bottom: 2px; width: 1.5px;
+  background: linear-gradient(rgba(43, 75, 255, .32), rgba(43, 75, 255, .08));
+}
+.kp-next strong { font-family: var(--font-display); font-size: 1.18rem; font-weight: 700; color: var(--ink); }
+/* Direktkontakt */
+.kp-direct {
+  display: flex; flex-direction: column; gap: 4px; padding: 18px 20px;
+  border-radius: 22px; background: #fff; box-shadow: inset 0 0 0 1px var(--line), var(--shadow-1);
+}
+.kp-direct__h { margin-bottom: 6px; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
+.kp-direct__row {
+  display: flex; align-items: center; gap: 12px; margin: 0 -8px; padding: 7px 8px; border-radius: 14px;
+  font-size: 1.14rem; font-weight: 600; color: var(--ink); transition: background-color .2s;
+}
+.kp-direct__row small { display: block; font-size: .8rem; font-weight: 500; color: var(--ink-3); }
+.kp-direct__ico { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 13px; color: var(--royal); background: rgba(43, 75, 255, .08); transition: color .2s, background-color .2s; }
+.kp-direct__row:hover { background: #f3f7ff; }
+.kp-direct__row:hover .kp-direct__ico { color: #fff; background: var(--grad-btn); }
+.kp-direct__addr { display: flex; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); font-size: .92rem; line-height: 1.45; color: var(--ink-3); }
+.kp-direct__addr .i { flex: none; margin-top: 2px; color: var(--royal); }
+
+/* Formular-Karte: Abschnitte mit Linie getrennt */
+.kp-form { gap: 0; padding: clamp(22px, 3vw, 40px); box-shadow: inset 0 0 0 1px var(--line), 0 40px 80px -48px rgba(0, 30, 90, .45); }
+.kp-group { margin: 0; padding: 22px 0; border: 0; border-top: 1px solid var(--line); min-width: 0; }
+.kp-group[hidden] { display: none; }
+.kp-progress + .kp-group { border-top: 0; }
+.kp-group__title {
+  float: left; width: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 14px; padding: 0;
+  font-family: var(--font-display); font-size: 1.28rem; font-weight: 700; color: var(--ink);
+}
+/* die Überschrift ist (wegen <legend>) gefloatet – alles danach beginnt darunter */
+.kp-group > :not(legend) { clear: both; }
+.kp-group__opt, .form__opt { font-size: .85rem; font-weight: 500; color: var(--ink-3); }
+/* Fortschritt: zwei Schritte und ein Balken, der sich mit den Pflichtangaben füllt */
+.kp-progress { display: flex; flex-direction: column; gap: 14px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.kp-steps { display: flex; align-items: center; gap: 10px; }
+.kp-steps__item { display: flex; align-items: center; gap: 10px; flex: 1 1 0; min-width: 0; }
+.kp-steps__item + .kp-steps__item::before { content: ""; flex: 0 1 48px; min-width: 12px; height: 1.5px; background: var(--line-strong); }
+.kp-steps__num {
+  position: relative; display: grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 50%;
+  font-weight: 700; color: var(--ink-3); background: #fff; box-shadow: inset 0 0 0 1.5px var(--line-strong);
+  transition: color .3s, background-color .3s, box-shadow .3s;
+}
+.kp-steps__num b { transition: opacity .2s; }
+.kp-steps__num .i { position: absolute; width: 18px; height: 18px; stroke-width: 2.6; opacity: 0; transform: scale(.5); transition: opacity .3s, transform .35s var(--ease-out); }
+.kp-steps__item.is-current .kp-steps__num { color: var(--royal); box-shadow: inset 0 0 0 2px var(--royal); }
+.kp-steps__item.is-done .kp-steps__num { color: #fff; background: var(--grad-btn); box-shadow: 0 8px 16px -8px rgba(26, 90, 255, .8); }
+.kp-steps__item.is-done .kp-steps__num b { opacity: 0; }
+.kp-steps__item.is-done .kp-steps__num .i { opacity: 1; transform: none; }
+.kp-steps__txt { display: flex; flex-direction: column; min-width: 0; font-weight: 700; line-height: 1.2; color: var(--ink); }
+.kp-steps__txt small { overflow: hidden; font-size: .85rem; font-weight: 500; white-space: nowrap; text-overflow: ellipsis; color: var(--ink-3); }
+.kp-bar { display: block; height: 6px; overflow: hidden; border-radius: 6px; background: #edf2fb; }
+.kp-bar i { display: block; height: 100%; border-radius: inherit; background: var(--grad-btn); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease-out); }
+/* „Ich bin …“ als Karten mit Icon und Kurzbeschreibung */
+.kp-choice { grid-template-columns: repeat(4, 1fr); }
+.kp-choice .choice__item span { align-items: flex-start; justify-content: flex-start; gap: 4px; height: 100%; min-height: 104px; padding: 14px; text-align: left; font-size: 1.08rem; font-weight: 700; }
+.kp-choice .choice__item span .i { margin-bottom: 4px; }
+.kp-choice small { font-size: .84rem; font-weight: 500; line-height: 1.25; color: var(--ink-3); transition: color .2s; }
+.kp-choice .choice__item input:checked + span small { color: rgba(255, 255, 255, .86); }
+/* Themen zum Anhaken */
+.kp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.kp-chips[hidden] { display: none; }
+.kp-chip { position: relative; cursor: pointer; }
+.kp-chip input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.kp-chip span {
+  display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px 9px 10px; border-radius: 999px;
+  font-weight: 600; color: var(--ink-2); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition: color .2s, background-color .2s, box-shadow .2s;
+}
+.kp-chip .i { width: 20px; height: 20px; padding: 3px; border-radius: 50%; stroke-width: 3; color: transparent; box-shadow: inset 0 0 0 1.5px var(--line-strong); transition: color .2s, background-color .2s, box-shadow .2s; }
+.kp-chip:hover span { box-shadow: inset 0 0 0 1px rgba(26, 120, 255, .45); }
+.kp-chip input:checked + span { color: var(--royal); background: rgba(43, 75, 255, .07); box-shadow: inset 0 0 0 1.5px rgba(43, 75, 255, .55); }
+.kp-chip input:checked + span .i { color: #fff; background: var(--grad-btn); box-shadow: none; }
+.kp-chip input:focus-visible + span { outline: 2px solid var(--azure); outline-offset: 3px; }
+.kp-form .form__footer { padding-top: 22px; border-top: 1px solid var(--line); }
+/* die Karte ist lang: Dank oben statt in der Mitte (der Fokus auf „Neue Anfrage“ holt ihn ins Bild) */
+.kp-form .form__success { justify-content: flex-start; padding-top: clamp(56px, 9vw, 120px); }
+@media (max-width: 980px) {
+  .kp__grid { grid-template-columns: 1fr; }
+  .kp__side { display: contents; }
+  .kp__intro { order: 1; }
+  .kp-form { order: 2; }
+  .kp__aside { order: 3; }
+}
+@media (max-width: 760px) { .kp-choice { grid-template-columns: 1fr 1fr; } }
+/* schmal: Schritte ohne Verbindungslinie, Zusatzzeile darf umbrechen */
+@media (max-width: 520px) {
+  .kp-steps { gap: 14px; }
+  .kp-steps__item + .kp-steps__item::before { display: none; }
+  .kp-steps__num { width: 30px; height: 30px; }
+  .kp-steps__txt { font-size: .95rem; }
+  .kp-steps__txt small { white-space: normal; }
+}
 
 .form__success {
   position: absolute; inset: 0; z-index: 2;

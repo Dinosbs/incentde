@@ -2215,6 +2215,7 @@
     const navInner = nav && $(".nav__inner", nav);
     const meta = $('meta[name="description"]');
     const form = $("[data-contact-mini]");
+    const topic = form && $("[data-contact-topic]", form);
     // Titel/Beschreibung der Übersicht stehen am Hero (auf den Bereichs-Seiten hat der <head> die des Bereichs)
     const heroEl = $("[data-hero]");
     const home = { title: (heroEl && heroEl.dataset.title) || document.title, desc: (heroEl && heroEl.dataset.desc) || (meta ? meta.content : "") };
@@ -2359,6 +2360,11 @@
       $$('link[rel="canonical"]').forEach((l) => (l.href = canon));
       $$('meta[property="og:url"]').forEach((m) => (m.content = canon));
       $$("[data-nav-world]").forEach((a) => (w && a.dataset.navWorld === w.key ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")));
+      // kleines Kontaktformular: der Bereich geht als Thema mit (kontakt.html?ich=…&thema=…)
+      if (topic) {
+        topic.value = w && panel ? id : "";
+        topic.disabled = !topic.value;
+      }
       layoutBars();
       // z. B. für die Live-Demo: in „Ihr Design“ startet sie mit geöffnetem Builder
       document.dispatchEvent(new CustomEvent("incent:view", { detail: { world: html.dataset.world || "", mb: html.dataset.mb || "", design: isDesign(id) } }));
