@@ -36,16 +36,15 @@ scripts: contact
     <!-- Kontaktformular: ohne data-endpoint öffnet es das E-Mail-Programm (assets/js/contact.js). Vorbelegung aus dem
          kleinen Formular: ?ich=Arbeitgeber, dazu ?thema=<Bereich> (z. B. mitarbeiterrabatte → Thema angehakt) -->
     <form class="form kp-form" data-contact-form data-tilt-card data-rx="1.5" data-ry="2.5" data-tx="5" data-ty="3" novalidate aria-labelledby="page-title">
-      <div class="kp-progress">
-        <ol class="kp-steps">
-          <li class="kp-steps__item" data-kp-step="1"><span class="kp-steps__num"><b>1</b><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></span><span class="kp-steps__txt">Wer Sie sind<small data-kp-type>Bitte auswählen</small></span></li>
-          <li class="kp-steps__item" data-kp-step="2"><span class="kp-steps__num"><b>2</b><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></span><span class="kp-steps__txt">Ihre Angaben<small data-kp-left>Name, E-Mail, Anliegen</small></span></li>
-        </ol>
+      <!-- Schritt für Schritt: nur der erste Abschnitt ist offen, „Weiter“ prüft und öffnet den nächsten (contact.js);
+           ohne Skript ist alles offen und diese Anzeige weg -->
+      <div class="kp-progress" aria-live="polite">
+        <p class="kp-progress__txt"><b data-kp-now>Schritt 1</b><span data-kp-title>Wer Sie sind</span></p>
         <span class="kp-bar" aria-hidden="true"><i data-kp-bar></i></span>
       </div>
 
-      <fieldset class="form__choice kp-group">
-        <legend class="kp-group__title"><span>Ich bin …<span class="form__req" aria-hidden="true">*</span></span></legend>
+      <fieldset class="form__choice kp-group" data-kp-stage="1" data-kp-name="Wer Sie sind">
+        <legend class="kp-group__title"><span class="kp-num" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span><span>Ich bin …<span class="form__req" aria-hidden="true">*</span></span></legend>
         <div class="choice choice--cards kp-choice">
           <label class="choice__item"><input type="radio" name="sender_type" value="Arbeitgeber" required><span><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Arbeitgeber<small>Mitarbeitende binden</small></span></label>
           <label class="choice__item"><input type="radio" name="sender_type" value="Unternehmen"><span><svg class="i" aria-hidden="true"><use href="#i-building"/></svg>Unternehmen<small>Kund:innen binden</small></span></label>
@@ -55,8 +54,8 @@ scripts: contact
         <p class="form__error" data-error-for="sender_type"></p>
       </fieldset>
 
-      <fieldset class="kp-group" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
-        <legend class="kp-group__title">Worum geht es?<span class="kp-group__opt">optional, mehrere möglich</span></legend>
+      <fieldset class="kp-group" data-kp-stage="2" data-kp-name="Worum geht es?" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+        <legend class="kp-group__title"><span class="kp-num" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>Worum geht es?<span class="kp-group__opt">optional, mehrere möglich</span></legend>
         <div class="kp-chips" data-show-for="Arbeitgeber" hidden>
           <label class="kp-chip"><input type="checkbox" name="interest" value="2-in-1-Benefitportal" data-topic="benefitportal ihr-design"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>2-in-1-Benefitportal</span></label>
           <label class="kp-chip"><input type="checkbox" name="interest" value="Mitarbeiterrabatte" data-topic="mitarbeiterrabatte"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Mitarbeiterrabatte</span></label>
@@ -72,10 +71,11 @@ scripts: contact
           <label class="kp-chip"><input type="checkbox" name="interest" value="Anbieter werden" data-topic="anbieter-werden"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Anbieter werden</span></label>
           <label class="kp-chip"><input type="checkbox" name="interest" value="Newsletter-Platzierung" data-topic="newsletter-platzierung"><span><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Newsletter-Platzierung</span></label>
         </div>
+        <div class="kp-go"><button class="btn btn--primary kp-go__btn" type="button" data-kp-next>Weiter <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></button></div>
       </fieldset>
 
-      <fieldset class="kp-group">
-        <legend class="kp-group__title">Ihre Kontaktdaten</legend>
+      <fieldset class="kp-group" data-kp-stage="3" data-kp-name="Ihre Kontaktdaten">
+        <legend class="kp-group__title"><span class="kp-num" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>Ihre Kontaktdaten</legend>
         <div class="form__grid">
           <div class="form__field span-2">
             <label for="cf-salutation">Anrede</label>
@@ -106,10 +106,11 @@ scripts: contact
             <p class="form__error"></p>
           </div>
         </div>
+        <div class="kp-go"><button class="btn btn--primary kp-go__btn" type="button" data-kp-next>Weiter <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></button></div>
       </fieldset>
 
-      <fieldset class="kp-group" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
-        <legend class="kp-group__title">Ihr Unternehmen</legend>
+      <fieldset class="kp-group" data-kp-stage="4" data-kp-name="Ihr Unternehmen" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+        <legend class="kp-group__title"><span class="kp-num" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>Ihr Unternehmen</legend>
         <div class="form__grid">
           <div class="form__field span-3">
             <label for="cf-company">Unternehmen<span class="form__req" aria-hidden="true">*</span></label>
@@ -145,10 +146,11 @@ scripts: contact
             <input id="cf-zip" name="postal_code" type="text" inputmode="numeric" autocomplete="postal-code">
           </div>
         </div>
+        <div class="kp-go"><button class="btn btn--primary kp-go__btn" type="button" data-kp-next>Weiter <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></button></div>
       </fieldset>
 
-      <fieldset class="kp-group" data-show-for="Creator" hidden>
-        <legend class="kp-group__title">Ihr Kanal</legend>
+      <fieldset class="kp-group" data-kp-stage="4" data-kp-name="Ihr Kanal" data-show-for="Creator" hidden>
+        <legend class="kp-group__title"><span class="kp-num" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>Ihr Kanal</legend>
         <div class="form__grid">
           <div class="form__field span-3">
             <label for="cf-platform">Plattform<span class="form__req" aria-hidden="true">*</span></label>
@@ -165,17 +167,18 @@ scripts: contact
             <input id="cf-agency" name="agentur" type="text">
           </div>
         </div>
+        <div class="kp-go"><button class="btn btn--primary kp-go__btn" type="button" data-kp-next>Weiter <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></button></div>
       </fieldset>
 
-      <fieldset class="kp-group">
-        <legend class="kp-group__title">Ihre Nachricht<span class="kp-group__opt">optional</span></legend>
+      <fieldset class="kp-group" data-kp-stage="5" data-kp-name="Ihre Nachricht">
+        <legend class="kp-group__title"><span class="kp-num" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>Ihre Nachricht<span class="kp-group__opt">optional</span></legend>
         <div class="form__field">
           <label class="sr-only" for="cf-message">Nachricht</label>
           <textarea id="cf-message" name="message" rows="4" placeholder="Was Sie uns noch mitteilen möchten …"></textarea>
         </div>
       </fieldset>
 
-      <div class="form__footer">
+      <div class="form__footer" data-kp-stage="5">
         <p class="form__legal"><span class="form__req" aria-hidden="true">*</span> Pflichtangabe. Hinweise zum Schutz Ihrer Daten finden
           Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
         <button class="btn btn--primary btn--lg form__submit" type="submit">Anfrage senden <svg class="i" aria-hidden="true"><use href="#i-send"/></svg></button>

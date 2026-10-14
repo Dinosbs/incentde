@@ -2065,7 +2065,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .kp__grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: start; gap: clamp(28px, 5vw, 72px); }
 .kp__side { display: flex; flex-direction: column; gap: clamp(28px, 4vw, 44px); }
 /* Desktop: die linke Spalte bleibt beim Ausfüllen stehen (nur wenn sie ganz ins Fenster passt) */
-@media (min-width: 981px) and (min-height: 880px) { .kp__side { position: sticky; top: calc(var(--nav-h) + 44px); } }
+@media (min-width: 981px) and (min-height: 1000px) { .kp__side { position: sticky; top: calc(var(--nav-h) + 44px); } }
 .kp__intro { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
 .kp__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.5rem, 5vw, 4.3rem); line-height: 1; letter-spacing: -.005em; text-wrap: balance; }
 .kp__intro .lead strong { color: var(--ink); }
@@ -2117,26 +2117,36 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 /* die Überschrift ist (wegen <legend>) gefloatet – alles danach beginnt darunter */
 .kp-group > :not(legend) { clear: both; }
 .kp-group__opt, .form__opt { font-size: .85rem; font-weight: 500; color: var(--ink-3); }
-/* Fortschritt: zwei Schritte und ein Balken, der sich mit den Pflichtangaben füllt */
-.kp-progress { display: flex; flex-direction: column; gap: 14px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
-.kp-steps { display: flex; align-items: center; gap: 10px; }
-.kp-steps__item { display: flex; align-items: center; gap: 10px; flex: 1 1 0; min-width: 0; }
-.kp-steps__item + .kp-steps__item::before { content: ""; flex: 0 1 48px; min-width: 12px; height: 1.5px; background: var(--line-strong); }
-.kp-steps__num {
-  position: relative; display: grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 50%;
-  font-weight: 700; color: var(--ink-3); background: #fff; box-shadow: inset 0 0 0 1.5px var(--line-strong);
-  transition: color .3s, background-color .3s, box-shadow .3s;
-}
-.kp-steps__num b { transition: opacity .2s; }
-.kp-steps__num .i { position: absolute; width: 18px; height: 18px; stroke-width: 2.6; opacity: 0; transform: scale(.5); transition: opacity .3s, transform .35s var(--ease-out); }
-.kp-steps__item.is-current .kp-steps__num { color: var(--royal); box-shadow: inset 0 0 0 2px var(--royal); }
-.kp-steps__item.is-done .kp-steps__num { color: #fff; background: var(--grad-btn); box-shadow: 0 8px 16px -8px rgba(26, 90, 255, .8); }
-.kp-steps__item.is-done .kp-steps__num b { opacity: 0; }
-.kp-steps__item.is-done .kp-steps__num .i { opacity: 1; transform: none; }
-.kp-steps__txt { display: flex; flex-direction: column; min-width: 0; font-weight: 700; line-height: 1.2; color: var(--ink); }
-.kp-steps__txt small { overflow: hidden; font-size: .85rem; font-weight: 500; white-space: nowrap; text-overflow: ellipsis; color: var(--ink-3); }
+/* Schritt für Schritt (contact.js): mit Skript ist zuerst nur „Ich bin …“ offen, „Weiter“ öffnet den nächsten Abschnitt.
+   Ohne Skript ist alles offen und Fortschritt/„Weiter“ fehlen. Stufe 1 ist immer offen – kein leeres Formular bis zum Skript */
+.has-js .kp-form [data-kp-stage]:not([data-kp-stage="1"]):not(.is-open) { display: none; }
+.kp-group.is-entering, .form__footer.is-entering { animation: field-in .5s var(--ease-out); }
+.kp-group { scroll-margin-top: calc(var(--nav-h) + 40px); }
+.kp-progress { display: none; }
+.has-js .kp-progress { display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.kp-progress__txt { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.kp-progress__txt b { font-size: .82rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--royal); }
+.kp-progress__txt span { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--ink); }
 .kp-bar { display: block; height: 6px; overflow: hidden; border-radius: 6px; background: #edf2fb; }
 .kp-bar i { display: block; height: 100%; border-radius: inherit; background: var(--grad-btn); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease-out); }
+/* Nummer je Abschnitt (zählt nur sichtbare), erledigte Abschnitte mit Häkchen */
+.kp-form { counter-reset: kpsec; }
+.kp-group { counter-increment: kpsec; }
+.kp-group__title { align-items: center; }
+.kp-num {
+  position: relative; display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; margin-right: 2px;
+  border-radius: 50%; font-size: .95rem; font-weight: 700; color: #fff; background: var(--grad-btn);
+  box-shadow: 0 8px 16px -8px rgba(26, 90, 255, .8); transition: color .3s, background-color .3s, box-shadow .3s;
+}
+.kp-num::before { content: counter(kpsec); transition: opacity .2s; }
+.kp-num .i { position: absolute; width: 16px; height: 16px; stroke-width: 2.8; opacity: 0; transform: scale(.5); transition: opacity .3s, transform .35s var(--ease-out); }
+.kp-group.is-done .kp-num { color: var(--royal); background: rgba(43, 75, 255, .1); box-shadow: none; }
+.kp-group.is-done .kp-num::before { opacity: 0; }
+.kp-group.is-done .kp-num .i { opacity: 1; transform: none; }
+/* „Weiter“ nur im zuletzt geöffneten Abschnitt */
+.kp-go { display: none; }
+.has-js .kp-go { display: flex; justify-content: flex-end; margin-top: 18px; }
+.has-js .kp-group.is-done .kp-go { display: none; }
 /* „Ich bin …“ als Karten mit Icon und Kurzbeschreibung */
 .kp-choice { grid-template-columns: repeat(4, 1fr); }
 .kp-choice .choice__item span { align-items: flex-start; justify-content: flex-start; gap: 4px; height: 100%; min-height: 104px; padding: 14px; text-align: left; font-size: 1.08rem; font-weight: 700; }
@@ -2169,14 +2179,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   .kp__aside { order: 3; }
 }
 @media (max-width: 760px) { .kp-choice { grid-template-columns: 1fr 1fr; } }
-/* schmal: Schritte ohne Verbindungslinie, Zusatzzeile darf umbrechen */
-@media (max-width: 520px) {
-  .kp-steps { gap: 14px; }
-  .kp-steps__item + .kp-steps__item::before { display: none; }
-  .kp-steps__num { width: 30px; height: 30px; }
-  .kp-steps__txt { font-size: .95rem; }
-  .kp-steps__txt small { white-space: normal; }
-}
+@media (max-width: 520px) { .has-js .kp-go .btn { width: 100%; justify-content: center; } }
 
 .form__success {
   position: absolute; inset: 0; z-index: 2;

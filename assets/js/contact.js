@@ -5,8 +5,10 @@
    kontakt.html?ich=Arbeitgeber (auch ohne Skript) – oder ?fuer=arbeitgeber (Kampagnen-Links). Die Auswahl wird
    vorbelegt, die passenden Zusatzfelder erscheinen. &thema=<Bereich> (das kleine Formular hängt den Bereich an, aus dem
    es kommt, z. B. mitarbeiterrabatte) hakt unter „Worum geht es?“ das passende Thema an (data-topic).
-   Oben zeigt ein Fortschritt, wie viele Pflichtangaben noch fehlen; Felder werden schon beim Verlassen geprüft (nur wenn
-   etwas drinsteht – leere Pflichtfelder meldet erst das Absenden).
+   Schritt für Schritt: Abschnitte haben eine Stufe (data-kp-stage). Offen ist zuerst nur „Ich bin …“; die Auswahl öffnet
+   den nächsten Abschnitt, danach prüft jeweils „Weiter“ (data-kp-next) den Abschnitt und öffnet den nächsten. Offene
+   Abschnitte bleiben bearbeitbar. Oben steht „Schritt 2 von 5 · Worum geht es?“ mit Balken. Ohne Skript ist alles offen.
+   Ausgefüllte Felder werden schon beim Verlassen geprüft (leere Pflichtfelder erst bei „Weiter“ bzw. beim Absenden).
    Absenden: ohne data-endpoint öffnet sich das E-Mail-Programm mit der fertigen Anfrage an info@incent.de; mit
    data-endpoint="https://…" am <form> geht sie per fetch (POST, FormData) an diese Adresse.
    ========================================================================= */
@@ -44,25 +46,67 @@
     const message = form.elements.message;
     const senderType = () => (form.querySelector('input[name="sender_type"]:checked') || {}).value || "none";
 
-    // Fortschritt: Schritt 1 = Auswahl, Schritt 2 = alle sichtbaren Pflichtfelder gültig
-    const steps = $$("[data-kp-step]", form);
-    const typeOut = $("[data-kp-type]", form);
-    const leftOut = $("[data-kp-left]", form);
+    // Schritt für Schritt (Stufen 1 … n; ein Abschnitt zählt nur, wenn er zur Auswahl passt)
+    const stages = $$("[data-kp-stage]", form);
+    const stageOf = (el) => Number(el.dataset.kpStage);
+    const lastStage = Math.max(0, ...stages.map(stageOf));
+    const fits = (el) => !el.dataset.showFor || el.dataset.showFor.split(" ").includes(senderType());
+    const at = (n) => stages.filter((el) => stageOf(el) === n && fits(el));
+    const nextAfter = (n) => {
+      for (let k = n + 1; k <= lastStage; k++) if (at(k).length) return k;
+      return n;
+    };
+    const finalStage = () => {
+      for (let k = lastStage; k > 1; k--) if (at(k).length) return k;
+      return 1;
+    };
+    let open = 1;
+    const nowOut = $("[data-kp-now]", form);
+    const titleOut = $("[data-kp-title]", form);
     const bar = $("[data-kp-bar]", form);
     const progress = () => {
-      if (!steps.length) return;
+      if (!stages.length) return;
       const type = senderType();
-      const required = $$("input[required]:not([type=radio]), select[required]", form).filter((el) => !el.disabled);
-      const open = required.filter((el) => !el.value.trim() || !el.checkValidity()).length + (type === "none" ? 1 : 0);
-      const total = required.length + 1;
-      steps[0].classList.toggle("is-done", type !== "none");
-      steps[0].classList.toggle("is-current", type === "none");
-      steps[1].classList.toggle("is-done", open === 0);
-      steps[1].classList.toggle("is-current", type !== "none" && open > 0);
-      typeOut.textContent = type === "none" ? "Bitte auswählen" : type;
-      leftOut.textContent = type === "none" ? "Name, E-Mail, Anliegen" : open === 0 ? "Alles bereit zum Senden" : `Noch ${open} Pflichtangabe${open === 1 ? "" : "n"}`;
-      bar.style.transform = `scaleX(${((total - open) / total).toFixed(3)})`;
+      const list = [];
+      for (let k = 1; k <= lastStage; k++) if (at(k).length) list.push(k);
+      const idx = list.indexOf(open) + 1;
+      const ready = open === list[list.length - 1] && $$("input[required]:not([type=radio]), select[required]", form).every((el) => el.disabled || el.checkValidity());
+      nowOut.textContent = type === "none" ? "Schritt 1" : `Schritt ${idx} von ${list.length}`;
+      titleOut.textContent = (at(open).find((el) => el.dataset.kpName) || {}).dataset?.kpName || "";
+      bar.style.transform = `scaleX(${type === "none" ? 0 : ready ? 1 : ((idx - 1) / list.length).toFixed(3)})`;
     };
+    const applyStages = () => {
+      // passt der offene Abschnitt nicht mehr zur Auswahl (z. B. Creator hat keine Themen), weiter zum nächsten passenden
+      if (open > 1 && !at(open).length) open = nextAfter(open);
+      stages.forEach((el) => {
+        el.classList.toggle("is-open", stageOf(el) <= open);
+        el.classList.toggle("is-done", stageOf(el) < open);
+      });
+      progress();
+    };
+    // nächsten Abschnitt öffnen; optional ins Bild holen und das erste Feld fokussieren
+    const reveal = (n, { scroll = false, focus = false } = {}) => {
+      if (n <= open) return;
+      const before = open;
+      open = n;
+      applyStages();
+      const fresh = stages.filter((el) => stageOf(el) > before && stageOf(el) <= open && fits(el));
+      if (!reducedMotion) fresh.forEach((el) => restartClass(el, "is-entering"));
+      const first = fresh[0];
+      if (!first) return;
+      // der neue Abschnitt rückt nach oben (unter die Kopfleiste, scroll-margin-top), die erledigten wandern hinaus
+      if (scroll) first.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+      // zuerst ein Textfeld (Vorname statt Anrede), sonst das erste Bedienelement (z. B. ein Thema)
+      const field =
+        focus &&
+        ($("input:not([type=hidden]):not([type=radio]):not([type=checkbox]):not(:disabled), textarea", first) ||
+          $("input:not([type=hidden]):not(:disabled), select:not(:disabled)", first));
+      if (field) field.focus({ preventScroll: scroll });
+    };
+    // Auswahl per Zeiger: den neuen Abschnitt sanft ins Bild holen (per Tastatur nicht – Pfeiltasten wechseln die Auswahl)
+    let pointerPick = false;
+    form.addEventListener("pointerdown", (e) => (pointerPick = !!e.target.closest(".choice__item")));
+    form.addEventListener("keydown", () => (pointerPick = false));
 
     const updateFields = (animate) => {
       const type = senderType();
@@ -76,7 +120,7 @@
         }
       });
       if (message) message.placeholder = HINTS[type] || HINTS.none;
-      progress();
+      applyStages();
     };
 
     const messageFor = (el) => {
@@ -99,6 +143,23 @@
         el.removeAttribute("aria-invalid");
       }
     };
+    // Felder in den Abschnitten prüfen, Fehler zeigen; liefert das erste ungültige Feld
+    const validate = (sections) => {
+      let first = null;
+      sections.forEach((sec) =>
+        $$("input:not([type=radio]):not([type=checkbox]):not([type=hidden]), select, textarea", sec).forEach((el) => {
+          if (el.disabled) return;
+          if (el === phone) checkPhone();
+          if (el.checkValidity()) {
+            setError(el, "");
+          } else {
+            setError(el, messageFor(el));
+            first = first || el;
+          }
+        })
+      );
+      return first;
+    };
     const checkPhone = () =>
       phone.setCustomValidity(phone.value && !/^[0-9 ()+\/.-]{5,}$/.test(phone.value) ? "Bitte nur Ziffern und Telefonzeichen verwenden." : "");
 
@@ -106,6 +167,17 @@
       if (e.target.name !== "sender_type") return;
       typeError.textContent = "";
       updateFields(true);
+      reveal(nextAfter(1), { scroll: pointerPick });
+    });
+    // „Weiter“: Abschnitt prüfen, dann den nächsten öffnen
+    const advance = (n) => {
+      const bad = validate(at(n));
+      if (bad) return bad.focus();
+      reveal(nextAfter(n), { scroll: true, focus: true });
+    };
+    form.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-kp-next]");
+      if (btn) advance(stageOf(btn.closest("[data-kp-stage]")));
     });
     form.addEventListener("input", (e) => {
       if (e.target === phone) checkPhone();
@@ -129,21 +201,19 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       formError.textContent = "";
+      // Enter in einem Feld, bevor der letzte Abschnitt offen ist: wirkt wie „Weiter“
+      if (stages.length && open < finalStage()) {
+        if (senderType() === "none") typeError.textContent = "Bitte wählen Sie aus, wer Sie sind.";
+        else advance(open);
+        return;
+      }
       checkPhone();
       let first = null;
       if (senderType() === "none") {
         typeError.textContent = "Bitte wählen Sie aus, wer Sie sind.";
         first = form.querySelector('input[name="sender_type"]');
       }
-      $$("input:not([type=radio]), select, textarea", form).forEach((el) => {
-        if (el.disabled) return;
-        if (el.checkValidity()) {
-          setError(el, "");
-        } else {
-          setError(el, messageFor(el));
-          first = first || el;
-        }
-      });
+      first = first || validate([form]);
       if (first) {
         first.focus();
         return;
@@ -188,6 +258,7 @@
       typeError.textContent = "";
       $$(".form__field", form).forEach((field) => field.classList.remove("is-invalid"));
       $$(".form__error", form).forEach((out) => (out.textContent = ""));
+      open = 1;
       updateFields(false);
       form.querySelector('input[name="sender_type"]').focus();
     });

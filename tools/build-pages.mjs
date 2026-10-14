@@ -208,6 +208,9 @@ ${
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
   ${preloads.join("\n  ")}
   <link rel="stylesheet" href="assets/css/main.css">
+  <!-- Skript aktiv: Inhalte, die Skripte schrittweise zeigen (z. B. Kontaktformular), sind dann von Anfang an zu (kein Aufblitzen).
+       Eigene Klasse statt .js – deren Regeln gehören zur Startseite (main.js) -->
+  <script>document.documentElement.classList.add("has-js")</script>
   <script defer src="assets/js/consent.js"></script>
   <script defer src="assets/js/sub.js"></script>
 ${(meta.scripts || "")
