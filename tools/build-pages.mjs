@@ -101,8 +101,8 @@ for (const [slug, panel] of Object.entries(pages)) {
 }
 
 // ---------- Unterseiten (FAQ, Karriere, Impressum, Datenschutz) ----------
-// Quelle: pages/<name>.html – oben ein Kommentar mit title, description, robots (index/noindex) und crumb (Name in den
-// Brotkrümeln), darunter der Inhalt von <main>. Dazu kommen Kopf, schlichte Kopfleiste, der Footer der Startseite (Sprungziele
+// Quelle: pages/<name>.html – oben ein Kommentar mit title, description, robots (index/noindex), crumb (Name in den
+// Brotkrümeln) und optional scripts (weitere Skripte aus assets/js/, z. B. „contact“), darunter der Inhalt von <main>. Dazu kommen Kopf, schlichte Kopfleiste, der Footer der Startseite (Sprungziele
 // zeigen auf ./#…) und nur die Icons, die die Seite braucht. Erreichbar nur über den Footer, nicht über die Navigation.
 // Kein main.js: Die Seiten laden nur consent.js (Privatsphäre-Einstellungen) und sub.js (Cursor-Neigung der Bilder,
 // Animationen erst im Bild starten).
@@ -117,6 +117,7 @@ const footer = between("<!-- layout:footer -->", "<!-- /layout:footer -->")
   .replace(/ data-home/g, "")
   .replace(/ data-pb-open="[^"]*"/g, "")
   .replace(/href="#top"/g, 'href="./"')
+  .replace(/<a ([^>]*?)href="#kontakt"/g, '<a $1href="kontakt.html"')
   .replace(/<a ([^>]*?)href="#([^"]+)"/g, '<a $1href="./#$2"')
   .replace('alt="INCENT – nach oben"', 'alt="INCENT – zur Startseite"')
   .trim();
@@ -131,7 +132,7 @@ const header = `<header class="nav is-scrolled sub-nav">
       </a>
       <div class="nav__actions">
         <a class="sub-nav__home" href="./"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg><span>Zur Startseite</span></a>
-        <a class="btn btn--primary btn--sm" href="./#kontakt">Demo buchen</a>
+        <a class="btn btn--primary btn--sm" href="kontakt.html">Demo buchen</a>
       </div>
     </div>
   </header>`;
@@ -209,7 +210,11 @@ ${
   <link rel="stylesheet" href="assets/css/main.css">
   <script defer src="assets/js/consent.js"></script>
   <script defer src="assets/js/sub.js"></script>
-${ld.map((x) => `  <script type="application/ld+json">${JSON.stringify(x)}</script>`).join("\n")}
+${(meta.scripts || "")
+  .split(/[\s,]+/)
+  .filter(Boolean)
+  .map((x) => `  <script defer src="assets/js/${x}.js"></script>\n`)
+  .join("")}${ld.map((x) => `  <script type="application/ld+json">${JSON.stringify(x)}</script>`).join("\n")}
 </head>
 <body class="sub">
   <!-- Erzeugt von tools/build-pages.mjs aus pages/${file} – dort bearbeiten -->

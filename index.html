@@ -100,7 +100,8 @@
         if (p && !h) keep = p;
       }
       if (keep) try { history.replaceState(null, "", location.pathname + location.search); r.dataset.hash = keep; } catch (e) {}
-      if (p) { r.dataset.mb = p; r.dataset.world = world[p]; }
+      // weiterer Bereich einer Welt (nicht der erste): allgemeine Abschnitte (data-first-only) stehen dort nicht noch einmal
+      if (p) { r.dataset.mb = p; r.dataset.world = world[p]; if (first[world[p]] !== p) r.dataset.sub = ""; }
       // Live-Demo (Vorschau ⇄ Builder) noch beim Aufbau der Seite in die gezeigte Welt holen (Skript nach jedem Platz)
       window.incentStudio = function (slot) {
         var pb = document.getElementById("live-vorschau");
@@ -690,12 +691,12 @@
           <div class="subhero__visual mb-swap" data-reveal style="--d:.2s">
             <div data-mb-only="benefitportal">
             <div class="photo-card" data-tilt-card data-parallax data-rx="5" data-ry="8">
-              <img loading="lazy" class="photo-card__img" src="assets/img/mitarbeiterbindung/hero-team.webp" width="1400" height="788" alt="Kolleginnen und Kollegen entdecken gemeinsam Vorteile auf einem Tablet">
+              <!-- szene:benefits --><div class="scene scene--hero scene--benefits photo-card__img" role="img" aria-label="Animation: Das Benefitportal verteilt Rabatte, Gutscheine und Geschenke an die Mitarbeitenden" style="--t:12s"><svg class="sz-wires" viewBox="0 0 100 75" preserveAspectRatio="none" aria-hidden="true"><path class="dash" d="M46 36L10 30"/><path class="dash" d="M46 36L88 22"/><path class="dash" d="M46 36L92 46"/><path class="dash" d="M46 36L80 66"/><path class="dash" d="M46 36L56 66"/><path class="dash" d="M46 36L22 59"/></svg><div class="sz-at sz-av szb-av" style="--x:10;--y:30;--d:0s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at" style="--x:13.4;--y:26.6;--d:0s;--fx:32.6cqw;--fy:9.4cqw"><span class="sz-ico sz-ico--round szb-pack" style="--s:5.2cqw"><svg class="i" aria-hidden="true"><use href="#i-tag"/></svg></span></div><div class="sz-at szb-heart" style="--x:10;--y:23.5;--d:0s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at sz-av szb-av" style="--x:88;--y:22;--d:2s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at" style="--x:91.4;--y:18.6;--d:2s;--fx:-45.4cqw;--fy:17.4cqw"><span class="sz-ico sz-ico--round szb-pack" style="--s:5.2cqw"><svg class="i" aria-hidden="true"><use href="#i-cake"/></svg></span></div><div class="sz-at szb-heart" style="--x:88;--y:15.5;--d:2s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at sz-av szb-av" style="--x:92;--y:46;--d:4s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at" style="--x:95.4;--y:42.6;--d:4s;--fx:-49.4cqw;--fy:-6.6cqw"><span class="sz-ico sz-ico--round szb-pack" style="--s:5.2cqw"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></span></div><div class="sz-at szb-heart" style="--x:92;--y:39.5;--d:4s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at sz-av szb-av" style="--x:80;--y:66;--d:6s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at" style="--x:83.4;--y:62.6;--d:6s;--fx:-37.4cqw;--fy:-26.6cqw"><span class="sz-ico sz-ico--round szb-pack" style="--s:5.2cqw"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg></span></div><div class="sz-at szb-heart" style="--x:80;--y:59.5;--d:6s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at sz-av szb-av" style="--x:56;--y:66;--d:8s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at" style="--x:59.4;--y:62.6;--d:8s;--fx:-13.4cqw;--fy:-26.6cqw"><span class="sz-ico sz-ico--round szb-pack" style="--s:5.2cqw"><svg class="i" aria-hidden="true"><use href="#i-plane"/></svg></span></div><div class="sz-at szb-heart" style="--x:56;--y:59.5;--d:8s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at sz-av szb-av" style="--x:22;--y:59;--d:10s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at" style="--x:25.4;--y:55.6;--d:10s;--fx:20.6cqw;--fy:-19.6cqw"><span class="sz-ico sz-ico--round szb-pack" style="--s:5.2cqw"><svg class="i" aria-hidden="true"><use href="#i-piggy"/></svg></span></div><div class="sz-at szb-heart" style="--x:22;--y:52.5;--d:10s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at sz-card szb-hub" style="--x:46;--y:36"><div class="szb-hub__head"><svg class="i" aria-hidden="true"><use href="#i-sparkles"/></svg>Ihr Benefitportal</div><div class="szb-hub__grid"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-tag"/></svg><b class="sz-on" style="--d:0s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg><b class="sz-on" style="--d:2s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg><b class="sz-on" style="--d:4s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-cake"/></svg><b class="sz-on" style="--d:6s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-plane"/></svg><b class="sz-on" style="--d:8s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-piggy"/></svg><b class="sz-on" style="--d:10s"></b></span></div></div></div><!-- /szene:benefits -->
               <span class="chip-float" style="left:-28px;top:12%;--z:70px;--delay:0s">
                 <span class="chip-float__ico"><svg class="i" aria-hidden="true"><use href="#i-tag"/></svg></span>
                 <span><strong>Bis zu 40 %</strong><small>bei SOLAKON</small></span>
               </span>
-              <span class="chip-float" style="right:-22px;top:42%;--z:90px;--delay:-2s">
+              <span class="chip-float" style="right:-22px;top:3%;--z:90px;--delay:-2s">
                 <span class="chip-float__ico chip-float__ico--alt"><svg class="i" aria-hidden="true"><use href="#i-cake"/></svg></span>
                 <span><strong>Geburtstag</strong><small>Gutschein für den Geschenkeshop</small></span>
               </span>
@@ -707,8 +708,8 @@
             </div>
             <div data-mb-only="mitarbeiterrabatte">
             <div class="photo-card" data-tilt-card data-parallax data-rx="5" data-ry="8">
-              <img loading="lazy" class="photo-card__img" src="assets/img/mitarbeiterbindung/hero-rabatte.webp" width="1400" height="788" alt="Smartphone und Tablet zeigen Rabatte aus unterschiedlichen Lebensbereichen">
-              <span class="chip-float" style="left:-26px;top:14%;--z:70px;--delay:0s">
+              <!-- szene:rabatte --><div class="scene scene--hero scene--rabatte photo-card__img" role="img" aria-label="Animation: Rabatte aus allen Lebensbereichen laufen durch die App, jede Ersparnis landet im Sparschwein" style="--t:12s"><div class="sz-at sz-phone" style="--x:47;--y:40;--w:24cqw"><div class="sz-phone__screen"><div class="szr-head"><svg class="i" aria-hidden="true" style="width:1.3em;height:1.3em"><use href="#i-tag"/></svg>Mitarbeiterrabatte</div><div class="szr-search"></div><div class="szr-list"><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-wifi"/></svg></span><span><span class="sz-label">Mobilfunk</span><span class="sz-t" style="width:60%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-plane"/></svg></span><span><span class="sz-label">Reisen</span><span class="sz-t" style="width:73%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-car"/></svg></span><span><span class="sz-label">Tanken</span><span class="sz-t" style="width:86%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg></span><span><span class="sz-label">Mode</span><span class="sz-t" style="width:69%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg></span><span><span class="sz-label">Wohnen</span><span class="sz-t" style="width:82%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg></span><span><span class="sz-label">Sport</span><span class="sz-t" style="width:65%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-wifi"/></svg></span><span><span class="sz-label">Mobilfunk</span><span class="sz-t" style="width:78%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-plane"/></svg></span><span><span class="sz-label">Reisen</span><span class="sz-t" style="width:61%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-car"/></svg></span><span><span class="sz-label">Tanken</span><span class="sz-t" style="width:74%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg></span><span><span class="sz-label">Mode</span><span class="sz-t" style="width:87%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg></span><span><span class="sz-label">Wohnen</span><span class="sz-t" style="width:70%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg></span><span><span class="sz-label">Sport</span><span class="sz-t" style="width:83%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div></div></div></div><div class="sz-at sz-card szr-pig" style="--x:79;--y:21"><span class="sz-ico" style="--s:9cqw"><svg class="i" aria-hidden="true"><use href="#i-piggy"/></svg></span><span class="szr-pig__txt"><span class="sz-label">Ihre Ersparnis</span><span class="szr-bar"><i></i></span></span></div><div class="sz-at" style="--x:70.3;--y:20;--d:0s;--fx:-15.3cqw;--fy:10cqw"><span class="sz-ico sz-ico--round sz-ico--gold szr-coin" style="--s:4.6cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span></div><div class="sz-at" style="--x:70.3;--y:20;--d:2s;--fx:-15.3cqw;--fy:10cqw"><span class="sz-ico sz-ico--round sz-ico--gold szr-coin" style="--s:4.6cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span></div><div class="sz-at" style="--x:70.3;--y:20;--d:4s;--fx:-15.3cqw;--fy:10cqw"><span class="sz-ico sz-ico--round sz-ico--gold szr-coin" style="--s:4.6cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span></div><div class="sz-at" style="--x:70.3;--y:20;--d:6s;--fx:-15.3cqw;--fy:10cqw"><span class="sz-ico sz-ico--round sz-ico--gold szr-coin" style="--s:4.6cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span></div><div class="sz-at" style="--x:70.3;--y:20;--d:8s;--fx:-15.3cqw;--fy:10cqw"><span class="sz-ico sz-ico--round sz-ico--gold szr-coin" style="--s:4.6cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span></div><div class="sz-at" style="--x:70.3;--y:20;--d:10s;--fx:-15.3cqw;--fy:10cqw"><span class="sz-ico sz-ico--round sz-ico--gold szr-coin" style="--s:4.6cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span></div></div><!-- /szene:rabatte -->
+              <span class="chip-float" style="left:-26px;top:4%;--z:70px;--delay:0s">
                 <span class="chip-float__ico"><svg class="i" aria-hidden="true"><use href="#i-wifi"/></svg></span>
                 <span><strong>Bis zu 33 %</strong><small>Vodafone Vorteilstarife</small></span>
               </span>
@@ -2583,7 +2584,7 @@
           <div class="subhero__visual mb-swap" data-reveal style="--d:.2s">
             <div data-mb-only="loyalty-portal">
             <div class="photo-card" data-tilt-card data-parallax data-rx="5" data-ry="8">
-              <img loading="lazy" class="photo-card__img" src="assets/img/kundenbindung/hero-loyalty.webp" width="1400" height="788" alt="Kundin nutzt Vorteile ihres Anbieters auf dem Tablet">
+              <!-- szene:loyalty --><div class="scene scene--hero scene--loyalty photo-card__img" role="img" aria-label="Animation: Der Kreislauf der Kundenbindung – Einkauf, Vorteil, Prämie, Treue" style="--t:8s"><div class="sz-at szl-ring" style="--x:50;--y:37.5"></div><div class="sz-at szl-orbit" style="--x:50;--y:37.5"></div><div class="sz-at szl-st" style="--x:65.6;--y:23.9;--d:0.7s"><span class="sz-ico" style="--s:8cqw"><svg class="i" aria-hidden="true"><use href="#i-cart"/></svg></span><span class="sz-label">Einkauf</span></div><div class="sz-at szl-st" style="--x:65.6;--y:55.1;--d:2.7s"><span class="sz-ico" style="--s:8cqw"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span><span class="sz-label">Vorteil</span></div><div class="sz-at szl-st" style="--x:34.4;--y:55.1;--d:4.7s"><span class="sz-ico" style="--s:8cqw"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></span><span class="sz-label">Prämie</span></div><div class="sz-at szl-st" style="--x:34.4;--y:23.9;--d:6.7s"><span class="sz-ico" style="--s:8cqw"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></span><span class="sz-label">Treue</span></div><div class="sz-at sz-card szl-core" style="--x:50;--y:37.5"><span class="sz-ico" style="--s:6.6cqw"><svg class="i" aria-hidden="true"><use href="#i-store"/></svg></span><span class="sz-label">Loyalty-Portal</span><span class="szl-bars"><i style="height:45%;--d:0.0s"></i><i style="height:70%;--d:0.2s"></i><i style="height:100%;--d:0.4s"></i></span></div></div><!-- /szene:loyalty -->
               <span class="chip-float" style="left:-28px;top:12%;--z:70px;--delay:0s">
                 <span class="chip-float__ico"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></span>
                 <span><strong>Über 450 Marken</strong><small>exklusive Kundenvorteile</small></span>
@@ -2600,12 +2601,12 @@
             </div>
             <div data-mb-only="kundenrabatte">
             <div class="photo-card" data-tilt-card data-parallax data-rx="5" data-ry="8">
-              <img loading="lazy" class="photo-card__img" src="assets/img/mitarbeiterbindung/hero-rabatte.webp" width="1400" height="788" alt="Smartphone und Tablet zeigen Rabatte aus unterschiedlichen Lebensbereichen">
+              <!-- szene:kontakte --><div class="scene scene--hero scene--kontakte photo-card__img" role="img" aria-label="Animation: Mit Kundenrabatten entstehen zwölf Kontakte im Jahr statt vier – die Kundenbindung wächst" style="--t:11s"><div class="sz-at sz-card szk-cal" style="--x:50;--y:33"><div class="szk-cal__title"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg>Kontakte zu Ihren Kunden im Jahr</div><div class="szk-row"><span>Bisher</span><span class="szk-dot"></span><span class="szk-dot"></span><span class="szk-dot szk-dot--past"></span><span class="szk-dot"></span><span class="szk-dot"></span><span class="szk-dot szk-dot--past"></span><span class="szk-dot"></span><span class="szk-dot"></span><span class="szk-dot szk-dot--past"></span><span class="szk-dot"></span><span class="szk-dot"></span><span class="szk-dot szk-dot--past"></span></div><div class="szk-row"><span>Mit Vorteilen</span><span class="szk-dot"><b class="sz-on" style="--d:0.4s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:1.1s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:1.8s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:2.5s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:3.2s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:3.9s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:4.6s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:5.3s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:6.0s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:6.7s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:7.4s"></b></span><span class="szk-dot"><b class="sz-on" style="--d:8.1s"></b></span></div><div class="szk-months"><span></span><span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span></div></div><div class="sz-at sz-card szk-bond" style="--x:50;--y:61"><span class="sz-ico sz-ico--alt" style="--s:6cqw"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></span><span class="sz-label">Kundenbindung</span><span class="szr-bar"><i></i></span></div></div><!-- /szene:kontakte -->
               <span class="chip-float" style="left:-26px;top:14%;--z:70px;--delay:0s">
                 <span class="chip-float__ico"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg></span>
                 <span><strong>12 Kontakte</strong><small>pro Jahr statt 4</small></span>
               </span>
-              <span class="chip-float" style="right:-20px;top:40%;--z:90px;--delay:-2s">
+              <span class="chip-float" style="right:-20px;top:4%;--z:90px;--delay:-2s">
                 <span class="chip-float__ico chip-float__ico--alt"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></span>
                 <span><strong>Mehr Bindung</strong><small>durch positive Anlässe</small></span>
               </span>
@@ -2617,12 +2618,12 @@
             </div>
             <div data-mb-only="kundengutscheine">
             <div class="photo-card" data-tilt-card data-parallax data-rx="5" data-ry="8">
-              <img loading="lazy" class="photo-card__img" src="assets/img/kundenbindung/hero-kundengutscheine.webp" width="1400" height="788" alt="Vernetzte Symbole für Gutscheine, Prämien und Geschenke über einem Arbeitsplatz">
+              <!-- szene:gutscheine --><div class="scene scene--hero scene--gutscheine photo-card__img" role="img" aria-label="Animation: SELECT-Gutscheine im eigenen Design fächern sich auf" style="--t:6s"><div class="sz-at szg-fan" style="--x:50;--y:35"><div class="szg-v"><div class="szg-v__top"><span>SELECT</span><span class="szg-v__logo"></span></div><div class="szg-v__val">25 €</div><div class="szg-v__code">GUTSCHEIN · •••• 0312</div><span class="szg-v__sheen"></span></div><div class="szg-v"><div class="szg-v__top"><span>SELECT</span><span class="szg-v__logo"></span></div><div class="szg-v__val">100 €</div><div class="szg-v__code">GUTSCHEIN · •••• 7781</div><span class="szg-v__sheen"></span></div><div class="szg-v"><div class="szg-v__top"><span>SELECT</span><span class="szg-v__logo"></span></div><div class="szg-v__val">50 €</div><div class="szg-v__code">GUTSCHEIN · •••• 1904</div><span class="szg-v__sheen"></span></div></div><div class="sz-at sz-pill" style="--x:40;--y:62"><svg class="i" aria-hidden="true"><use href="#i-palette"/></svg>Ihr Logo · Ihr Motiv · Ihr Wert</div><div class="sz-at szg-spark" style="--x:26;--y:18;--d:1.0s"><svg class="i" aria-hidden="true"><use href="#i-sparkles"/></svg></div><div class="sz-at szg-spark" style="--x:76;--y:14;--d:2.6s"><svg class="i" aria-hidden="true"><use href="#i-sparkles"/></svg></div><div class="sz-at szg-spark" style="--x:70;--y:50;--d:4.2s"><svg class="i" aria-hidden="true"><use href="#i-sparkles"/></svg></div></div><!-- /szene:gutscheine -->
               <span class="chip-float" style="left:-28px;top:12%;--z:70px;--delay:0s">
                 <span class="chip-float__ico"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></span>
                 <span><strong>Willkommensgutschein</strong><small>für Neukunden</small></span>
               </span>
-              <span class="chip-float" style="right:-22px;top:44%;--z:90px;--delay:-2s">
+              <span class="chip-float" style="right:-22px;top:72%;--z:90px;--delay:-2s">
                 <span class="chip-float__ico chip-float__ico--alt"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg></span>
                 <span><strong>Gewinnspiel</strong><small>Gutschein als Preis</small></span>
               </span>
@@ -3497,7 +3498,7 @@
         </header>
         <div class="reasons">
           <article class="reason" data-reveal style="--d:0.00s">
-            <div class="reason__media"><img src="assets/img/kundenbindung/iso-loyalty.webp" width="900" height="491" alt="Illustration: individuelle Kundenbelohnungen, Jubiläumsprämien und VIP-Benefits" loading="lazy"></div>
+            <div class="reason__media"><!-- szene:treue --><div class="scene scene--treue" role="img" aria-label="Animation: Eine Treuekarte füllt sich Stempel für Stempel, dann gibt es eine Prämie" style="--t:9s"><div class="sz-at sz-card szt-card" style="--x:50;--y:26"><div class="sz-row"><span class="sz-ico sz-ico--alt" style="--s:7cqw"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></span><span class="sz-col"><b>Treuekarte</b><span class="sz-t" style="width:24cqw"></span></span></div><div class="szt-stamps"><span class="szt-stamp"><b style="--d:0.4s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></b></span><span class="szt-stamp"><b style="--d:1.2s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></b></span><span class="szt-stamp"><b style="--d:2.0s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></b></span><span class="szt-stamp"><b style="--d:2.8s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></b></span><span class="szt-stamp"><b style="--d:3.6s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></b></span><span class="szt-stamp"><b style="--d:4.4s"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></b></span></div></div><div class="sz-at sz-pill sz-pill--brand sz-show" style="--x:50;--y:51;--d:4.8s"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg>Prämie freigeschaltet</div><div class="sz-at szg-spark" style="--x:78;--y:44;--d:5.0s"><svg class="i" aria-hidden="true"><use href="#i-sparkles"/></svg></div><div class="sz-at szg-spark" style="--x:24;--y:47;--d:5.4s"><svg class="i" aria-hidden="true"><use href="#i-sparkles"/></svg></div><div class="sz-at szg-spark" style="--x:86;--y:12;--d:5.8s"><svg class="i" aria-hidden="true"><use href="#i-sparkles"/></svg></div></div><!-- /szene:treue --></div>
             <div class="reason__body">
               <span class="reason__num">01</span>
               <h3>Kundenbindung &amp; Loyalty-Programme</h3>
@@ -3506,7 +3507,7 @@
             </div>
           </article>
           <article class="reason" data-reveal style="--d:0.08s">
-            <div class="reason__media"><img src="assets/img/kundenbindung/iso-leads.webp" width="900" height="491" alt="Illustration: Newsletter-Anmeldungen, Gewinnspiele und Promotions" loading="lazy"></div>
+            <div class="reason__media"><!-- szene:leads --><div class="scene scene--leads" role="img" aria-label="Animation: Teilnahme am Gewinnspiel – aus einer Anmeldung wird ein neuer Kontakt" style="--t:9s"><div class="sz-at sz-card szq-form" style="--x:37;--y:29"><div class="sz-row"><span class="sz-ico" style="--s:6.4cqw"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg></span><span class="sz-col"><b>Gewinnspiel</b><span class="sz-t" style="width:26cqw"></span></span></div><div class="szq-input"><span class="sz-type" style="--n:15;--d:.4s">anna@beispiel.de<b style="--d:.4s"></b></span></div><span class="szq-btn sz-press" style="--d:2.1s">Teilnehmen</span></div><div class="sz-at sz-card szq-leads" style="--x:82;--y:26"><span class="sz-label">Neue Kontakte</span><div class="szq-stack"><span class="sz-av "><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span><span class="sz-av "><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span><span class="sz-av sz-show" style="--d:2.5s"><svg class="i" aria-hidden="true"><use href="#i-user-plus"/></svg></span></div></div><div class="sz-at sz-pill sz-pill--ok szb-heart" style="--x:86;--y:10;--d:2.5s">+1</div><div class="sz-at sz-pill sz-pill--ok sz-show" style="--x:82;--y:46;--d:2.4s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Angemeldet</div></div><!-- /szene:leads --></div>
             <div class="reason__body">
               <span class="reason__num">02</span>
               <h3>Leadgenerierung &amp; Neukundenkampagnen</h3>
@@ -3515,7 +3516,7 @@
             </div>
           </article>
           <article class="reason" data-reveal style="--d:0.16s">
-            <div class="reason__media"><img src="assets/img/kundenbindung/iso-service.webp" width="900" height="491" alt="Illustration: Kulanzlösungen, Beschwerdemanagement und Rückgewinnung" loading="lazy"></div>
+            <div class="reason__media"><!-- szene:service --><div class="scene scene--service" role="img" aria-label="Animation: Ein Servicefall wird mit einem Gutschein gelöst – aus Ärger wird Zufriedenheit" style="--t:10s"><div class="sz-at" style="--x:8;--y:12"><span class="sz-av" style="--s:6.4cqw"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span></div><div class="sz-at" style="--x:92;--y:31"><span class="sz-ico" style="--s:6.4cqw"><svg class="i" aria-hidden="true"><use href="#i-building"/></svg></span></div><div class="sz-at sz-bubble sz-show" style="--x:38;--y:12;--d:.3s"><span>Mein Paket kam beschädigt.</span></div><div class="sz-at sz-dots sz-flashing" style="--x:82;--y:21;--d:1.2s"><i></i><i></i><i></i></div><div class="sz-at sz-bubble sz-bubble--me sz-show" style="--x:58;--y:29;--d:2.6s"><span>Das tut uns leid! Hier ist ein Gutschein für Sie.</span></div><div class="sz-at sz-pill sz-pill--brand sz-show" style="--x:70;--y:41;--d:3.2s"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg>20 € Gutschein</div><div class="sz-at sz-bubble sz-show" style="--x:32;--y:52;--d:4.8s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg><span>Danke – gern wieder!</span></div></div><!-- /szene:service --></div>
             <div class="reason__body">
               <span class="reason__num">03</span>
               <h3>Service &amp; Kundenreaktivierung</h3>
@@ -4004,8 +4005,8 @@
           <div class="subhero__visual mb-swap" data-reveal style="--d:.2s">
             <div data-mb-only="anbieter-werden">
             <div class="photo-card" data-tilt-card data-parallax data-rx="5" data-ry="8">
-              <img loading="lazy" class="photo-card__img" src="assets/img/markenplatzierung/hero-anbieter.webp" width="1400" height="788" alt="Team bespricht eine Markenplatzierung im Besprechungsraum">
-              <span class="chip-float" style="left:-28px;top:12%;--z:70px;--delay:0s">
+              <!-- szene:reach --><div class="scene scene--hero scene--reach photo-card__img" role="img" aria-label="Animation: Ihre Marke erreicht Kreis um Kreis neue Zielgruppen" style="--t:6s"><div class="sz-at sza-wave" style="--x:50;--y:37.5;--d:0s"></div><div class="sz-at sza-wave" style="--x:50;--y:37.5;--d:2s"></div><div class="sz-at sza-wave" style="--x:50;--y:37.5;--d:4s"></div><div class="sz-at sz-av sza-av" style="--x:56.8;--y:22.5;--d:2.0s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:62.9;--y:49.8;--d:2.2s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:43.2;--y:52.5;--d:2.3s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:30.3;--y:40.3;--d:2.4s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:37.1;--y:25.2;--d:2.5s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:50;--y:8.5;--d:4.6s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:73.1;--y:15.3;--d:4.7s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:81.2;--y:52;--d:4.8s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:62.3;--y:64.8;--d:4.9s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:18.8;--y:52;--d:5.0s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-av sza-av" style="--x:14.5;--y:32.5;--d:5.1s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></div><div class="sz-at sz-card sza-brand" style="--x:50;--y:37.5"><span class="sz-ico" style="--s:8cqw"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></span><span class="sz-label">Ihre Marke</span></div></div><!-- /szene:reach -->
+              <span class="chip-float" style="left:-28px;top:2%;--z:70px;--delay:0s">
                 <span class="chip-float__ico"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg></span>
                 <span><strong>1,3 Mio. Nutzer</strong><small>in Unternehmen und Communities</small></span>
               </span>
@@ -4021,12 +4022,12 @@
             </div>
             <div data-mb-only="newsletter-platzierung">
             <div class="photo-card" data-tilt-card data-parallax data-rx="5" data-ry="8">
-              <img loading="lazy" class="photo-card__img" src="assets/img/markenplatzierung/hero-newsletter.webp" width="1400" height="788" alt="Drei Smartphones zeigen einen Newsletter mit Angeboten">
-              <span class="chip-float" style="left:-28px;top:12%;--z:70px;--delay:0s">
+              <!-- szene:journey --><div class="scene scene--hero scene--journey photo-card__img" role="img" aria-label="Animation: Ihre Marke begleitet die Customer Journey vom Newsletter über das Portal bis zum Kauf" style="--t:8s"><svg class="sz-wires" viewBox="0 0 100 75" preserveAspectRatio="none" aria-hidden="true"><path class="dash" d="M16 32 L40 58 L63 28 L85 56"/></svg><div class="sz-at szj-st" style="--x:16;--y:34.4"><span class="sz-ico" style="--s:9cqw"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span><span class="sz-label">Newsletter</span></div><div class="sz-at sz-pill sz-pill--brand szj-brand" style="--x:16;--y:22.5;--d:0.1s"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg>Ihre Marke</div><div class="sz-at szj-st" style="--x:40;--y:60.4"><span class="sz-ico" style="--s:9cqw"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg></span><span class="sz-label">Vorteilsportal</span></div><div class="sz-at sz-pill sz-pill--brand szj-brand" style="--x:40;--y:48.5;--d:1.8s"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg>Ihre Marke</div><div class="sz-at szj-st" style="--x:63;--y:30.4"><span class="sz-ico" style="--s:9cqw"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></span><span class="sz-label">Highlights</span></div><div class="sz-at sz-pill sz-pill--brand szj-brand" style="--x:63;--y:18.5;--d:3.4s"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg>Ihre Marke</div><div class="sz-at szj-st" style="--x:85;--y:58.4"><span class="sz-ico" style="--s:9cqw"><svg class="i" aria-hidden="true"><use href="#i-cart"/></svg></span><span class="sz-label">Kauf</span></div><div class="sz-at sz-pill sz-pill--brand szj-brand" style="--x:85;--y:46.5;--d:5.0s"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg>Ihre Marke</div><div class="sz-at szj-dot" style="--x:16;--y:32"></div></div><!-- /szene:journey -->
+              <span class="chip-float" style="left:-28px;top:0%;--z:70px;--delay:0s">
                 <span class="chip-float__ico"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span>
                 <span><strong>450.000+</strong><small>Newsletter-Abonnenten</small></span>
               </span>
-              <span class="chip-float" style="right:-22px;top:44%;--z:90px;--delay:-2s">
+              <span class="chip-float" style="right:-22px;top:2%;--z:90px;--delay:-2s">
                 <span class="chip-float__ico chip-float__ico--alt"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg></span>
                 <span><strong>25 % Öffnungsrate</strong></span>
               </span>
@@ -4098,27 +4099,15 @@
           </div>
           <div class="showcase__stage">
               <div class="sc-panel" role="tabpanel" id="marken-gruende-panel-1" aria-labelledby="marken-gruende-tab-1">
-                <div class="shots tilt-media tilt-media--shots" data-tilt-card data-rx="3" data-ry="5" data-parallax data-shots>
-                  <figure class="shots__item" data-label="Zielgerichtete Platzierung"><img src="assets/img/markenplatzierung/iso-platzierung.webp" width="1024" height="559" alt="Illustration: Zielgerichtete Platzierung" loading="lazy"></figure>
-                  <figure class="shots__item" data-label="Ihr Angebot im Portal"><img src="assets/img/markenplatzierung/portal-geraete.webp" width="1024" height="572" alt="Angebote im Vorteilsportal auf Laptop und Smartphone" loading="lazy"></figure>
-                  <div class="shots__foot"><span class="shots__label" aria-live="polite"></span><span class="shots__dots"></span></div>
-                </div>
+                <div class="tilt-media" data-tilt-card data-rx="3" data-ry="5" data-parallax><div class="tilt-media__frame"><!-- szene:platzierung --><div class="scene scene--wide scene--platzierung" role="img" aria-label="Animation: Ihr Angebot erscheint genau in der passenden Kategorie des Vorteilsportals" style="--t:8s"><div class="sz-at sz-card sz-win szo-win" style="--x:46;--y:28"><div class="sz-win__bar"><i></i><i></i><i></i><span>Vorteilsportal</span></div><div class="szo-tabs" style="--d:0s"><b></b><span>Technik</span><span>Reisen</span><span>Mode</span><span>Freizeit</span></div><div class="szo-grid"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-plane"/></svg></span><span class="szo-slot"></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-car"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></span></div></div><div class="sz-at szo-offer" style="--x:37.6;--y:23.4;--d:0s"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg>Ihr Angebot</div><div class="sz-at szo-ring sz-ripple-at" style="--x:37.6;--y:23.4;--d:2.6s"></div><div class="sz-at sz-pill sz-show" style="--x:85;--y:47;--d:2.8s"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Passende Zielgruppe</div></div><!-- /szene:platzierung --></div></div>
                 <p class="sc-panel__more"><a class="more-link" href="#vorschau">So erscheint Ihre Marke <svg class="i i--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></p>
               </div>
               <div class="sc-panel" role="tabpanel" id="marken-gruende-panel-2" aria-labelledby="marken-gruende-tab-2" hidden>
-                <div class="shots tilt-media tilt-media--shots" data-tilt-card data-rx="3" data-ry="5" data-parallax data-shots>
-                  <figure class="shots__item" data-label="Aktive Vermarktung"><img src="assets/img/markenplatzierung/iso-vermarktung.webp" width="1024" height="559" alt="Illustration: Aktive Vermarktung" loading="lazy"></figure>
-                  <figure class="shots__item" data-label="Platzierung entlang der User Journey"><img src="assets/img/markenplatzierung/portal-smartphones.webp" width="1024" height="572" alt="Angebote auf zwei Smartphones im Vorteilsportal" loading="lazy"></figure>
-                  <div class="shots__foot"><span class="shots__label" aria-live="polite"></span><span class="shots__dots"></span></div>
-                </div>
+                <div class="tilt-media" data-tilt-card data-rx="3" data-ry="5" data-parallax><div class="tilt-media__frame"><!-- szene:vermarktung --><div class="scene scene--wide scene--vermarktung" role="img" aria-label="Animation: Ihr Angebot wird aktiv über Vorteilsportal, Newsletter und Highlights ausgespielt" style="--t:7s"><svg class="sz-wires" viewBox="0 0 100 56.25" preserveAspectRatio="none" aria-hidden="true"><path class="dash" d="M16 28 L42 12"/><path class="dash" d="M16 28 L42 28"/><path class="dash" d="M16 28 L42 44"/></svg><div class="sz-at szv-wave sz-ripple-at" style="--x:16;--y:28;--d:0.0s"></div><div class="sz-at szv-wave sz-ripple-at" style="--x:16;--y:28;--d:1.2s"></div><div class="sz-at szv-wave sz-ripple-at" style="--x:16;--y:28;--d:2.4s"></div><div class="sz-at" style="--x:16;--y:28"><span class="sz-ico" style="--s:12cqw"><svg class="i" aria-hidden="true"><use href="#i-megaphone"/></svg></span></div><div class="sz-at sz-card szv-ch" style="--x:67;--y:12"><span class="sz-ico sz-ico--soft" style="--s:6.4cqw"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg></span><span class="sz-label">Vorteilsportal</span><span class="sz-pill sz-pill--brand sz-show" style="--d:0.8s"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg>Ihr Angebot</span></div><div class="sz-at sz-card szv-ch" style="--x:67;--y:28"><span class="sz-ico sz-ico--soft" style="--s:6.4cqw"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span><span class="sz-label">Newsletter</span><span class="sz-pill sz-pill--brand sz-show" style="--d:1.5s"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg>Ihr Angebot</span></div><div class="sz-at sz-card szv-ch" style="--x:67;--y:44"><span class="sz-ico sz-ico--soft" style="--s:6.4cqw"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></span><span class="sz-label">Highlights</span><span class="sz-pill sz-pill--brand sz-show" style="--d:2.2s"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg>Ihr Angebot</span></div></div><!-- /szene:vermarktung --></div></div>
                 <p class="sc-panel__more"><a class="more-link" href="newsletter-platzierung.html">Zur Newsletter-Platzierung <svg class="i i--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></p>
               </div>
               <div class="sc-panel" role="tabpanel" id="marken-gruende-panel-3" aria-labelledby="marken-gruende-tab-3" hidden>
-                <div class="shots tilt-media tilt-media--shots" data-tilt-card data-rx="3" data-ry="5" data-parallax data-shots>
-                  <figure class="shots__item" data-label="Performance-orientierte Steuerung"><img src="assets/img/markenplatzierung/iso-performance.webp" width="1024" height="559" alt="Illustration: Performance-orientierte Steuerung" loading="lazy"></figure>
-                  <figure class="shots__item" data-label="Transparente Auswertungen"><img src="assets/img/markenplatzierung/portal-performance.webp" width="1024" height="572" alt="Dashboard mit Auswertungen zu Nutzung und Reichweite" loading="lazy"></figure>
-                  <div class="shots__foot"><span class="shots__label" aria-live="polite"></span><span class="shots__dots"></span></div>
-                </div>
+                <div class="tilt-media" data-tilt-card data-rx="3" data-ry="5" data-parallax><div class="tilt-media__frame"><!-- szene:performance --><div class="scene scene--wide scene--performance" role="img" aria-label="Animation: Transparente Auswertung von Reichweite, Sichtbarkeit und Nutzung" style="--t:8s"><div class="sz-at sz-card sz-win szd-win" style="--x:50;--y:28"><div class="sz-win__bar"><i></i><i></i><i></i><span>Auswertung Ihrer Kampagne</span></div><div class="szd-body"><div class="szd-chart"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="area" d="M0 80 L15 70 L30 74 L45 52 L60 56 L75 30 L90 26 L100 10 L100 100 L0 100Z"/><path d="M0 80 L15 70 L30 74 L45 52 L60 56 L75 30 L90 26 L100 10"/></svg><span class="szd-cover" style="--d:.2s"></span></div><div><div class="szd-kpi"><div class="sz-row"><span class="sz-label"><svg class="i" style="width:1.2em;height:1.2em;color:var(--royal);vertical-align:-.2em" aria-hidden="true"><use href="#i-users"/></svg> Reichweite</span><span class="sz-pill sz-pill--ok sz-show" style="--d:1.0s"><svg class="i" aria-hidden="true"><use href="#i-trending"/></svg></span></div><span class="szr-bar"><i class="sz-growx" style="width:92%;--d:0.4s"></i></span></div><div class="szd-kpi"><div class="sz-row"><span class="sz-label"><svg class="i" style="width:1.2em;height:1.2em;color:var(--royal);vertical-align:-.2em" aria-hidden="true"><use href="#i-eye"/></svg> Sichtbarkeit</span><span class="sz-pill sz-pill--ok sz-show" style="--d:1.4s"><svg class="i" aria-hidden="true"><use href="#i-trending"/></svg></span></div><span class="szr-bar"><i class="sz-growx" style="width:78%;--d:0.8s"></i></span></div><div class="szd-kpi"><div class="sz-row"><span class="sz-label"><svg class="i" style="width:1.2em;height:1.2em;color:var(--royal);vertical-align:-.2em" aria-hidden="true"><use href="#i-activity"/></svg> Nutzung</span><span class="sz-pill sz-pill--ok sz-show" style="--d:1.7999999999999998s"><svg class="i" aria-hidden="true"><use href="#i-trending"/></svg></span></div><span class="szr-bar"><i class="sz-growx" style="width:64%;--d:1.2s"></i></span></div></div></div></div></div><!-- /szene:performance --></div></div>
               </div>
           </div>
         </div>
@@ -4201,10 +4190,8 @@
             <h2 class="h2" id="marken-warum-title" data-reveal style="--d:.06s">Warum <span class="grad-text">INCENT?</span></h2>
             <p class="lead" data-reveal style="--d:.12s">Bringen Sie Ihre Marke genau dorthin, wo Ihre Zielgruppe bereits aktiv nach Mehrwerten sucht. Auf unserem Portal platzieren Sie Ihre Angebote im vertrauten Umfeld von Millionen Nutzern – ohne Streuverluste, dafür mit maximaler Relevanz. Nutzen Sie einen starken Kanal, der Ihre Markensichtbarkeit erhöht und neue Umsätze generiert.</p>
           </div>
-          <figure class="iso iso--plain" data-reveal style="--d:.1s">
-            <div class="tilt-media tilt-media--plain" data-tilt-card data-rx="4" data-ry="7" data-parallax>
-              <img src="assets/img/markenplatzierung/portal-mobil.webp" width="1024" height="683" alt="Vorteilsportal mit Markenangeboten auf mehreren Smartphones" loading="lazy">
-            </div>
+          <figure class="iso iso--scene" data-reveal style="--d:.1s">
+            <div class="tilt-media" data-tilt-card data-rx="4" data-ry="7" data-parallax><div class="tilt-media__frame"><!-- szene:warum-marken --><div class="scene scene--photo scene--warum-marken" role="img" aria-label="Animation: Ihr Angebot im Vorteilsportal – direkt bei den Menschen, die nach Vorteilen suchen" style="--t:8s"><svg class="sz-wires" viewBox="0 0 100 66.67" preserveAspectRatio="none" aria-hidden="true"><path class="dash" d="M44 26 L52 26"/></svg><div class="sz-at sz-phone" style="--x:32;--y:33.5;--w:26cqw"><div class="sz-phone__screen"><div class="szr-head"><svg class="i" style="width:1.3em;height:1.3em" aria-hidden="true"><use href="#i-sparkles"/></svg>Vorteilsportal</div><div class="szr-search"></div><div class="szr-list"><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-plane"/></svg></span><span><span class="sz-label">Reisen</span><span class="sz-t" style="width:55%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-wifi"/></svg></span><span><span class="sz-label">Mobilfunk</span><span class="sz-t" style="width:72%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg></span><span><span class="sz-label">Mode</span><span class="sz-t" style="width:89%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-car"/></svg></span><span><span class="sz-label">Mobilität</span><span class="sz-t" style="width:71%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg></span><span><span class="sz-label">Wohnen</span><span class="sz-t" style="width:88%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg></span><span><span class="sz-label">Sport</span><span class="sz-t" style="width:70%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-plane"/></svg></span><span><span class="sz-label">Reisen</span><span class="sz-t" style="width:87%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-wifi"/></svg></span><span><span class="sz-label">Mobilfunk</span><span class="sz-t" style="width:69%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg></span><span><span class="sz-label">Mode</span><span class="sz-t" style="width:86%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-car"/></svg></span><span><span class="sz-label">Mobilität</span><span class="sz-t" style="width:68%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg></span><span><span class="sz-label">Wohnen</span><span class="sz-t" style="width:85%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div><div class="szr-row"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg></span><span><span class="sz-label">Sport</span><span class="sz-t" style="width:67%"></span></span><span class="sz-pill sz-pill--brand"><svg class="i" aria-hidden="true"><use href="#i-percent"/></svg></span></div></div></div></div><div class="sz-at sz-card szw-pop sz-show" style="--x:72;--y:24;--d:.6s"><span class="sz-ico" style="--s:8cqw"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></span><span class="sz-col"><b>Ihr Angebot</b><span class="sz-t sz-t--b" style="width:20cqw"></span><span class="sz-t" style="width:14cqw"></span></span></div><div class="sz-at sz-pill sz-show" style="--x:70;--y:42;--d:1.4s"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Im vertrauten Umfeld</div><div class="sz-at" style="--x:60;--y:56"><span class="sz-av sza-av" style="--d:1.8s;--s:6.4cqw"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:78;--y:54"><span class="sz-av sza-av" style="--d:2.2s;--s:6.4cqw"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:90;--y:40"><span class="sz-av sza-av" style="--d:2.6s;--s:6.4cqw"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div></div><!-- /szene:warum-marken --></div></div>
           </figure>
         </div>
         <div class="spacer"></div>
@@ -4378,7 +4365,7 @@
         </header>
         <div class="reasons reasons--4">
           <article class="reason reason--compact" data-reveal style="--d:0.00s">
-            <div class="reason__media"><img src="assets/img/markenplatzierung/nl-zielgruppen.webp" width="900" height="491" alt="Illustration: Zugang zu neuen Zielgruppen" loading="lazy"></div>
+            <div class="reason__media"><!-- szene:zielgruppen --><div class="scene scene--zielgruppen" role="img" aria-label="Animation: Aus vielen Menschen wird die passende Zielgruppe ausgewählt" style="--t:8s"><div class="sz-at" style="--x:22;--y:15"><span class="sz-av szz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span></div><div class="sz-at" style="--x:33.2;--y:15"><span class="sz-av szz-av" style="--d:0.3s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:44.4;--y:15"><span class="sz-av szz-av" style="--d:0.52s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:55.6;--y:15"><span class="sz-av szz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span></div><div class="sz-at" style="--x:66.8;--y:15"><span class="sz-av szz-av" style="--d:0.74s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:78;--y:15"><span class="sz-av szz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span></div><div class="sz-at" style="--x:22;--y:29"><span class="sz-av szz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span></div><div class="sz-at" style="--x:33.2;--y:29"><span class="sz-av szz-av" style="--d:0.96s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:44.4;--y:29"><span class="sz-av szz-av" style="--d:1.18s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:55.6;--y:29"><span class="sz-av szz-av" style="--d:1.4s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:66.8;--y:29"><span class="sz-av szz-av" style="--d:1.62s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:78;--y:29"><span class="sz-av szz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span></div><div class="sz-at" style="--x:22;--y:43"><span class="sz-av szz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span></div><div class="sz-at" style="--x:33.2;--y:43"><span class="sz-av szz-av" style="--d:1.84s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:44.4;--y:43"><span class="sz-av szz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span></div><div class="sz-at" style="--x:55.6;--y:43"><span class="sz-av szz-av" style="--d:2.06s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:66.8;--y:43"><span class="sz-av szz-av" style="--d:2.28s"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></b></span></div><div class="sz-at" style="--x:78;--y:43"><span class="sz-av szz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span></div><div class="sz-at sz-pill sz-pill--brand sz-show" style="--x:50;--y:55;--d:2.6s"><svg class="i" aria-hidden="true"><use href="#i-target"/></svg>Ihre Zielgruppe</div></div><!-- /szene:zielgruppen --></div>
             <div class="reason__body">
               <span class="reason__num">01</span>
               <h3>Zugang zu relevanten Zielgruppen</h3>
@@ -4386,7 +4373,7 @@
             </div>
           </article>
           <article class="reason reason--compact" data-reveal style="--d:0.06s">
-            <div class="reason__media"><img src="assets/img/markenplatzierung/nl-umfeld.webp" width="900" height="491" alt="Illustration: Ansprache im vertrauten Umfeld" loading="lazy"></div>
+            <div class="reason__media"><!-- szene:umfeld --><div class="scene scene--umfeld" role="img" aria-label="Animation: Der Newsletter kommt aus dem vertrauten Vorteilsportal und wird geöffnet" style="--t:8s"><div class="sz-at sz-card sz-win szm-box" style="--x:50;--y:31"><div class="sz-win__bar"><i></i><i></i><i></i><span>Posteingang</span></div><div class="szm-row szm-new"><span class="sz-ico sz-ico--ok" style="--s:6cqw"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg></span><span class="sz-col" style="flex:1"><b>Ihr Vorteilsportal</b><span class="sz-t" style="width:70%"></span></span><span class="sz-pill sz-pill--ok sz-show" style="--d:2.2s;font-size:.75em"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Vertraut</span></div><div class="szm-row szm-row--dim"><span class="sz-ico sz-ico--soft" style="--s:6cqw"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span><span class="sz-col" style="flex:1"><span class="sz-t" style="width:50%"></span><span class="sz-t" style="width:80%"></span></span></div><div class="szm-row szm-row--dim"><span class="sz-ico sz-ico--soft" style="--s:6cqw"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span><span class="sz-col" style="flex:1"><span class="sz-t" style="width:40%"></span><span class="sz-t" style="width:65%"></span></span></div></div></div><!-- /szene:umfeld --></div>
             <div class="reason__body">
               <span class="reason__num">02</span>
               <h3>Ansprache im vertrauten Umfeld</h3>
@@ -4394,7 +4381,7 @@
             </div>
           </article>
           <article class="reason reason--compact" data-reveal style="--d:0.12s">
-            <div class="reason__media"><img src="assets/img/markenplatzierung/nl-performance.webp" width="900" height="491" alt="Illustration: Performance mit hohen Öffnungs- und Klickraten" loading="lazy"></div>
+            <div class="reason__media"><!-- szene:leistung --><div class="scene scene--leistung" role="img" aria-label="Animation: Öffnungen und Klicks im Vorteilsportal liegen über klassischen Newslettern" style="--t:7s"><div class="sz-at sz-card szp-chart" style="--x:50;--y:31"><div class="sz-row" style="justify-content:space-between"><b>Ihre Kampagne</b><span class="sz-pill sz-pill--ok sz-show" style="--d:2s;font-size:.75em"><svg class="i" aria-hidden="true"><use href="#i-trending"/></svg>Überdurchschnittlich</span></div><div class="szp-groups"><div><div class="szp-bars"><i class="sz-growy" style="height:45%;--d:0.3s"></i><i class="sz-growy" style="height:95%;--d:0.6s"></i></div><div class="sz-label" style="text-align:center;margin-top:1cqw">Öffnungen</div></div><div><div class="szp-bars"><i class="sz-growy" style="height:30%;--d:0.7s"></i><i class="sz-growy" style="height:70%;--d:1.0s"></i></div><div class="sz-label" style="text-align:center;margin-top:1cqw">Klicks</div></div></div><div class="szp-legend"><span>Klassisch</span><span>Im Vorteilsportal</span></div></div></div><!-- /szene:leistung --></div>
             <div class="reason__body">
               <span class="reason__num">03</span>
               <h3>Überdurchschnittliche Performance</h3>
@@ -4402,7 +4389,7 @@
             </div>
           </article>
           <article class="reason reason--compact" data-reveal style="--d:0.18s">
-            <div class="reason__media"><img src="assets/img/markenplatzierung/nl-integration.webp" width="900" height="491" alt="Illustration: Integration in die Marketingstrategie" loading="lazy"></div>
+            <div class="reason__media"><!-- szene:integration --><div class="scene scene--integration" role="img" aria-label="Animation: Der Newsletter-Baustein ergänzt Social Media, Website und Kampagnen" style="--t:7s"><div class="sz-at sz-card szi-block" style="--x:35;--y:17"><span class="sz-ico" style="--s:7cqw"><svg class="i" aria-hidden="true"><use href="#i-megaphone"/></svg></span><span class="sz-label">Social Media</span></div><div class="sz-at sz-card szi-block" style="--x:65;--y:17"><span class="sz-ico" style="--s:7cqw"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg></span><span class="sz-label">Website</span></div><div class="sz-at sz-card szi-block" style="--x:35;--y:41"><span class="sz-ico" style="--s:7cqw"><svg class="i" aria-hidden="true"><use href="#i-target"/></svg></span><span class="sz-label">Kampagnen</span></div><div class="sz-at szi-slot" style="--x:65;--y:41"></div><div class="sz-at sz-card szi-block szi-fly" style="--x:65;--y:41;--d:.5s"><span class="sz-ico" style="--s:7cqw"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span><span class="sz-label">Newsletter</span></div><div class="sz-at sz-ico sz-ico--ok sz-ico--round sz-show" style="--x:50;--y:29;--s:6cqw;--d:1.8s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></div></div><!-- /szene:integration --></div>
             <div class="reason__body">
               <span class="reason__num">04</span>
               <h3>Integration in Ihre Marketingstrategie</h3>
@@ -4616,7 +4603,7 @@
           </div>
           <div class="subhero__visual" data-reveal style="--d:.2s">
             <div class="photo-card" data-tilt-card data-parallax data-rx="5" data-ry="8">
-              <img loading="lazy" class="photo-card__img" src="assets/img/content-creator/hero-creator.webp" width="1400" height="788" alt="Creatorin schaut lächelnd auf ihr Smartphone, umgeben von Social-Media-Symbolen">
+              <!-- szene:creator --><div class="scene scene--hero scene--creator photo-card__img" role="img" aria-label="Animation: Der eigene Community-Shop im Creator-Profil – Bestellungen und Herzen der Community" style="--t:8s"><div class="sz-at sz-phone" style="--x:46;--y:38;--w:24cqw"><div class="sz-phone__screen"><div class="szc-note" style="--d:.4s"><span class="sz-ico" style="--s:4.2cqw"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg></span>Neue Bestellung</div><div class="szc-note" style="--d:4.4s"><span class="sz-ico sz-ico--gold" style="--s:4.2cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span>Beteiligung gutgeschrieben</div><div class="szc-banner"></div><div class="szc-me"><span class="sz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span><span class="sz-t sz-t--b" style="width:60%"></span><span class="sz-t" style="width:40%"></span></div><span class="szc-btn">Mein Community-Shop</span><div class="szc-grid"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg></span></div></div></div><div class="sz-at szc-heart" style="--x:29;--y:58;--d:0.0s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at szc-heart" style="--x:31.5;--y:58;--d:1.6s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at szc-heart" style="--x:29;--y:58;--d:3.2s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at szc-heart" style="--x:31.5;--y:58;--d:4.8s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div><div class="sz-at szc-heart" style="--x:29;--y:58;--d:6.4s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></div></div><!-- /szene:creator -->
               <span class="chip-float" style="left:-28px;top:12%;--z:70px;--delay:0s">
                 <span class="chip-float__ico"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span>
                 <span><strong>Dein Shop</strong><small>im Look Deiner Marke</small></span>
@@ -4697,34 +4684,18 @@
           </div>
           <div class="showcase__stage">
               <div class="sc-panel" role="tabpanel" id="creator-gruende-panel-1" aria-labelledby="creator-gruende-tab-1">
-                <div class="shots tilt-media tilt-media--shots" data-tilt-card data-rx="3" data-ry="5" data-parallax data-shots>
-                  <figure class="shots__item" data-label="Shop in Deiner Creator-Identity"><img src="assets/img/content-creator/iso-identity.webp" width="1024" height="559" alt="Illustration: Shop in Deiner Creator-Identity" loading="lazy"></figure>
-                  <figure class="shots__item" data-label="Personalisiertes Dashboard"><img src="assets/img/content-creator/shop-dashboard.webp" width="1024" height="683" alt="Community-Shop mit eigenem Logo und eigenen Kategorien" loading="lazy"></figure>
-                  <div class="shots__foot"><span class="shots__label" aria-live="polite"></span><span class="shots__dots"></span></div>
-                </div>
+                <div class="tilt-media" data-tilt-card data-rx="3" data-ry="5" data-parallax><div class="tilt-media__frame"><!-- szene:identitaet --><div class="scene scene--wide scene--identitaet" role="img" aria-label="Animation: Der Shop wechselt Farben und Logo – ganz im Look der Creator-Marke" style="--t:9s"><div class="sz-at sz-card sz-win szy-win" style="--x:42;--y:28"><div class="sz-win__bar"><i></i><i></i><i></i><span>dein-shop.de</span></div><div class="szy-head"><i></i><i style="--d:3s"></i><i style="--d:6s"></i><span class="szy-logo"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg><svg style="--d:3s" class="i" aria-hidden="true"><use href="#i-heart"/></svg><svg style="--d:6s" class="i" aria-hidden="true"><use href="#i-sparkles"/></svg></span></div><div class="szy-grid"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg></span></div></div><div class="sz-at" style="--x:87;--y:28"><span class="szy-sw"><i></i><i></i><i></i></span></div><div class="sz-at szy-sel" style="--x:87;--y:20.2"></div></div><!-- /szene:identitaet --></div></div>
                 <p class="sc-panel__more"><a class="more-link" href="#live-vorschau" data-pb-open="preview">So sieht Dein Shop aus <svg class="i i--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></p>
               </div>
               <div class="sc-panel" role="tabpanel" id="creator-gruende-panel-2" aria-labelledby="creator-gruende-tab-2" hidden>
-                <div class="shots tilt-media tilt-media--shots" data-tilt-card data-rx="3" data-ry="5" data-parallax data-shots>
-                  <figure class="shots__item" data-label="Dein eigener Vertriebskanal"><img src="assets/img/content-creator/iso-vertriebskanal.webp" width="1024" height="559" alt="Illustration: Dein eigener Vertriebskanal" loading="lazy"></figure>
-                  <figure class="shots__item" data-label="Dein Shop auf dem Smartphone"><img src="assets/img/content-creator/shop-smartphones.webp" width="1024" height="683" alt="Community-Shop auf drei Smartphones" loading="lazy"></figure>
-                  <div class="shots__foot"><span class="shots__label" aria-live="polite"></span><span class="shots__dots"></span></div>
-                </div>
+                <div class="tilt-media" data-tilt-card data-rx="3" data-ry="5" data-parallax><div class="tilt-media__frame"><!-- szene:vertrieb --><div class="scene scene--wide scene--vertrieb" role="img" aria-label="Animation: Vom Creator-Profil über den Link in der Bio direkt in den eigenen Shop" style="--t:7s"><div class="sz-at sz-phone" style="--x:30;--y:28;--w:22cqw"><div class="sz-phone__screen"><div class="szk2-strip"><div><div class="szc-banner"></div><div class="szc-me"><span class="sz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span><span class="sz-t sz-t--b" style="width:60%"></span><span class="sz-t" style="width:44%"></span></div><span class="szk2-link">Link in Bio<span class="szk2-tap sz-ripple-at" style="--d:2.4s"></span></span><div style="display:grid;gap:1cqw;padding:0 1.6cqw"><span class="sz-t" style="width:100%"></span><span class="sz-t" style="width:80%"></span></div></div><div><div class="szr-head"><svg class="i" style="width:1.3em;height:1.3em" aria-hidden="true"><use href="#i-bag"/></svg>Dein Shop</div><div class="szc-grid" style="padding-top:1.6cqw"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></span></div></div></div></div></div><div class="sz-at" style="--x:70;--y:28"><div class="szk2-steps"><span class="sz-pill"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg>Dein Profil<b class="sz-flashing" style="--d:0.3s"></b></span><span class="sz-pill"><svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg>Link in Bio<b class="sz-flashing" style="--d:2.2s"></b></span><span class="sz-pill"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>Dein Shop<b class="sz-flashing" style="--d:3.3s"></b></span></div></div></div><!-- /szene:vertrieb --></div></div>
               </div>
               <div class="sc-panel" role="tabpanel" id="creator-gruende-panel-3" aria-labelledby="creator-gruende-tab-3" hidden>
-                <div class="shots tilt-media tilt-media--shots" data-tilt-card data-rx="3" data-ry="5" data-parallax data-shots>
-                  <figure class="shots__item" data-label="Geld verdienen ohne Brand Deals"><img src="assets/img/content-creator/iso-verdienen.webp" width="1024" height="559" alt="Illustration: Geld verdienen ohne Brand Deals" loading="lazy"></figure>
-                  <figure class="shots__item" data-label="Highlights für Deine Community"><img src="assets/img/content-creator/shop-highlights.webp" width="1024" height="683" alt="Community-Shop mit Angeboten und Highlights" loading="lazy"></figure>
-                  <div class="shots__foot"><span class="shots__label" aria-live="polite"></span><span class="shots__dots"></span></div>
-                </div>
+                <div class="tilt-media" data-tilt-card data-rx="3" data-ry="5" data-parallax><div class="tilt-media__frame"><!-- szene:verdienen --><div class="scene scene--wide scene--verdienen" role="img" aria-label="Animation: Jede Bestellung im Shop bringt eine Beteiligung – ganz ohne Brand Deals" style="--t:7s"><div class="sz-at sz-card szu-prod sz-press" style="--x:21;--y:14;--d:0.3s"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg></span><span class="sz-col" style="flex:1"><span class="sz-label">Bestellung</span><span class="sz-t" style="width:70%"></span></span></div><div class="sz-at" style="--x:66.5;--y:24;--d:0.3s;--fx:-30.5cqw;--fy:-10cqw"><span class="sz-ico sz-ico--round sz-ico--gold szu-coin" style="--s:4.6cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span></div><div class="sz-at sz-card szu-prod sz-press" style="--x:21;--y:28;--d:2.3s"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg></span><span class="sz-col" style="flex:1"><span class="sz-label">Bestellung</span><span class="sz-t" style="width:70%"></span></span></div><div class="sz-at" style="--x:66.5;--y:24;--d:2.3s;--fx:-30.5cqw;--fy:4cqw"><span class="sz-ico sz-ico--round sz-ico--gold szu-coin" style="--s:4.6cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span></div><div class="sz-at sz-card szu-prod sz-press" style="--x:21;--y:42;--d:4.3s"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></span><span class="sz-col" style="flex:1"><span class="sz-label">Bestellung</span><span class="sz-t" style="width:70%"></span></span></div><div class="sz-at" style="--x:66.5;--y:24;--d:4.3s;--fx:-30.5cqw;--fy:18cqw"><span class="sz-ico sz-ico--round sz-ico--gold szu-coin" style="--s:4.6cqw"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg></span></div><div class="sz-at sz-card szu-wallet" style="--x:74;--y:28"><div class="sz-row"><span class="sz-ico" style="--s:8cqw"><svg class="i" aria-hidden="true"><use href="#i-wallet"/></svg></span><span class="sz-col" style="flex:1"><b>Deine Beteiligung</b><span class="szr-bar"><i class="sz-growx" style="--d:0s"></i></span></span></div></div><div class="sz-at sz-pill sz-pill--brand sz-show" style="--x:74;--y:44;--d:1.2s"><svg class="i" aria-hidden="true"><use href="#i-coins"/></svg>an jeder Bestellung</div></div><!-- /szene:verdienen --></div></div>
                 <p class="sc-panel__more"><a class="more-link" href="#einnahmen">Einnahmen im Vergleich <svg class="i i--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></p>
               </div>
               <div class="sc-panel" role="tabpanel" id="creator-gruende-panel-4" aria-labelledby="creator-gruende-tab-4" hidden>
-                <div class="shots tilt-media tilt-media--shots" data-tilt-card data-rx="3" data-ry="5" data-parallax data-shots>
-                  <figure class="shots__item" data-label="Wir übernehmen die Umsetzung"><img src="assets/img/content-creator/iso-umsetzung.webp" width="1024" height="559" alt="Illustration: Wir übernehmen die Umsetzung" loading="lazy"></figure>
-                  <figure class="shots__item" data-label="Persönlicher Login"><img src="assets/img/content-creator/shop-login.webp" width="1024" height="683" alt="Login-Seite des Community-Shops mit Creator-Foto" loading="lazy"></figure>
-                  <div class="shots__foot"><span class="shots__label" aria-live="polite"></span><span class="shots__dots"></span></div>
-                </div>
+                <div class="tilt-media" data-tilt-card data-rx="3" data-ry="5" data-parallax><div class="tilt-media__frame"><!-- szene:umsetzung --><div class="scene scene--wide scene--umsetzung" role="img" aria-label="Animation: INCENT übernimmt Plattform, Logistik und Zahlungsabwicklung – mehr Zeit für Content" style="--t:7s"><div class="sz-at sz-card szx-me sz-bobbing" style="--x:22;--y:27"><span class="sz-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span><b>Du</b><span class="sz-pill"><svg class="i" aria-hidden="true"><use href="#i-video"/></svg>Content</span></div><div class="sz-at sz-card szx-list" style="--x:66;--y:26"><div class="sz-label" style="margin-bottom:2cqw">Das übernehmen wir</div><div class="sz-row"><span class="sz-check"><b style="--d:0.6s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></b></span><span>Plattform &amp; Betrieb</span></div><div class="sz-row"><span class="sz-check"><b style="--d:1.4s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></b></span><span>Logistik &amp; Versand</span></div><div class="sz-row"><span class="sz-check"><b style="--d:2.2s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></b></span><span>Zahlungsabwicklung</span></div></div><div class="sz-at sz-pill sz-pill--brand sz-show" style="--x:66;--y:47;--d:3s"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg>Mehr Zeit für Deinen Content</div></div><!-- /szene:umsetzung --></div></div>
                 <p class="sc-panel__more"><a class="more-link" href="#creator-ablauf">So läuft der Start <svg class="i i--sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></p>
               </div>
           </div>
@@ -4739,10 +4710,8 @@
             <h2 class="h2" id="creator-warum-title" data-reveal style="--d:.06s">Warum <span class="grad-text">INCENT?</span></h2>
             <p class="lead" data-reveal style="--d:.12s">Klassische Sponsoring-Deals und Werbelinks erreichen oft nicht die gewünschte Wirkung. INCENT bietet Dir eine moderne Lösung für Deine Reichweite. Kostenlos, individuell gestaltet und ohne operativen Aufwand schaffst Du einen echten Mehrwert für Deine Community und profitierst dauerhaft von jeder Nutzung.</p>
           </div>
-          <figure class="iso iso--plain" data-reveal style="--d:.1s">
-            <div class="tilt-media tilt-media--plain" data-tilt-card data-rx="4" data-ry="7" data-parallax>
-              <img src="assets/img/content-creator/shop-geraete.webp" width="1024" height="683" alt="Community-Shop mit eigenem Logo auf Laptop und Smartphone" loading="lazy">
-            </div>
+          <figure class="iso iso--scene" data-reveal style="--d:.1s">
+            <div class="tilt-media" data-tilt-card data-rx="4" data-ry="7" data-parallax><div class="tilt-media__frame"><!-- szene:warum-creator --><div class="scene scene--photo scene--warum-creator" role="img" aria-label="Animation: Derselbe Community-Shop auf Laptop und Handy – kostenlos, individuell, ohne Aufwand" style="--t:9s"><div class="sz-at szs-laptop" style="--x:42;--y:30"><div class="szs-screen"><div class="szs-head"></div><div class="szs-grid"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg><b class="sz-on" style="--d:0.4s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg><b class="sz-on" style="--d:1.5s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg><b class="sz-on" style="--d:2.6s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg><b class="sz-on" style="--d:3.7s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg><b class="sz-on" style="--d:4.8s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg><b class="sz-on" style="--d:5.9s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-cart"/></svg><b class="sz-on" style="--d:7.0s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-tag"/></svg><b class="sz-on" style="--d:8.1s"></b></span></div></div><div class="szs-base"></div></div><div class="sz-at sz-phone" style="--x:83;--y:36;--w:18cqw"><div class="sz-phone__screen"><div class="szs-head" style="height:9cqw"></div><div class="szs-grid szs-grid--m"><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg><b class="sz-on" style="--d:0.4s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-shirt"/></svg><b class="sz-on" style="--d:1.5s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg><b class="sz-on" style="--d:2.6s"></b></span><span class="sz-tile"><svg class="i" aria-hidden="true"><use href="#i-ticket"/></svg><b class="sz-on" style="--d:3.7s"></b></span></div></div></div><div class="sz-at sz-pill sz-show" style="--x:20;--y:60;--d:0.6s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Kostenlos</div><div class="sz-at sz-pill sz-show" style="--x:47;--y:60;--d:1.4s"><svg class="i" aria-hidden="true"><use href="#i-palette"/></svg>Individuell</div><div class="sz-at sz-pill sz-show" style="--x:76;--y:60;--d:2.2s"><svg class="i" aria-hidden="true"><use href="#i-zap"/></svg>Ohne Aufwand</div></div><!-- /szene:warum-creator --></div></div>
           </figure>
         </div>
         <div class="spacer"></div>
@@ -4955,7 +4924,7 @@
 
     <!-- layout:partners -->
     <!-- ============ Partner-Laufband ============ -->
-    <section class="partners" aria-labelledby="partners-title">
+    <section class="partners" data-first-only aria-labelledby="partners-title">
       <div class="container partners__head">
         <div>
           <p class="eyebrow">Unternehmen und Marken</p>
@@ -4993,7 +4962,7 @@
     </section>
 
     <!-- ============ Plattform / Einzigartig ============ -->
-    <section class="section section--dark section--inset platform" id="plattform" data-for="start marken" aria-labelledby="platform-title">
+    <section class="section section--dark section--inset platform" id="plattform" data-for="start marken" data-first-only aria-labelledby="platform-title">
       <div class="platform__glow" aria-hidden="true"></div>
       <div class="container">
         <header class="section-head section-head--split">
@@ -5130,7 +5099,7 @@
     </section>
 
     <!-- ============ Leistungsangebot (Bento) ============ -->
-    <section class="section services" id="leistungen" data-for="arbeitgeber unternehmen marken" aria-labelledby="services-title">
+    <section class="section services" id="leistungen" data-for="arbeitgeber unternehmen marken" data-first-only aria-labelledby="services-title">
       <div class="container">
         <header class="section-head section-head--split">
           <div>
@@ -5209,7 +5178,7 @@
     </section>
 
     <!-- ============ Vorteile + Live-Vorschau ============ -->
-    <section class="section benefits" id="vorteile" data-for="arbeitgeber unternehmen creator" aria-labelledby="benefits-title">
+    <section class="section benefits" id="vorteile" data-for="arbeitgeber unternehmen creator" data-first-only aria-labelledby="benefits-title">
       <div class="container">
         <header class="section-head">
           <p class="eyebrow" data-reveal>Unser Versprechen</p>
@@ -5251,7 +5220,7 @@
     </section>
 
     <!-- ============ Kundenstimmen ============ -->
-    <section class="section section--dark section--inset voices" id="stimmen" data-for="start arbeitgeber unternehmen" aria-labelledby="voices-title">
+    <section class="section section--dark section--inset voices" id="stimmen" data-for="start arbeitgeber unternehmen" data-first-only aria-labelledby="voices-title">
       <div class="container voices__grid">
         <header class="voices__head">
           <p class="eyebrow eyebrow--dark" data-reveal>Bewährte Zusammenarbeit</p>
@@ -5307,7 +5276,7 @@
     </section>
 
     <!-- ============ Über uns ============ -->
-    <section class="section about" id="ueber-uns" aria-labelledby="about-title">
+    <section class="section about" id="ueber-uns" data-first-only aria-labelledby="about-title">
       <div class="container">
         <div class="about__intro">
           <div class="about__copy">
@@ -5463,7 +5432,7 @@
 
     <!-- layout:contact -->
     <!-- ============ Kontakt ============ -->
-    <section class="section contact" id="kontakt" aria-labelledby="contact-title">
+    <section class="section contact contact--mini" id="kontakt" aria-labelledby="contact-title">
       <div class="container">
         <div class="contact__panel" data-reveal data-spot-panel>
           <div class="cta__bg" aria-hidden="true"><span></span><span></span></div>
@@ -5472,131 +5441,30 @@
             <p class="eyebrow eyebrow--onbrand">Neugierig geworden?</p>
             <h2 class="contact__title" id="contact-title">Jetzt Kontakt aufnehmen</h2>
             <p class="contact__text">
-              <strong>Erfolg beginnt im Gespräch.</strong> In einem persönlichen Videogespräch werfen wir gemeinsam einen Blick
-              auf die wichtigsten Fragen:
+              <strong>Erfolg beginnt im Gespräch.</strong> In einem persönlichen Videogespräch klären wir gemeinsam, was Ihr
+              Unternehmen, Ihre Marke oder Ihre Community braucht.
             </p>
-            <ul class="contact__questions">
-              <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Was sind die individuellen Anforderungen?</li>
-              <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Was braucht das Unternehmen oder die Marke?</li>
-              <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Wie sieht die ideale Unterstützung aus?</li>
-              <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Welches Potenzial steckt in maßgeschneiderten Corporate Benefits für Mitarbeitende, Kund:innen und Communities?</li>
-            </ul>
             <div class="contact__direct">
               <a href="tel:+49834193450"><svg class="i i--sm" aria-hidden="true"><use href="#i-phone"/></svg>08341&nbsp;93450</a>
               <a href="mailto:info@incent.de"><svg class="i i--sm" aria-hidden="true"><use href="#i-mail"/></svg>info@incent.de</a>
-              <span><svg class="i i--sm" aria-hidden="true"><use href="#i-pin"/></svg>Rudolf-Diesel-Straße 2, 87656 Germaringen</span>
             </div>
           </div>
 
-          <!-- Kontaktformular: ohne data-endpoint öffnet es das E-Mail-Programm (siehe README) -->
-          <form class="form" data-contact-form data-tilt-card data-rx="2" data-ry="3" data-tx="6" data-ty="4" novalidate aria-labelledby="contact-title">
+          <!-- Kleines Formular, Schritt 1 „Ich bin …“: weiter auf der Formularseite (kontakt.html?ich=…, klappt auch ohne
+               Skript); in einer Welt ist die passende Zielgruppe vorgewählt (main.js: initWorlds) -->
+          <form class="form form--mini" action="kontakt.html" method="get" data-contact-mini data-tilt-card data-rx="2" data-ry="3" data-tx="6" data-ty="4" aria-labelledby="contact-title">
+            <p class="form__step">Schritt 1 von 2</p>
             <fieldset class="form__choice">
-              <legend class="form__label">Ich bin …<span class="form__req" aria-hidden="true">*</span></legend>
-              <div class="choice">
-                <label class="choice__item"><input type="radio" name="sender_type" value="Arbeitgeber" required><span>Arbeitgeber</span></label>
-                <label class="choice__item"><input type="radio" name="sender_type" value="Unternehmen"><span>Unternehmen</span></label>
-                <label class="choice__item"><input type="radio" name="sender_type" value="Markenpartner"><span>Markenpartner</span></label>
-                <label class="choice__item"><input type="radio" name="sender_type" value="Creator"><span>Creator</span></label>
+              <legend class="form__label form__label--big">Ich bin …</legend>
+              <div class="choice choice--cards">
+                <label class="choice__item"><input type="radio" name="ich" value="Arbeitgeber"><span><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Arbeitgeber</span></label>
+                <label class="choice__item"><input type="radio" name="ich" value="Unternehmen"><span><svg class="i" aria-hidden="true"><use href="#i-building"/></svg>Unternehmen</span></label>
+                <label class="choice__item"><input type="radio" name="ich" value="Markenpartner"><span><svg class="i" aria-hidden="true"><use href="#i-megaphone"/></svg>Markenpartner</span></label>
+                <label class="choice__item"><input type="radio" name="ich" value="Creator"><span><svg class="i" aria-hidden="true"><use href="#i-video"/></svg>Creator</span></label>
               </div>
-              <p class="form__error" data-error-for="sender_type"></p>
             </fieldset>
-
-            <div class="form__grid">
-              <div class="form__field span-2">
-                <label for="cf-salutation">Anrede</label>
-                <select id="cf-salutation" name="salutation">
-                  <option value="">Bitte wählen</option>
-                  <option>Frau</option>
-                  <option>Herr</option>
-                </select>
-              </div>
-              <div class="form__field span-2">
-                <label for="cf-firstname">Vorname<span class="form__req" aria-hidden="true">*</span></label>
-                <input id="cf-firstname" name="firstname" type="text" autocomplete="given-name" required>
-                <p class="form__error"></p>
-              </div>
-              <div class="form__field span-2">
-                <label for="cf-lastname">Nachname<span class="form__req" aria-hidden="true">*</span></label>
-                <input id="cf-lastname" name="lastname" type="text" autocomplete="family-name" required>
-                <p class="form__error"></p>
-              </div>
-              <div class="form__field span-3">
-                <label for="cf-email">E-Mail-Adresse<span class="form__req" aria-hidden="true">*</span></label>
-                <input id="cf-email" name="email" type="email" autocomplete="email" required>
-                <p class="form__error"></p>
-              </div>
-              <div class="form__field span-3">
-                <label for="cf-phone">Telefon</label>
-                <input id="cf-phone" name="phone" type="tel" autocomplete="tel">
-                <p class="form__error"></p>
-              </div>
-
-              <div class="form__field span-3" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
-                <label for="cf-company">Unternehmen<span class="form__req" aria-hidden="true">*</span></label>
-                <input id="cf-company" name="company_name" type="text" autocomplete="organization" required>
-                <p class="form__error"></p>
-              </div>
-              <div class="form__field span-3" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
-                <label for="cf-position">Position</label>
-                <input id="cf-position" name="position" type="text" autocomplete="organization-title">
-              </div>
-              <div class="form__field span-3" data-show-for="Arbeitgeber" hidden>
-                <label for="cf-size">Unternehmensgröße<span class="form__req" aria-hidden="true">*</span></label>
-                <select id="cf-size" name="company_size" required>
-                  <option value="">Anzahl Mitarbeitende</option>
-                  <option>1–49</option>
-                  <option>50–249</option>
-                  <option>250–999</option>
-                  <option>1.000 und mehr</option>
-                </select>
-                <p class="form__error"></p>
-              </div>
-              <div class="form__field span-3" data-show-for="Unternehmen Markenpartner" hidden>
-                <label for="cf-url">Website</label>
-                <input id="cf-url" name="company_url" type="url" inputmode="url" placeholder="https://" autocomplete="url">
-                <p class="form__error"></p>
-              </div>
-              <div class="form__field span-3" data-show-for="Creator" hidden>
-                <label for="cf-platform">Plattform<span class="form__req" aria-hidden="true">*</span></label>
-                <input id="cf-platform" name="platform" type="text" placeholder="z. B. Instagram, TikTok, YouTube" required>
-                <p class="form__error"></p>
-              </div>
-              <div class="form__field span-3" data-show-for="Creator" hidden>
-                <label for="cf-profile">Profil-URL<span class="form__req" aria-hidden="true">*</span></label>
-                <input id="cf-profile" name="profile_url" type="url" inputmode="url" placeholder="https://" required>
-                <p class="form__error"></p>
-              </div>
-              <div class="form__field span-6" data-show-for="Creator" hidden>
-                <label for="cf-agency">Agentur</label>
-                <input id="cf-agency" name="agentur" type="text">
-              </div>
-
-              <div class="form__field span-4" data-show-for="none Arbeitgeber Unternehmen Markenpartner">
-                <label for="cf-street">Anschrift Unternehmen</label>
-                <input id="cf-street" name="street" type="text" autocomplete="address-line1">
-              </div>
-              <div class="form__field span-2" data-show-for="none Arbeitgeber Unternehmen Markenpartner">
-                <label for="cf-zip">PLZ</label>
-                <input id="cf-zip" name="postal_code" type="text" inputmode="numeric" autocomplete="postal-code">
-              </div>
-              <div class="form__field span-6">
-                <label for="cf-message">Nachricht</label>
-                <textarea id="cf-message" name="message" rows="4" placeholder="Was Sie uns noch mitteilen möchten …"></textarea>
-              </div>
-            </div>
-
-            <div class="form__footer">
-              <p class="form__legal">Hinweise zum Schutz Ihrer Daten finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
-              <button class="btn btn--primary btn--lg form__submit" type="submit">Absenden <svg class="i" aria-hidden="true"><use href="#i-send"/></svg></button>
-              <p class="form__error" data-form-error role="alert"></p>
-            </div>
-
-            <div class="form__success" data-form-success role="status" hidden>
-              <span class="form__success-icon" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
-              <strong>Vielen Dank für Ihre Anfrage!</strong>
-              <p data-form-success-text></p>
-              <button type="button" class="btn btn--dark btn--sm" data-form-reset>Neue Anfrage</button>
-            </div>
+            <button class="btn btn--primary btn--lg form__submit" type="submit">Weiter zum Formular <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
+            <p class="form__hint">Im nächsten Schritt nur noch Name, E-Mail und Ihr Anliegen – dauert keine Minute.</p>
           </form>
         </div>
       </div>

@@ -2022,6 +2022,25 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .form__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; }
 .form__legal { max-width: 36ch; font-size: .9rem; color: var(--ink-3); }
 .form__legal a { color: var(--royal); text-decoration: underline; text-underline-offset: 2px; }
+/* Kleines Formular auf jeder Seite (Schritt 1 „Ich bin …“ → kontakt.html) und Formularseite */
+.contact--mini .contact__panel { align-items: center; }
+.contact--mini .contact__title { font-size: clamp(2.2rem, 4.6vw, 3.8rem); }
+.form__step {
+  align-self: flex-start; padding: 5px 12px; border-radius: 999px;
+  font-size: .85rem; font-weight: 600; letter-spacing: .04em; color: var(--royal); background: #eef3ff;
+}
+.form:not(.is-step2) .form__step--two { display: none; }
+.form__label--big { margin-bottom: 12px; font-family: var(--font-display); font-size: clamp(1.4rem, 2.2vw, 1.75rem); font-weight: 700; color: var(--ink); }
+.choice--cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+.choice--cards .choice__item span { display: flex; flex-direction: column; justify-content: center; gap: 6px; height: auto; min-height: 84px; padding: 12px; font-size: 1.05rem; }
+.choice--cards .choice__item span .i { width: 24px; height: 24px; color: var(--royal); transition: color .2s; }
+.choice--cards .choice__item input:checked + span .i { color: #fff; }
+.form--mini .form__submit { justify-content: center; }
+.form__hint { margin-top: -6px; font-size: .92rem; color: var(--ink-3); text-align: center; }
+.contact-page { padding-top: calc(var(--nav-h) + 28px + clamp(12px, 2.6vw, 36px)); }
+.contact-page .contact__panel { grid-template-columns: .85fr 1.15fr; }
+@media (max-width: 980px) { .contact-page .contact__panel { grid-template-columns: 1fr; } }
+
 .form__success {
   position: absolute; inset: 0; z-index: 2;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
@@ -2245,15 +2264,13 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 }
 .tilt-media__frame { position: relative; overflow: hidden; border-radius: 26px; }
 .tilt-media__frame > img { display: block; width: 100%; height: auto; }
-.tilt-media--shots .shots__item { position: relative; overflow: hidden; border-radius: 18px; }
-/* Ebenen vor dem Bild schweben in der Tiefe (Badge, Punkte unter den Screenshots) */
+/* Ebenen vor dem Bild schweben in der Tiefe (Badge, Tags) */
 .tilt-media__float {
   transform: translateZ(calc(var(--z, 70px) + var(--lift, 0px)));
   transition: transform .5s var(--ease-out), scale .5s var(--ease-out);
   animation: bob 8s ease-in-out -3s infinite;
 }
 @media (hover: hover) { .tilt-media__float:hover { --lift: 30px; scale: 1.04; } }
-.tilt-media--shots .shots__foot { transform: translateZ(36px); }
 /* Freigestellte Geräte: weicher Lichtschein weit hinter dem Bild verstärkt die Tiefe */
 .tilt-media--plain::before {
   content: ""; position: absolute; inset: 8% 10%; z-index: -1;
@@ -2264,7 +2281,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   pointer-events: none;
 }
 /* Bildflächen sind Deko – Hover und Klicks gehen an die Ebenen davor (siehe schwebende Tags) */
-.tilt-media__frame, .tilt-media--plain > img, .tilt-media--shots .shots__item { pointer-events: none; }
+.tilt-media__frame, .tilt-media--plain > img { pointer-events: none; }
 
 /* ---------- Bindung und Recruiting: „Arbeitgeber-Magnet“ (eigene Visualisierung, Mitarbeiterbindung) ----------
    Mitte: Ihr Unternehmen. Innen: das Team auf einer Umlaufbahn (Bindung). Außen: Bewerbungen werden
@@ -2867,6 +2884,8 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
   transition: opacity .3s, translate .4s var(--ease-out);
 }
 .sstep-hud.is-on { opacity: 1; translate: 0 -50%; }
+/* schmal gibt es keinen Scroll-Stepper: die ausgeblendete Anzeige darf rechts nicht über den Rand ragen (seitliches Scrollen) */
+@media (max-width: 980px) { .sstep-hud { display: none; } }
 .sstep-hud__dots { display: flex; flex-direction: column; gap: 6px; }
 .sstep-hud__dots i { width: 6px; height: 6px; border-radius: 6px; background: rgba(0, 10, 30, .2); transition: height .35s var(--ease-out), background-color .3s; }
 .sstep-hud__dots i.is-on { height: 20px; background: var(--grad); }
@@ -2919,20 +2938,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .showcase__stage { display: grid; }
 .showcase__stage > .sc-panel { grid-area: 1 / 1; display: flex; flex-direction: column; justify-content: center; }
 .showcase__stage > .sc-panel[hidden] { display: flex; visibility: hidden; animation: none; }
-
-/* Bild-Karussell */
-.shots { position: relative; display: grid; }
-.shots__item { grid-area: 1 / 1; opacity: 0; transform: scale(.98); transition: opacity .7s ease, transform 1s var(--ease-out); }
-.shots__item.is-active { opacity: 1; transform: none; }
-.shots__item img { display: block; width: 100%; height: auto; border-radius: 18px; }
-.shots__foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 14px; }
-.shots__label { font-size: .95rem; font-weight: 600; color: var(--ink-2); }
-.shots__dots { display: flex; gap: 6px; }
-.shots__dots button { width: 26px; height: 6px; border-radius: 6px; background: rgba(0, 10, 30, .14); transition: background-color .3s, width .3s var(--ease-out); }
-.shots__dots button[aria-current="true"] { width: 40px; background: var(--grad); }
-.on-light .shots__label { color: var(--ink-2); }
-.on-light .shots__dots button { background: rgba(0, 10, 30, .15); }
-.on-light .shots__dots button[aria-current="true"] { background: var(--grad-btn); }
 
 /* Anlass-Kacheln */
 .occ-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
@@ -4268,6 +4273,9 @@ a.more-link:hover .i { transform: translateX(3px); }
 .js[data-world="unternehmen"] [data-for]:not([data-for~="unternehmen"]),
 .js[data-world="marken"] [data-for]:not([data-for~="marken"]),
 .js[data-world="creator"] [data-for]:not([data-for~="creator"]) { display: none; }
+/* Partner, Leistungsangebot, Vorteile, Kundenstimmen, Über uns: in einer Welt nur im ersten Bereich (z. B. 2-in-1-Benefits,
+   Loyalty-Portal), nicht auf jeder weiteren Seite noch einmal (data-sub setzen Kopf-Skript und initWorlds) */
+.js[data-sub] [data-first-only] { display: none; }
 /* Hauptnavigation: in der Übersicht die Zielgruppen, in einer Welt deren Bereiche (Übersicht, Ihr Design, Lösungen) */
 .nav__list--world { display: none; }
 .js[data-world] .nav__list--start { display: none; }
@@ -4287,6 +4295,10 @@ a.more-link:hover .i { transform: translateX(3px); }
 .nav__list--world .nav__link { gap: 7px; padding-inline: 13px; font-weight: 600; white-space: nowrap; transition: color .25s, background-color .25s, box-shadow .25s; }
 .nav__list--world .nav__link .i { width: 17px; height: 17px; flex: none; }
 .nav__list--world .nav__link[aria-current="page"] { color: #fff; background: var(--grad-btn); box-shadow: 0 10px 22px -12px rgba(26, 120, 255, .9); }
+/* Abschnitt der Seite im Bild (z. B. Creator „Einnahmen“): sein Link ist markiert, der Bereichs-Link tritt zurück
+   (stärker als die Regel im <head>, die den Bereich vor dem Laden markiert) */
+.nav__list--world .nav__link.is-spy { color: #fff; background: var(--grad-btn); box-shadow: 0 10px 22px -12px rgba(26, 120, 255, .9); }
+.js .nav__list--world.has-spy[data-mb-tabs] .nav__link[aria-current="page"]:not(.is-spy) { color: var(--ink-2); background: none; box-shadow: none; }
 .nav__link--home { color: var(--ink-3); }
 .nav__list--world > li:first-child { margin-right: 6px; padding-right: 8px; border-right: 1px solid var(--line); }
 .nav__link--design:not([aria-current]) { color: var(--royal); }
@@ -4583,16 +4595,16 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
 .sub-hero__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
 .sub-hero__media { position: relative; margin: 0; }
 /* FAQ: das Wichtigste in Kürze neben der Überschrift */
-.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.facts__item {
+.faq-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.faq-facts__item {
   display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
   padding: clamp(16px, 2vw, 22px);
   border-radius: 22px; background: #fff;
   box-shadow: inset 0 0 0 1px var(--line), var(--shadow-1);
   color: var(--ink-2); font-size: 1rem; line-height: 1.45;
 }
-.facts__ico { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border-radius: 14px; color: #fff; background: var(--grad-btn); }
-.facts__item strong { font-family: var(--font-display); font-size: clamp(1.25rem, 2vw, 1.55rem); font-weight: 700; line-height: 1.1; color: var(--ink); }
+.faq-facts__ico { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border-radius: 14px; color: #fff; background: var(--grad-btn); }
+.faq-facts__item strong { font-family: var(--font-display); font-size: clamp(1.25rem, 2vw, 1.55rem); font-weight: 700; line-height: 1.1; color: var(--ink); }
 .sub-hero__media img { display: block; width: 100%; height: auto; aspect-ratio: 1600 / 893; object-fit: cover; }
 .sub-hero__media .tilt-media__frame { border-radius: clamp(22px, 3vw, 32px); box-shadow: var(--shadow-2); }
 .sub-hero__badge {
@@ -5129,3 +5141,419 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
 /* Footer: „Privatsphäre-Einstellungen“ sieht aus wie die Links daneben */
 .footer__btn { padding: 0; font: inherit; color: inherit; text-align: left; transition: color .2s; }
 .footer__btn:hover { color: var(--royal); }
+
+/* ==========================================================================
+   Szenen: animierte Illustrationen statt Fotos und Isometrien
+   (Seitenköpfe der Welten, „Ein Gutschein, viele Einsatzmöglichkeiten“, „Mehr als klassisches E-Mail-Marketing“,
+   Gründe-Reiter von Marken und Creator, „Warum INCENT?“)
+   - .scene ist die Bühne; sie skaliert mit ihrer Breite: Lage und Maße in cqw (1cqw = 1 % der Breite). Teile mit
+     .sz-at sitzen mit ihrer Mitte auf --x/--y (Zahlen in cqw, wie die Koordinaten der SVG-Linien darunter).
+   - Animiert werden nur transform und opacity. Alle Teile einer Szene laufen im selben Takt (--t); wann ein Teil
+     dran ist, sagt --d (Startzeit im Takt, als negative Verzögerung umgesetzt).
+   - Schleifen pausieren außerhalb des Fensters (data-anim-off am Abschnitt). Ohne Bewegung (prefers-reduced-motion)
+     steht das Grundbild – es ist so gebaut, dass es allein ein sinnvolles Standbild ergibt.
+   ========================================================================== */
+.scene {
+  --t: 8s;
+  position: relative; display: block; overflow: hidden; container-type: inline-size;
+  aspect-ratio: 16 / 10; border-radius: 22px;
+  background:
+    radial-gradient(80% 70% at 90% 4%, rgba(0, 242, 254, .16), rgba(0, 242, 254, 0) 62%),
+    radial-gradient(70% 70% at 4% 100%, rgba(43, 75, 255, .12), rgba(43, 75, 255, 0) 60%),
+    linear-gradient(180deg, #f8fbff, #eaf1ff);
+  font-size: clamp(10px, 2.3cqw, 15px); line-height: 1.25; color: var(--ink);
+  -webkit-user-select: none; user-select: none;
+}
+.scene::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(43, 75, 255, .14) 1px, transparent 1.3px);
+  background-size: 4cqw 4cqw;
+}
+.scene--hero { aspect-ratio: 4 / 3; }
+.scene--wide { aspect-ratio: 16 / 9; }
+.scene--photo { aspect-ratio: 3 / 2; }
+.scene, .scene * { box-sizing: border-box; }
+.scene *, .scene *::before, .scene *::after { animation-duration: var(--t); animation-iteration-count: infinite; animation-delay: calc(var(--d, 0s) - var(--t)); }
+.sz-wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.sz-wires * { fill: none; stroke: #b9cbff; stroke-width: 1.6px; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.sz-wires .dash { stroke-dasharray: 3px 5px; }
+.sz-wires .soft { stroke: #d5e1ff; }
+.scene .sz-at { position: absolute; left: calc(var(--x, 50) * 1cqw); top: calc(var(--y, 31) * 1cqw); translate: -50% -50%; }
+.sz-card { background: #fff; border-radius: 2.2cqw; box-shadow: 0 0 0 1px rgba(0, 10, 30, .06), 0 2.6cqw 5cqw -2.6cqw rgba(0, 30, 90, .4); }
+.sz-ico {
+  --s: 8cqw; position: relative; display: grid; place-items: center; width: var(--s); height: var(--s); flex: none;
+  border-radius: 30%; color: #fff; background: var(--grad-btn);
+  box-shadow: 0 1.4cqw 2.8cqw -1.2cqw rgba(26, 90, 255, .75);
+}
+.sz-ico .i { width: 52%; height: 52%; }
+.sz-ico--round { border-radius: 50%; }
+.sz-ico--soft { color: var(--royal); background: #fff; box-shadow: 0 0 0 1px rgba(43, 75, 255, .16), 0 1.4cqw 3cqw -1.6cqw rgba(0, 30, 90, .45); }
+.sz-ico--alt { background: linear-gradient(135deg, #ff8a5b, #ff3d7f); box-shadow: 0 1.4cqw 2.8cqw -1.2cqw rgba(255, 61, 127, .6); }
+.sz-ico--ok { background: linear-gradient(135deg, #34d399, #0f9d6b); box-shadow: 0 1.4cqw 2.8cqw -1.2cqw rgba(15, 157, 107, .6); }
+.sz-ico--violet { background: linear-gradient(135deg, #a78bfa, #6d3df5); box-shadow: 0 1.4cqw 2.8cqw -1.2cqw rgba(109, 61, 245, .55); }
+.sz-ico--gold { color: #7a4a00; background: linear-gradient(135deg, #ffe08a, #ffb72b); box-shadow: 0 1.2cqw 2.4cqw -1.2cqw rgba(200, 120, 0, .6); }
+.sz-av {
+  --s: 7cqw; position: relative; display: grid; place-items: center; width: var(--s); height: var(--s); flex: none;
+  border-radius: 50%; color: var(--royal); background: #fff;
+  box-shadow: 0 0 0 .5cqw #dde7ff, 0 1.4cqw 2.8cqw -1.4cqw rgba(0, 30, 90, .5);
+}
+.sz-av .i { width: 50%; height: 50%; }
+/* „eingeschaltet“: blaue Fläche als eigene Ebene (nur ihre Deckkraft wird animiert) */
+.sz-av > b, .sz-on {
+  position: absolute; inset: 0; display: grid; place-items: center; border-radius: inherit;
+  color: #fff; background: var(--grad-btn); opacity: 0;
+}
+.sz-pill {
+  display: inline-flex; align-items: center; gap: .8cqw; padding: .9cqw 1.7cqw;
+  border-radius: 999px; font-weight: 600; white-space: nowrap; color: var(--ink); background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 10, 30, .05), 0 1.2cqw 2.6cqw -1.2cqw rgba(0, 30, 90, .45);
+}
+.sz-pill .i { width: 1.25em; height: 1.25em; color: var(--royal); }
+.sz-pill--brand { color: #fff; background: var(--grad-btn); }
+.sz-pill--brand .i { color: #fff; }
+.sz-pill--ok { color: #0d7a50; background: #e5f8ef; }
+.sz-pill--ok .i { color: #0f9d6b; }
+.sz-t { display: block; height: 1.2cqw; border-radius: 1cqw; background: #dfe6f3; }
+.sz-t--b { background: #bccdfb; }
+.sz-t--w { background: rgba(255, 255, 255, .7); }
+.sz-label { font-size: .86em; font-weight: 600; white-space: nowrap; color: var(--ink-2); }
+.sz-win { overflow: hidden; }
+.sz-win__bar { display: flex; align-items: center; gap: .8cqw; height: 4.4cqw; padding: 0 1.6cqw; background: #eef3fb; font-size: .78em; font-weight: 600; color: var(--ink-3); }
+.sz-win__bar i { width: 1.1cqw; height: 1.1cqw; border-radius: 50%; background: #ff8f8f; }
+.sz-win__bar i:nth-child(2) { background: #ffd27a; }
+.sz-win__bar i:nth-child(3) { background: #7fe0ad; }
+.sz-win__bar span { margin-left: .8cqw; }
+.sz-phone {
+  --w: 24cqw; width: var(--w); aspect-ratio: 9 / 18.5; padding: 1cqw;
+  border-radius: 3.6cqw; background: #0c1733; box-shadow: 0 3cqw 6cqw -3cqw rgba(0, 20, 60, .6);
+}
+.sz-phone__screen { position: relative; height: 100%; overflow: hidden; border-radius: 2.8cqw; background: #f6f8fc; }
+.sz-tile { display: grid; place-items: center; aspect-ratio: 1; border-radius: 1.6cqw; color: var(--royal); background: #eef3ff; position: relative; overflow: hidden; }
+.sz-tile .i { width: 46%; height: 46%; }
+
+/* gemeinsame Bewegungen (Takt --t, Start --d) */
+@keyframes sz-spin { to { transform: rotate(360deg); } }
+@keyframes sz-scroll { to { transform: translateY(-50%); } }
+@keyframes sz-ripple { 0% { opacity: .9; transform: scale(.15); } 100% { opacity: 0; transform: scale(1); } }
+@keyframes sz-bob { 50% { transform: translateY(-1.2cqw); } }
+@keyframes sz-sheen { 0%, 50% { transform: translateX(-140%) skewX(-18deg); } 75%, 100% { transform: translateX(260%) skewX(-18deg); } }
+/* kurzer Puls, wenn etwas ankommt (Spitze bei 4 % des Takts) */
+@keyframes sz-pop { 0% { transform: none; } 4% { transform: scale(1.2); } 9%, 100% { transform: none; } }
+/* fliegt von --fx/--fy (Abstand zum Start) an seinen Platz, kurz sichtbar, verschwindet */
+@keyframes sz-fly { 0% { opacity: 0; transform: translate(var(--fx, 0), var(--fy, 0)) scale(.45); } 3% { opacity: 1; } 14% { opacity: 1; transform: none; } 19%, 100% { opacity: 0; transform: scale(.7); } }
+/* steigt auf und verblasst (Herzen, +1) */
+@keyframes sz-rise { 0% { opacity: 0; transform: translateY(1cqw) scale(.5); } 5% { opacity: 1; transform: translateY(-1.5cqw) scale(1); } 16%, 100% { opacity: 0; transform: translateY(-5cqw) scale(.9); } }
+/* bleibt ab --d an und erlischt am Ende des Takts */
+@keyframes sz-hold { 0% { opacity: 0; } 3%, 92% { opacity: 1; } 98%, 100% { opacity: 0; } }
+@keyframes sz-hold-pop { 0% { opacity: 0; transform: scale(.4); } 4% { opacity: 1; transform: scale(1.12); } 7%, 92% { opacity: 1; transform: none; } 98%, 100% { opacity: 0; transform: none; } }
+/* kurz an (Markierung wandert) */
+@keyframes sz-flash { 0% { opacity: 0; } 3%, 14% { opacity: 1; } 20%, 100% { opacity: 0; } }
+@keyframes sz-grow-y { 0% { transform: scaleY(.06); } 30%, 88% { transform: scaleY(1); } 96%, 100% { transform: scaleY(.06); } }
+@keyframes sz-grow-x { 0% { transform: scaleX(.04); } 70%, 90% { transform: scaleX(1); } 97%, 100% { transform: scaleX(.04); } }
+@keyframes sz-blink { 50% { opacity: 0; } }
+@keyframes sz-dots { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-1cqw); } }
+
+/* ---------- Arbeitgeber › Mitarbeiter-Benefits: das Portal verteilt Vorteile an das Team ---------- */
+.szb-hub { width: 32cqw; overflow: hidden; }
+.szb-hub__head { display: flex; align-items: center; gap: 1cqw; padding: 1.6cqw 2cqw; font-size: .86em; font-weight: 700; color: #fff; background: var(--grad-btn); }
+.szb-hub__head .i { width: 1.3em; height: 1.3em; }
+.szb-hub__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4cqw; padding: 2cqw; }
+.szb-hub__grid .sz-on { border-radius: 1.6cqw; }
+.scene .szb-hub__grid .sz-on { animation-name: sz-flash; }
+.scene .szb-pack { animation-name: sz-fly; animation-timing-function: var(--ease-out); opacity: 0; }
+.scene .szb-av { animation-name: sz-pop; }
+.scene .szb-av > b { animation-name: szb-on; }
+@keyframes szb-on { 0%, 13% { opacity: 0; } 16%, 62% { opacity: 1; } 70%, 100% { opacity: 0; } }
+.szb-heart { color: #ff4f7b; opacity: 0; }
+.szb-heart .i { width: 3.4cqw; height: 3.4cqw; fill: currentColor; }
+.scene .szb-heart { animation-name: sz-rise; }
+
+/* ---------- Arbeitgeber › Mitarbeiterrabatte: Angebote laufen durchs Handy, jede Ersparnis landet im Sparschwein ---------- */
+.szr-head { display: flex; align-items: center; gap: .8cqw; padding: 2.4cqw 1.6cqw 1.4cqw; font-size: .72em; font-weight: 700; color: #fff; background: var(--grad-btn); }
+.szr-search { position: relative; z-index: 2; height: 3cqw; margin: 1.4cqw 1.4cqw 0; border-radius: 999px; background: #e6ecf7; box-shadow: 0 0 0 1.4cqw #f6f8fc; }
+.szr-head { position: relative; z-index: 3; }
+.szr-list { padding: 1.2cqw 1.4cqw; }
+.scene .szr-list { animation-name: sz-scroll; animation-timing-function: linear; animation-delay: 0s; }
+.szr-row { display: flex; align-items: center; gap: 1cqw; height: 6.6cqw; margin-bottom: 1cqw; padding: 0 1cqw; border-radius: 1.6cqw; background: #fff; box-shadow: 0 .6cqw 1.4cqw -.8cqw rgba(0, 30, 90, .35); }
+.szr-row .sz-tile { width: 4.4cqw; border-radius: 1.2cqw; }
+.szr-row > span:nth-child(2) { flex: 1; display: grid; gap: .7cqw; }
+.szr-row .sz-pill { padding: .4cqw .9cqw; font-size: .66em; }
+.szr-pig { display: flex; align-items: center; gap: 1.6cqw; width: 30cqw; padding: 1.8cqw; }
+.szr-pig .sz-ico { --s: 9cqw; }
+.scene .szr-pig .sz-ico { animation: sz-pop 2s ease-out infinite calc(1.25s - 2s); }
+.szr-pig__txt { flex: 1; display: grid; gap: 1cqw; }
+.szr-bar { height: 1.6cqw; border-radius: 1cqw; background: #e6ecf7; overflow: hidden; }
+.szr-bar i { display: block; height: 100%; border-radius: inherit; background: var(--grad-btn); transform-origin: 0 50%; }
+.scene .szr-bar i { animation-name: sz-grow-x; animation-timing-function: linear; }
+.szr-coin { --s: 4.6cqw; opacity: 0; }
+.scene .szr-coin { animation-name: sz-fly; animation-timing-function: cubic-bezier(.3, .1, .3, 1); }
+
+/* ---------- Unternehmen › Loyalty-Plattform: der Kreislauf aus Einkauf, Vorteil, Prämie und Treue ---------- */
+.szl-ring { width: 44cqw; height: 44cqw; border-radius: 50%; border: 2px dashed #bfd0ff; }
+.szl-orbit { width: 44cqw; height: 44cqw; }
+.scene .szl-orbit { animation-name: sz-spin; animation-timing-function: linear; animation-delay: 0s; }
+.szl-orbit::before {
+  content: ""; position: absolute; left: 50%; top: 0; width: 3.4cqw; height: 3.4cqw; margin: -1.7cqw 0 0 -1.7cqw;
+  border-radius: 50%; background: var(--grad-btn); box-shadow: 0 0 0 1cqw rgba(43, 75, 255, .16), 0 0 3cqw rgba(26, 140, 255, .8);
+}
+.szl-st { display: grid; justify-items: center; gap: 1cqw; }
+.scene .szl-st .sz-ico { animation-name: sz-pop; }
+.szl-core { display: grid; justify-items: center; gap: 1.2cqw; width: 19cqw; padding: 2.2cqw 1.6cqw; text-align: center; }
+.szl-core .sz-ico { --s: 6.6cqw; }
+.szl-bars { display: flex; align-items: flex-end; gap: 1cqw; height: 6cqw; }
+.szl-bars i { width: 2.2cqw; border-radius: .8cqw .8cqw .3cqw .3cqw; background: var(--grad-btn); transform-origin: 50% 100%; }
+.scene .szl-bars i { animation-name: sz-grow-y; animation-timing-function: var(--ease-out); }
+
+/* ---------- Unternehmen › Kundenrabatte: 12 Kontakte im Jahr statt 4 ---------- */
+.szk-cal { width: 64cqw; padding: 2.6cqw 3cqw 3cqw; }
+.szk-cal__title { display: flex; align-items: center; gap: 1cqw; margin-bottom: 2.2cqw; font-weight: 700; }
+.szk-cal__title .i { width: 1.3em; height: 1.3em; color: var(--royal); }
+.szk-row { display: grid; grid-template-columns: 15cqw repeat(12, 1fr); align-items: center; gap: .9cqw; margin-top: 1.4cqw; }
+.szk-row > span:first-child { font-size: .78em; font-weight: 600; color: var(--ink-3); }
+.szk-dot { position: relative; display: block; aspect-ratio: 1; border-radius: 50%; background: #e6ecf7; }
+.szk-dot--past { background: #9fb2d6; }
+.szk-dot .sz-on { border-radius: 50%; }
+.scene .szk-dot .sz-on { animation-name: sz-hold-pop; animation-timing-function: var(--ease-out); }
+.szk-months { display: grid; grid-template-columns: 15cqw repeat(12, 1fr); gap: .9cqw; margin-top: .8cqw; font-size: .66em; font-weight: 600; text-align: center; color: var(--ink-3); }
+.szk-bond { display: flex; align-items: center; gap: 1.4cqw; width: 50cqw; padding: 1.6cqw 2cqw; }
+.szk-bond .sz-ico { --s: 6cqw; }
+.szk-bond .szr-bar { flex: 1; }
+
+/* ---------- Unternehmen › Kundengutscheine: SELECT-Gutscheine fächern auf ---------- */
+.szg-fan { width: 40cqw; aspect-ratio: 1.6; }
+.szg-v {
+  position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 2.4cqw 2.6cqw;
+  overflow: hidden; border-radius: 2.4cqw; color: #fff;
+  background: linear-gradient(135deg, #0a6cff, var(--royal) 55%, #1ab3ff);
+  box-shadow: 0 2.4cqw 4.8cqw -2.4cqw rgba(0, 30, 120, .6);
+  transform-origin: 50% 110%;
+}
+.szg-v:nth-child(1) { transform: rotate(-12deg) translateX(-6cqw); background: linear-gradient(135deg, #6d3df5, #a78bfa); }
+.szg-v:nth-child(2) { transform: rotate(12deg) translateX(6cqw); background: linear-gradient(135deg, #00b6d6, #2b8cff); }
+.szg-v__top { display: flex; justify-content: space-between; align-items: center; font-size: .8em; font-weight: 700; letter-spacing: .14em; }
+.szg-v__logo { width: 6cqw; height: 6cqw; border-radius: 50%; border: 2px dashed rgba(255, 255, 255, .7); }
+.szg-v__val { font-family: var(--font-display); font-size: 2.6em; font-weight: 700; line-height: 1; }
+.szg-v__code { font-size: .74em; letter-spacing: .12em; opacity: .85; }
+.szg-v__sheen { position: absolute; inset: -20% auto -20% 0; width: 30%; background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .45), rgba(255, 255, 255, 0)); transform: translateX(-140%) skewX(-18deg); }
+.scene .szg-v:nth-child(1) { animation-name: szg-left; animation-timing-function: var(--ease-out); animation-delay: 0s; }
+.scene .szg-v:nth-child(2) { animation-name: szg-right; animation-timing-function: var(--ease-out); animation-delay: 0s; }
+.scene .szg-v__sheen { animation-name: sz-sheen; animation-timing-function: ease-in-out; animation-delay: 0s; }
+@keyframes szg-left { 0%, 100% { transform: rotate(-3deg) translateX(-1cqw); } 30%, 70% { transform: rotate(-16deg) translateX(-9cqw); } }
+@keyframes szg-right { 0%, 100% { transform: rotate(3deg) translateX(1cqw); } 30%, 70% { transform: rotate(16deg) translateX(9cqw); } }
+.szg-spark { color: #ffb72b; opacity: 0; }
+.szg-spark .i { width: 3.4cqw; height: 3.4cqw; }
+.scene .szg-spark { animation-name: sz-rise; }
+
+/* ---------- Marken › Anbieter werden: Ihre Marke erreicht Kreis um Kreis neue Menschen ---------- */
+.sza-brand { display: grid; justify-items: center; gap: 1cqw; width: 18cqw; padding: 2cqw 1.6cqw; text-align: center; z-index: 1; }
+.sza-brand .sz-ico { --s: 8cqw; }
+.sza-wave { width: 70cqw; height: 70cqw; border-radius: 50%; border: 2px solid rgba(43, 75, 255, .35); opacity: 0; }
+.scene .sza-wave { animation-name: sz-ripple; animation-timing-function: ease-out; }
+.sza-av { --s: 6cqw; }
+.scene .sza-av > b { animation-name: sza-on; }
+@keyframes sza-on { 0% { opacity: 0; } 5%, 70% { opacity: 1; } 80%, 100% { opacity: 0; } }
+
+/* ---------- Marken › Newsletter-Platzierung: Ihre Marke entlang der Customer Journey ---------- */
+.szj-st { display: grid; justify-items: center; gap: 1cqw; }
+.szj-st .sz-ico { --s: 9cqw; }
+.szj-brand { opacity: 0; }
+.scene .szj-brand { animation-name: sz-hold-pop; animation-timing-function: var(--ease-out); }
+.szj-dot { width: 3.6cqw; height: 3.6cqw; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1cqw rgba(43, 75, 255, .3), 0 0 0 .5cqw var(--royal) inset; }
+.scene .szj-dot { animation-name: szj-go; animation-timing-function: ease-in-out; animation-delay: 0s; }
+
+/* ---------- Creator › Community-Shop: Shop im Profil, Bestellungen und Herzen der Community ---------- */
+.szc-banner { height: 9cqw; background: linear-gradient(120deg, #6d3df5, #2b4bff 60%, #00c2ff); }
+.szc-me { display: grid; justify-items: center; gap: .8cqw; margin-top: -4.2cqw; padding: 0 1.6cqw; }
+.szc-me .sz-av { --s: 8cqw; box-shadow: 0 0 0 .6cqw #fff, 0 0 0 1cqw #a78bfa; }
+.szc-btn { display: block; margin: 1.4cqw 1.6cqw; padding: 1.1cqw; border-radius: 999px; font-size: .66em; font-weight: 700; text-align: center; color: #fff; background: var(--grad-btn); }
+.szc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1cqw; padding: 0 1.6cqw; }
+.szc-note {
+  position: absolute; left: 1cqw; right: 1cqw; top: 1cqw; z-index: 2;
+  display: flex; align-items: center; gap: .8cqw; padding: 1cqw; border-radius: 1.6cqw;
+  font-size: .62em; font-weight: 700; background: #fff; box-shadow: 0 1.4cqw 3cqw -1cqw rgba(0, 30, 90, .5);
+  opacity: 0; transform: translateY(-140%);
+}
+.szc-note .sz-ico { --s: 4.2cqw; }
+.scene .szc-note { animation-name: szc-note; animation-timing-function: var(--ease-out); }
+@keyframes szc-note { 0% { opacity: 0; transform: translateY(-140%); } 5%, 36% { opacity: 1; transform: none; } 44%, 100% { opacity: 0; transform: translateY(-140%); } }
+.szc-heart { color: #ff4f7b; opacity: 0; }
+.szc-heart .i { width: 3.6cqw; height: 3.6cqw; fill: currentColor; }
+.scene .szc-heart { animation-name: szc-float; animation-timing-function: ease-out; }
+@keyframes szc-float { 0% { opacity: 0; transform: translate(0, 2cqw) scale(.5); } 8% { opacity: 1; transform: translate(-1cqw, -2cqw) scale(1); } 30% { opacity: 1; transform: translate(1.4cqw, -12cqw) scale(1); } 40%, 100% { opacity: 0; transform: translate(-.6cqw, -18cqw) scale(.8); } }
+
+/* Tippen: weiße Abdeckung gleitet in Zeichenschritten zur Seite (--n Zeichen), danach bleibt der Text bis zum Ende des Takts */
+.sz-type { position: relative; display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: top; }
+.sz-type > b { position: absolute; inset: 0; background: #fff; transform: translateX(101%); }
+.sz-type > b::before { content: ""; position: absolute; left: 0; top: 12%; bottom: 12%; width: 2px; background: var(--royal); }
+.scene .sz-type > b { animation-name: sz-type; }
+@keyframes sz-type { 0% { transform: translateX(0); animation-timing-function: steps(var(--n, 16), end); } 20%, 92% { transform: translateX(101%); } 97%, 100% { transform: translateX(0); } }
+.sz-dots { display: inline-flex; gap: .8cqw; padding: 1.4cqw 1.8cqw; border-radius: 999px; background: #fff; box-shadow: 0 1.2cqw 2.6cqw -1.2cqw rgba(0, 30, 90, .45); }
+.sz-dots i { width: 1.4cqw; height: 1.4cqw; border-radius: 50%; background: #9db5f5; }
+.scene .sz-dots i { animation: sz-dots 1s ease-in-out infinite; }
+.scene .sz-dots i:nth-child(2) { animation-delay: .15s; }
+.scene .sz-dots i:nth-child(3) { animation-delay: .3s; }
+.scene .sz-show { opacity: 0; animation-name: sz-hold-pop; animation-timing-function: var(--ease-out); }
+.scene .sz-flashing { animation-name: sz-flash; }
+.scene .sz-press { animation-name: sz-pop; }
+.scene .sz-ripple-at { animation-name: sz-ripple; animation-timing-function: ease-out; opacity: 0; }
+.scene .sz-growx { transform-origin: 0 50%; animation-name: sz-grow-x; animation-timing-function: var(--ease-out); }
+.scene .sz-growy { transform-origin: 50% 100%; animation-name: sz-grow-y; animation-timing-function: var(--ease-out); }
+.scene .sz-bobbing { animation: sz-bob 4s ease-in-out infinite; }
+.sz-bubble { display: flex; align-items: center; gap: 1cqw; max-width: 50cqw; padding: 1.6cqw 2cqw; border-radius: 2.4cqw 2.4cqw 2.4cqw .6cqw; font-weight: 600; background: #fff; box-shadow: 0 1.4cqw 3cqw -1.4cqw rgba(0, 30, 90, .45); }
+.sz-bubble--me { border-radius: 2.4cqw 2.4cqw .6cqw 2.4cqw; color: #fff; background: var(--grad-btn); }
+.sz-bubble .i { flex: none; width: 1.3em; height: 1.3em; color: #ff4f7b; }
+.sz-row { display: flex; align-items: center; gap: 1.4cqw; }
+.sz-col { display: grid; gap: 1cqw; }
+.sz-check { position: relative; display: grid; place-items: center; width: 4.6cqw; height: 4.6cqw; flex: none; border-radius: 50%; border: 2px dashed #bfd0ff; }
+.sz-check > b { position: absolute; inset: -2px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #34d399, #0f9d6b); }
+.sz-check .i { width: 60%; height: 60%; stroke-width: 2.6; }
+.scene .sz-check > b { opacity: 0; animation-name: sz-hold-pop; animation-timing-function: var(--ease-out); }
+
+/* Einsatz › Treue: Stempelkarte füllt sich, Prämie wird frei */
+.szt-card { width: 74cqw; padding: 2.8cqw 3.2cqw 3.2cqw; }
+.szt-stamps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.6cqw; margin-top: 2.6cqw; }
+.szt-stamp { position: relative; aspect-ratio: 1; border-radius: 50%; border: 2px dashed #bfd0ff; }
+.szt-stamp > b { position: absolute; inset: -2px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--grad-btn); box-shadow: 0 1cqw 2cqw -1cqw rgba(26, 90, 255, .8); }
+.szt-stamp:last-child > b { background: linear-gradient(135deg, #ff8a5b, #ff3d7f); }
+.szt-stamp .i { width: 50%; height: 50%; }
+.scene .szt-stamp > b { opacity: 0; animation-name: sz-hold-pop; animation-timing-function: var(--ease-out); }
+/* Einsatz › Leads: Anmeldung zum Gewinnspiel, neuer Kontakt */
+.szq-form { width: 56cqw; padding: 2.6cqw 3cqw 3cqw; }
+.szq-input { display: flex; align-items: center; height: 6cqw; margin-top: 2cqw; padding: 0 1.8cqw; border-radius: 1.6cqw; background: #f1f5fc; box-shadow: inset 0 0 0 1px #dbe3f3; font-size: .9em; }
+.szq-btn { display: block; margin-top: 1.6cqw; padding: 1.5cqw; border-radius: 999px; font-weight: 700; text-align: center; color: #fff; background: var(--grad-btn); }
+.szq-leads { width: 28cqw; padding: 2.4cqw; text-align: center; }
+.szq-stack { display: flex; justify-content: center; margin-top: 1.6cqw; }
+.szq-stack .sz-av { --s: 6.4cqw; margin-left: -1.6cqw; }
+.szq-stack .sz-av:first-child { margin-left: 0; }
+/* E-Mail › Zielgruppen */
+.szz-av { --s: 7.4cqw; }
+.scene .szz-av > b { animation-name: sz-hold; }
+/* E-Mail › Postfach */
+.szm-box { width: 78cqw; }
+.szm-row { display: flex; align-items: center; gap: 1.6cqw; padding: 1.8cqw 2.2cqw; border-top: 1px solid #edf1f8; }
+.szm-row--dim { opacity: .55; }
+.szm-row .sz-ico { --s: 6cqw; }
+.szm-new { position: relative; background: #fff; }
+.szm-new::after { content: ""; position: absolute; inset: 0; box-shadow: inset .7cqw 0 0 var(--royal); background: rgba(43, 75, 255, .06); opacity: 0; }
+.scene .szm-new::after { animation-name: sz-hold; animation-delay: calc(2s - var(--t)); }
+.scene .szm-new { animation-name: szm-in; animation-timing-function: var(--ease-out); animation-delay: calc(.3s - var(--t)); }
+@keyframes szm-in { 0% { opacity: 0; transform: translateY(-60%); } 6%, 92% { opacity: 1; transform: none; } 98%, 100% { opacity: 0; transform: none; } }
+/* E-Mail › Leistung: Balken im Vergleich */
+.szp-chart { width: 76cqw; padding: 2.6cqw 3cqw 2.4cqw; }
+.szp-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 6cqw; margin-top: 2cqw; }
+.szp-bars { display: flex; align-items: flex-end; justify-content: center; gap: 2.4cqw; height: 22cqw; border-bottom: 2px solid #e3e9f5; }
+.szp-bars i { width: 8cqw; border-radius: 1.2cqw 1.2cqw .3cqw .3cqw; background: #c9d3e6; }
+.szp-bars i + i { background: var(--grad-btn); }
+.szp-legend { display: flex; justify-content: center; gap: 3cqw; margin-top: 1.6cqw; font-size: .8em; font-weight: 600; color: var(--ink-3); }
+.szp-legend span::before { content: ""; display: inline-block; width: 1.6cqw; height: 1.6cqw; margin-right: .8cqw; border-radius: 50%; background: #c9d3e6; vertical-align: -.1em; }
+.szp-legend span + span::before { background: var(--royal); }
+/* E-Mail › Integration: der Newsletter-Baustein ergänzt die Kanäle */
+.szi-block { display: grid; justify-items: center; gap: 1cqw; width: 24cqw; padding: 2cqw 1.4cqw; text-align: center; }
+.szi-block .sz-ico { --s: 7cqw; }
+.szi-slot { width: 24cqw; height: 17.4cqw; border-radius: 2.2cqw; border: 2px dashed #bfd0ff; }
+.scene .szi-fly { animation-name: szi-fly; animation-timing-function: var(--ease-out); }
+@keyframes szi-fly { 0% { opacity: 0; transform: translate(30cqw, 6cqw) rotate(8deg); } 4% { opacity: 1; } 18%, 92% { opacity: 1; transform: none; } 98%, 100% { opacity: 0; transform: none; } }
+/* Marken › Platzierung */
+.szo-win { width: 70cqw; }
+.szo-tabs { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1cqw; margin: 2cqw 2cqw 0; font-size: .8em; font-weight: 600; text-align: center; color: var(--ink-2); }
+.szo-tabs span { position: relative; z-index: 1; padding: 1cqw 0; }
+.szo-tabs b { position: absolute; left: 0; top: 0; bottom: 0; width: calc((100% - 3cqw) / 4); border-radius: 999px; background: #e3ebff; }
+.scene .szo-tabs b { animation-name: szo-tab; animation-timing-function: var(--ease-out); }
+@keyframes szo-tab { 0%, 5% { transform: none; } 12%, 92% { transform: translateX(calc(100% + 1cqw)); } 98%, 100% { transform: none; } }
+.szo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.6cqw; padding: 2cqw; }
+.szo-grid .sz-tile { aspect-ratio: 1.15; }
+.szo-slot { aspect-ratio: 1.15; border-radius: 1.6cqw; border: 2px dashed #bfd0ff; }
+.szo-offer { display: grid; place-items: center; gap: .6cqw; width: 14.2cqw; aspect-ratio: 1.15; border-radius: 1.6cqw; font-size: .7em; font-weight: 700; color: #fff; background: var(--grad-btn); box-shadow: 0 1.6cqw 3cqw -1.2cqw rgba(26, 90, 255, .8); }
+.szo-offer .i { width: 4cqw; height: 4cqw; }
+.scene .szo-offer { animation-name: szo-dock; animation-timing-function: var(--ease-out); }
+@keyframes szo-dock { 0%, 14% { opacity: 0; transform: translate(26cqw, -6cqw) rotate(10deg) scale(.8); } 18% { opacity: 1; } 30%, 92% { opacity: 1; transform: none; } 98%, 100% { opacity: 0; transform: none; } }
+.szo-ring { width: 26cqw; height: 26cqw; border-radius: 50%; border: 2px solid rgba(43, 75, 255, .55); opacity: 0; }
+/* Marken › Vermarktung */
+.szv-wave { width: 40cqw; height: 40cqw; border-radius: 50%; border: 2px solid rgba(43, 75, 255, .35); opacity: 0; }
+.szv-ch { display: flex; align-items: center; gap: 1.6cqw; width: 50cqw; padding: 1.6cqw 2cqw; }
+.szv-ch .sz-ico { --s: 6.4cqw; }
+.szv-ch .sz-pill { margin-left: auto; font-size: .8em; }
+/* Marken › Auswertung */
+.szd-win { width: 84cqw; }
+.szd-body { display: grid; grid-template-columns: 1.25fr 1fr; gap: 2.6cqw; padding: 2.4cqw; }
+.szd-chart { position: relative; height: 26cqw; border-radius: 1.6cqw; background: #f4f7fd; overflow: hidden; }
+.szd-chart svg { position: absolute; inset: 8% 4% 6%; width: 92%; height: 86%; overflow: visible; }
+.szd-chart path { fill: none; stroke: var(--royal); stroke-width: 2.4px; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.szd-chart path.area { fill: rgba(43, 75, 255, .1); stroke: none; }
+.szd-cover { position: absolute; inset: 0; background: #f4f7fd; transform-origin: 100% 50%; }
+.scene .szd-cover { animation-name: szd-reveal; animation-timing-function: ease-in-out; }
+@keyframes szd-reveal { 0% { transform: scaleX(1); } 35%, 92% { transform: scaleX(0); } 98%, 100% { transform: scaleX(1); } }
+.szd-kpi { display: grid; gap: .8cqw; padding: 1.2cqw 0; }
+.szd-kpi .sz-row { justify-content: space-between; }
+.szd-kpi .sz-pill { padding: .4cqw 1cqw; font-size: .7em; }
+/* Warum INCENT (Anbieter): Ihr Angebot springt aus dem Portal */
+.szw-pop { display: flex; align-items: center; gap: 1.6cqw; width: 40cqw; padding: 2cqw; }
+.szw-pop .sz-ico { --s: 8cqw; }
+/* Creator › Identität: Farben und Logo wechseln */
+.szy-win { width: 64cqw; }
+.szy-head { position: relative; height: 12cqw; overflow: hidden; }
+.szy-head > i { position: absolute; inset: 0; opacity: 0; }
+.szy-head > i:nth-child(1) { background: linear-gradient(120deg, #2b4bff, #00c2ff); opacity: 1; }
+.szy-head > i:nth-child(2) { background: linear-gradient(120deg, #6d3df5, #ff5fa2); }
+.szy-head > i:nth-child(3) { background: linear-gradient(120deg, #0f9d6b, #b6e35a); }
+.scene .szy-head > i:nth-child(n+2) { animation-name: szy-third; }
+@keyframes szy-third { 0% { opacity: 0; } 4%, 30% { opacity: 1; } 34%, 100% { opacity: 0; } }
+.szy-logo { position: absolute; left: 3cqw; bottom: -4cqw; z-index: 1; display: grid; place-items: center; width: 9cqw; height: 9cqw; border-radius: 50%; color: var(--royal); background: #fff; box-shadow: 0 1cqw 2.4cqw -1cqw rgba(0, 30, 90, .5); }
+.szy-logo .i { position: absolute; width: 50%; height: 50%; opacity: 0; }
+.szy-logo .i:first-child { opacity: 1; }
+.scene .szy-logo .i:nth-child(n+2) { animation-name: szy-third; }
+.scene .szy-logo .i:first-child { animation-name: szy-first; }
+@keyframes szy-first { 0%, 30% { opacity: 1; } 34%, 96% { opacity: 0; } 100% { opacity: 1; } }
+.scene .szy-head > i:first-child { animation-name: szy-first; }
+.szy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.4cqw; padding: 6cqw 2.4cqw 2.4cqw; }
+.szy-sw { display: grid; gap: 1.8cqw; }
+.szy-sw i { width: 6cqw; height: 6cqw; border-radius: 50%; box-shadow: 0 0 0 .5cqw #fff, 0 1cqw 2cqw -1cqw rgba(0, 30, 90, .5); }
+.szy-sw i:nth-child(1) { background: linear-gradient(120deg, #2b4bff, #00c2ff); }
+.szy-sw i:nth-child(2) { background: linear-gradient(120deg, #6d3df5, #ff5fa2); }
+.szy-sw i:nth-child(3) { background: linear-gradient(120deg, #0f9d6b, #b6e35a); }
+.szy-sel { width: 8.4cqw; height: 8.4cqw; border-radius: 50%; border: 2px solid var(--royal); }
+.scene .szy-sel { animation-name: szy-sel; animation-timing-function: var(--ease-out); animation-delay: 0s; }
+@keyframes szy-sel { 0%, 30% { transform: none; } 34%, 63% { transform: translateY(7.8cqw); } 67%, 96% { transform: translateY(15.6cqw); } 100% { transform: none; } }
+/* Creator › Vertriebskanal: Link in Bio → Shop */
+.szk2-strip { display: flex; width: 200%; height: 100%; }
+.szk2-strip > div { width: 50%; height: 100%; }
+.scene .szk2-strip { animation-name: szk2-swipe; animation-timing-function: var(--ease-out); animation-delay: 0s; }
+@keyframes szk2-swipe { 0%, 38% { transform: none; } 46%, 90% { transform: translateX(-50%); } 97%, 100% { transform: none; } }
+.szk2-link { position: relative; display: block; margin: 1.6cqw; padding: 1cqw; border-radius: 999px; font-size: .62em; font-weight: 700; text-align: center; color: #fff; background: var(--grad-btn); }
+.szk2-tap { position: absolute; left: 50%; top: 50%; width: 8cqw; height: 8cqw; margin: -4cqw; border-radius: 50%; background: rgba(255, 255, 255, .6); opacity: 0; }
+.szk2-steps { display: grid; gap: 2cqw; }
+.szk2-steps .sz-pill { position: relative; overflow: hidden; }
+.szk2-steps .sz-pill b { position: absolute; inset: 0; border-radius: inherit; background: rgba(43, 75, 255, .12); opacity: 0; }
+/* Creator › Verdienen */
+.szu-prod { display: flex; align-items: center; gap: 1.4cqw; width: 30cqw; padding: 1.4cqw 1.8cqw; }
+.szu-prod .sz-tile { width: 6.4cqw; }
+.szu-wallet { width: 38cqw; padding: 2.4cqw; }
+.szu-wallet .sz-ico { --s: 8cqw; }
+.szu-coin { --s: 4.6cqw; opacity: 0; }
+.scene .szu-coin { animation-name: sz-fly; animation-timing-function: cubic-bezier(.3, .1, .3, 1); }
+/* Creator › Umsetzung */
+.szx-me { display: grid; justify-items: center; gap: 1.2cqw; width: 28cqw; padding: 2.6cqw 2cqw; text-align: center; }
+.szx-me .sz-av { --s: 10cqw; box-shadow: 0 0 0 .6cqw #fff, 0 0 0 1cqw #a78bfa; }
+.szx-list { width: 52cqw; padding: 2.4cqw 2.8cqw; }
+.szx-list .sz-row + .sz-row { margin-top: 1.8cqw; }
+/* Warum INCENT (Creator): Laptop und Handy zeigen denselben Shop */
+.szs-laptop { width: 62cqw; }
+.szs-screen { overflow: hidden; border: 1.2cqw solid #0c1733; border-bottom-width: 1.6cqw; border-radius: 2.4cqw 2.4cqw .8cqw .8cqw; background: #fff; }
+.szs-base { width: 74cqw; height: 2.4cqw; margin: 0 auto; border-radius: 0 0 2.4cqw 2.4cqw; background: linear-gradient(180deg, #cfd8ea, #aeb9d1); translate: -6cqw 0; }
+.szs-head { height: 7cqw; background: linear-gradient(120deg, #6d3df5, #2b4bff 60%, #00c2ff); }
+.szs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2cqw; padding: 2cqw; }
+.szs-grid--m { grid-template-columns: 1fr 1fr; gap: .8cqw; padding: 1.2cqw; }
+.szs-grid .sz-on { border-radius: inherit; }
+.scene .szs-grid .sz-on { animation-name: sz-flash; }
+/* Szenen in Karten und Rahmen: die Ecken rundet der Rahmen */
+.reason__media > .scene, .tilt-media__frame > .scene { border-radius: 0; }
+.iso--scene .tilt-media__frame { border-radius: 26px; box-shadow: 0 40px 80px -40px rgba(0, 30, 90, .45); }
+/* Reiter, die gerade nicht gewählt sind, bleiben (unsichtbar) im Raster stehen: ihre Animationen ruhen */
+.showcase__stage > .sc-panel[hidden] .scene * { animation-play-state: paused !important; }
+/* ohne Bewegung: das Standbild zeigt den fertigen Zustand (Plaketten, Häkchen, Stempel, ausgewählte Personen) */
+@media (prefers-reduced-motion: reduce) {
+  .scene .sz-show, .scene .szj-brand, .scene .sz-check > b, .scene .szt-stamp > b, .scene .szk-dot .sz-on,
+  .scene .sza-av > b, .scene .szz-av > b { opacity: 1; }
+}
+
+@keyframes szj-go { 0% { opacity: 0; transform: none; } 3% { opacity: 1; transform: none; } 20% { transform: translate(24cqw, 26cqw); } 40% { transform: translate(47cqw, -4cqw); } 60%, 88% { opacity: 1; transform: translate(69cqw, 24cqw); } 95%, 100% { opacity: 0; transform: translate(69cqw, 24cqw); } }

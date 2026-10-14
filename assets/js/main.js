@@ -393,6 +393,32 @@
       const section = document.getElementById(link.dataset.spy);
       if (section) spy.observe(section);
     });
+
+    // Welt-Navigation: Abschnitts-Links (z. B. Creator „Einnahmen“, „Ablauf“) sind markiert, solange ihr Abschnitt
+    // die Mitte des Fensters kreuzt; der Link des Bereichs tritt so lange zurück (has-spy)
+    const secLinks = $$('.nav__list--world a[href^="#"]:not([href="#top"])', nav);
+    const inView = new Set();
+    const markSections = () =>
+      $$(".nav__list--world", nav).forEach((list) => {
+        let any = false;
+        $$('a[href^="#"]', list).forEach((a) => {
+          const on = inView.has(a.getAttribute("href").slice(1));
+          a.classList.toggle("is-spy", on);
+          any = any || on;
+        });
+        list.classList.toggle("has-spy", any);
+      });
+    const secSpy = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => (e.isIntersecting ? inView.add(e.target.id) : inView.delete(e.target.id)));
+        markSections();
+      },
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    new Set(secLinks.map((a) => a.getAttribute("href").slice(1))).forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) secSpy.observe(section);
+    });
   }
 
   /* ---------- Scroll-Fortschritt ---------- */
@@ -1408,139 +1434,6 @@
     theme.onChange((state) => markRadio(dots, dots.find((d) => sameColor(d.dataset.chipColor, state.btn))));
   }
 
-  /* ---------- Kontaktformular ---------- */
-  function initContactForm() {
-    const form = $("[data-contact-form]");
-    if (!form) return;
-    const conditional = $$("[data-show-for]", form);
-    const typeError = $('[data-error-for="sender_type"]', form);
-    const formError = $("[data-form-error]", form);
-    const success = $("[data-form-success]", form);
-    const successText = $("[data-form-success-text]", form);
-    const submitBtn = $(".form__submit", form);
-    const phone = form.elements.phone;
-    const senderType = () => (form.querySelector('input[name="sender_type"]:checked') || {}).value || "none";
-
-    const updateFields = (animate) => {
-      const type = senderType();
-      conditional.forEach((field) => {
-        const show = field.dataset.showFor.split(" ").includes(type);
-        const wasHidden = field.hidden;
-        field.hidden = !show;
-        $$("input, select, textarea", field).forEach((el) => (el.disabled = !show));
-        if (show && wasHidden && animate && !reducedMotion) {
-          restartClass(field, "is-entering");
-        }
-      });
-    };
-
-    const messageFor = (el) => {
-      if (el.validity.valueMissing) return el.tagName === "SELECT" ? "Bitte wählen Sie eine Option." : "Bitte füllen Sie dieses Feld aus.";
-      if (el.validity.typeMismatch) return el.type === "email" ? "Bitte geben Sie eine gültige E-Mail-Adresse ein." : "Bitte geben Sie eine vollständige Adresse ein (mit https://).";
-      if (el.validity.customError) return el.validationMessage;
-      return "Bitte prüfen Sie Ihre Eingabe.";
-    };
-    const setError = (el, text) => {
-      const field = el.closest(".form__field");
-      const out = field && $(".form__error", field);
-      if (!field || !out) return;
-      field.classList.toggle("is-invalid", Boolean(text));
-      out.textContent = text;
-      out.id = out.id || `${el.id}-error`;
-      if (text) {
-        el.setAttribute("aria-invalid", "true");
-        el.setAttribute("aria-describedby", out.id);
-      } else {
-        el.removeAttribute("aria-invalid");
-      }
-    };
-    const checkPhone = () =>
-      phone.setCustomValidity(phone.value && !/^[0-9 ()+\/.-]{5,}$/.test(phone.value) ? "Bitte nur Ziffern und Telefonzeichen verwenden." : "");
-
-    form.addEventListener("change", (e) => {
-      if (e.target.name !== "sender_type") return;
-      typeError.textContent = "";
-      updateFields(true);
-    });
-    form.addEventListener("input", (e) => {
-      if (e.target === phone) checkPhone();
-      if (e.target.closest(".is-invalid") && e.target.checkValidity()) setError(e.target, "");
-    });
-
-    const showSuccess = (text) => {
-      successText.textContent = text;
-      success.hidden = false;
-      $("[data-form-reset]", form).focus();
-    };
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      formError.textContent = "";
-      checkPhone();
-      let first = null;
-      if (senderType() === "none") {
-        typeError.textContent = "Bitte wählen Sie aus, wer Sie sind.";
-        first = form.querySelector('input[name="sender_type"]');
-      }
-      $$("input:not([type=radio]), select, textarea", form).forEach((el) => {
-        if (el.disabled) return;
-        if (el.checkValidity()) {
-          setError(el, "");
-        } else {
-          setError(el, messageFor(el));
-          first = first || el;
-        }
-      });
-      if (first) {
-        first.focus();
-        return;
-      }
-
-      const data = new FormData(form);
-      if (form.dataset.endpoint) {
-        submitBtn.disabled = true;
-        try {
-          const res = await fetch(form.dataset.endpoint, { method: "POST", body: data, headers: { Accept: "application/json" } });
-          if (!res.ok) throw new Error(String(res.status));
-          showSuccess("Wir haben Ihre Nachricht erhalten und melden uns bei Ihnen.");
-        } catch (err) {
-          formError.textContent = "Das hat leider nicht geklappt. Bitte schreiben Sie uns an info@incent.de.";
-        } finally {
-          submitBtn.disabled = false;
-        }
-        return;
-      }
-
-      // Ohne Formular-Backend: Anfrage als vorbereitete E-Mail öffnen
-      const labels = {
-        sender_type: "Ich bin", salutation: "Anrede", firstname: "Vorname", lastname: "Nachname", email: "E-Mail",
-        phone: "Telefon", company_name: "Unternehmen", position: "Position", company_size: "Unternehmensgröße",
-        company_url: "Website", platform: "Plattform", profile_url: "Profil-URL", agentur: "Agentur",
-        street: "Anschrift", postal_code: "PLZ", message: "Nachricht",
-      };
-      const lines = [];
-      data.forEach((value, key) => {
-        if (String(value).trim()) lines.push(`${labels[key] || key}: ${value}`);
-      });
-      const subject = `Kontaktanfrage über incent.de – ${data.get("firstname")} ${data.get("lastname")}`;
-      window.location.href = `mailto:info@incent.de?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
-      showSuccess("Ihr E-Mail-Programm öffnet sich mit Ihrer Anfrage – bitte dort noch absenden. Alternativ erreichen Sie uns unter info@incent.de oder 08341 93450.");
-    });
-
-    $("[data-form-reset]", form).addEventListener("click", () => {
-      form.reset();
-      success.hidden = true;
-      formError.textContent = "";
-      typeError.textContent = "";
-      $$(".form__field", form).forEach((field) => field.classList.remove("is-invalid"));
-      $$(".form__error", form).forEach((out) => (out.textContent = ""));
-      updateFields(false);
-      form.querySelector('input[name="sender_type"]').focus();
-    });
-
-    updateFields(false);
-  }
-
   /* ---------- Kundenstimmen: Karussell ---------- */
   function initCarousel() {
     const root = $("[data-carousel]");
@@ -1696,45 +1589,6 @@
         if (el._sy !== v) set.push([el, (el._sy = v)]);
       });
       if (set.length) return () => set.forEach(([el, v]) => el.style.setProperty("--sy", v));
-    });
-  }
-
-  /* ---------- Bild-Karussell mit Überblendung (Screenshots, Kundenportale) ---------- */
-  function initShots() {
-    $$("[data-shots]").forEach((root) => {
-      const items = $$(".shots__item", root);
-      const dots = $(".shots__dots", root);
-      if (items.length < 2) return;
-      let index = 0;
-      let timer = 0;
-      let hover = false;
-      let visible = false;
-      const buttons = items.map((item, i) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.setAttribute("aria-label", item.dataset.label || `Bild ${i + 1}`);
-        b.addEventListener("click", () => {
-          go(i);
-          restart();
-        });
-        dots && dots.append(b);
-        return b;
-      });
-      const go = (i) => {
-        index = (i + items.length) % items.length;
-        items.forEach((item, k) => item.classList.toggle("is-active", k === index));
-        buttons.forEach((b, k) => b.setAttribute("aria-current", k === index ? "true" : "false"));
-        const label = $(".shots__label", root);
-        if (label) label.textContent = items[index].dataset.label || "";
-      };
-      const restart = () => {
-        clearInterval(timer);
-        if (!reducedMotion && visible && !hover) timer = setInterval(() => go(index + 1), Number(root.dataset.interval || 3600));
-      };
-      root.addEventListener("pointerenter", () => ((hover = true), restart()));
-      root.addEventListener("pointerleave", () => ((hover = false), restart()));
-      if (hasIO) new IntersectionObserver((ioEntries, ioObs, e = ioEntries[ioEntries.length - 1]) => ((visible = e.isIntersecting), restart())).observe(root);
-      go(0);
     });
   }
 
@@ -2332,7 +2186,7 @@
     const nav = $("[data-nav]");
     const navInner = nav && $(".nav__inner", nav);
     const meta = $('meta[name="description"]');
-    const form = $("[data-contact-form]");
+    const form = $("[data-contact-mini]");
     // Titel/Beschreibung der Übersicht stehen am Hero (auf den Bereichs-Seiten hat der <head> die des Bereichs)
     const heroEl = $("[data-hero]");
     const home = { title: (heroEl && heroEl.dataset.title) || document.title, desc: (heroEl && heroEl.dataset.desc) || (meta ? meta.content : "") };
@@ -2411,11 +2265,11 @@
 
     // Kontaktformular vorbelegen („Ich bin …“), solange niemand selbst gewählt hat
     let formTouched = false;
-    if (form) form.addEventListener("change", (e) => e.isTrusted && e.target.name === "sender_type" && (formTouched = true));
+    if (form) form.addEventListener("change", (e) => e.isTrusted && e.target.name === "ich" && (formTouched = true));
     const preselect = (key) => {
       if (!form || formTouched) return;
       const value = (AUDIENCES[key] || {}).form;
-      const radios = $$('input[name="sender_type"]', form);
+      const radios = $$('input[name="ich"]', form);
       const radio = radios.find((r) => r.value === value);
       if (!radio) return radios.forEach((r) => (r.checked = false));
       if (radio.checked) return;
@@ -2462,6 +2316,10 @@
       const panel = w && document.getElementById(id);
       document.title = panel ? panel.dataset.title : home.title;
       if (meta) meta.content = panel ? panel.dataset.desc : home.desc;
+      // weiterer Bereich einer Welt: allgemeine Abschnitte (Partner, Leistungsangebot, Kundenstimmen, Über uns …) nur im ersten
+      html.toggleAttribute("data-sub", !!w && id !== w.ids[0]);
+      // Seitenkopf-Bilder der anderen Bereiche sind nur ausgeblendet (zum Überblenden): ihre Animationen ruhen
+      $$(".subhero__visual > [data-mb-only]").forEach((el) => el.toggleAttribute("data-anim-off", el.dataset.mbOnly !== id));
       const here = slugOf[id] ? `${slugOf[id]}.html` : "";
       worlds.forEach((x) =>
         x.hosts.forEach((h) =>
@@ -2563,6 +2421,19 @@
       if (!id || id === "top") {
         e.preventDefault();
         showHome();
+        return;
+      }
+      // Abschnitt, der nur im ersten Bereich einer Welt steht (z. B. Footer „Über uns“ auf „Kundenrabatte“): dorthin wechseln
+      const sec = !tabOf(id) && document.getElementById(id);
+      const w = cur();
+      if (sec && sec.closest("[data-first-only]") && w && html.dataset.mb !== w.ids[0]) {
+        e.preventDefault();
+        go(`${urlFor(w.ids[0])}#${encodeURIComponent(id)}`, { world: w.key, mb: w.ids[0] });
+        swap(main, () => {
+          html.dataset.mb = w.ids[0];
+          sync();
+          scrollToEl(sec, "instant");
+        });
         return;
       }
       if (!tabOf(id)) return;
@@ -3980,7 +3851,6 @@
   initLiveChip(portalTheme);
   initBrandDrops(brand);
   brand.refresh();
-  initContactForm();
   initCarousel();
   initTiltCards();
   initTagAnims();
@@ -3997,7 +3867,6 @@
   initWorlds();
   initPortalStudio();
   initSelfLinks();
-  initShots();
   initSteps();
   initVouchers();
   initFinder();

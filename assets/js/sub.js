@@ -67,8 +67,10 @@
       // Mitte ohne die eigene Mitbewegung, sonst läuft das Element dem Cursor davon
       const cx = r.left + r.width / 2 - t.current.x * t.tx;
       const cy = r.top + r.height / 2 - t.current.y * t.ty;
-      g.x = clamp((pointer.x - cx) / (window.innerWidth * t.reach), -1, 1);
-      g.y = clamp((pointer.y - cy) / (window.innerHeight * t.reach), -1, 1);
+      // Fokus im Element (z. B. beim Tippen im Formular): hält weitgehend still
+      const damp = t.stage.matches(":focus-within") ? 0.3 : 1;
+      g.x = clamp((pointer.x - cx) / (window.innerWidth * t.reach), -1, 1) * damp;
+      g.y = clamp((pointer.y - cy) / (window.innerHeight * t.reach), -1, 1) * damp;
     }
     if (!t.frame) t.frame = requestAnimationFrame(() => tick(t));
   };

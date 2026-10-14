@@ -1,0 +1,146 @@
+<!--
+title: Kontakt & Demo buchen | INCENT
+description: Jetzt Kontakt aufnehmen: persönliches Videogespräch zu Vorteilsportalen, Mitarbeiter-Benefits und Kundenbindung – per Formular, Telefon 08341 93450 oder E-Mail.
+robots: index
+crumb: Kontakt
+scripts: contact
+-->
+<section class="contact contact-page" aria-labelledby="page-title">
+  <div class="container">
+    <div class="contact__panel" data-spot-panel>
+      <div class="cta__bg" aria-hidden="true"><span></span><span></span></div>
+
+      <div class="contact__intro">
+        <p class="eyebrow eyebrow--onbrand">Kontakt</p>
+        <h1 class="contact__title" id="page-title">Jetzt Kontakt aufnehmen</h1>
+        <p class="contact__text">
+          <strong>Erfolg beginnt im Gespräch.</strong> In einem persönlichen Videogespräch werfen wir gemeinsam einen Blick
+          auf die wichtigsten Fragen:
+        </p>
+        <ul class="contact__questions">
+          <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Was sind die individuellen Anforderungen?</li>
+          <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Was braucht das Unternehmen oder die Marke?</li>
+          <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Wie sieht die ideale Unterstützung aus?</li>
+          <li><svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>Welches Potenzial steckt in maßgeschneiderten Corporate Benefits für Mitarbeitende, Kund:innen und Communities?</li>
+        </ul>
+        <div class="contact__direct">
+          <a href="tel:+49834193450"><svg class="i i--sm" aria-hidden="true"><use href="#i-phone"/></svg>08341&nbsp;93450</a>
+          <a href="mailto:info@incent.de"><svg class="i i--sm" aria-hidden="true"><use href="#i-mail"/></svg>info@incent.de</a>
+          <span><svg class="i i--sm" aria-hidden="true"><use href="#i-pin"/></svg>Rudolf-Diesel-Straße 2, 87656 Germaringen</span>
+        </div>
+      </div>
+
+      <!-- Kontaktformular: ohne data-endpoint öffnet es das E-Mail-Programm (assets/js/contact.js) -->
+      <form class="form" data-contact-form data-tilt-card data-rx="2" data-ry="3" data-tx="6" data-ty="4" novalidate aria-labelledby="page-title">
+        <p class="form__step form__step--two">Schritt 2 von 2 · Ihre Angaben</p>
+        <fieldset class="form__choice">
+          <legend class="form__label">Ich bin …<span class="form__req" aria-hidden="true">*</span></legend>
+          <div class="choice">
+            <label class="choice__item"><input type="radio" name="sender_type" value="Arbeitgeber" required><span>Arbeitgeber</span></label>
+            <label class="choice__item"><input type="radio" name="sender_type" value="Unternehmen"><span>Unternehmen</span></label>
+            <label class="choice__item"><input type="radio" name="sender_type" value="Markenpartner"><span>Markenpartner</span></label>
+            <label class="choice__item"><input type="radio" name="sender_type" value="Creator"><span>Creator</span></label>
+          </div>
+          <p class="form__error" data-error-for="sender_type"></p>
+        </fieldset>
+
+        <div class="form__grid">
+          <div class="form__field span-2">
+            <label for="cf-salutation">Anrede</label>
+            <select id="cf-salutation" name="salutation">
+              <option value="">Bitte wählen</option>
+              <option>Frau</option>
+              <option>Herr</option>
+            </select>
+          </div>
+          <div class="form__field span-2">
+            <label for="cf-firstname">Vorname<span class="form__req" aria-hidden="true">*</span></label>
+            <input id="cf-firstname" name="firstname" type="text" autocomplete="given-name" required>
+            <p class="form__error"></p>
+          </div>
+          <div class="form__field span-2">
+            <label for="cf-lastname">Nachname<span class="form__req" aria-hidden="true">*</span></label>
+            <input id="cf-lastname" name="lastname" type="text" autocomplete="family-name" required>
+            <p class="form__error"></p>
+          </div>
+          <div class="form__field span-3">
+            <label for="cf-email">E-Mail-Adresse<span class="form__req" aria-hidden="true">*</span></label>
+            <input id="cf-email" name="email" type="email" autocomplete="email" required>
+            <p class="form__error"></p>
+          </div>
+          <div class="form__field span-3">
+            <label for="cf-phone">Telefon</label>
+            <input id="cf-phone" name="phone" type="tel" autocomplete="tel">
+            <p class="form__error"></p>
+          </div>
+
+          <div class="form__field span-3" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+            <label for="cf-company">Unternehmen<span class="form__req" aria-hidden="true">*</span></label>
+            <input id="cf-company" name="company_name" type="text" autocomplete="organization" required>
+            <p class="form__error"></p>
+          </div>
+          <div class="form__field span-3" data-show-for="Arbeitgeber Unternehmen Markenpartner" hidden>
+            <label for="cf-position">Position</label>
+            <input id="cf-position" name="position" type="text" autocomplete="organization-title">
+          </div>
+          <div class="form__field span-3" data-show-for="Arbeitgeber" hidden>
+            <label for="cf-size">Unternehmensgröße<span class="form__req" aria-hidden="true">*</span></label>
+            <select id="cf-size" name="company_size" required>
+              <option value="">Anzahl Mitarbeitende</option>
+              <option>1–49</option>
+              <option>50–249</option>
+              <option>250–999</option>
+              <option>1.000 und mehr</option>
+            </select>
+            <p class="form__error"></p>
+          </div>
+          <div class="form__field span-3" data-show-for="Unternehmen Markenpartner" hidden>
+            <label for="cf-url">Website</label>
+            <input id="cf-url" name="company_url" type="url" inputmode="url" placeholder="https://" autocomplete="url">
+            <p class="form__error"></p>
+          </div>
+          <div class="form__field span-3" data-show-for="Creator" hidden>
+            <label for="cf-platform">Plattform<span class="form__req" aria-hidden="true">*</span></label>
+            <input id="cf-platform" name="platform" type="text" placeholder="z. B. Instagram, TikTok, YouTube" required>
+            <p class="form__error"></p>
+          </div>
+          <div class="form__field span-3" data-show-for="Creator" hidden>
+            <label for="cf-profile">Profil-URL<span class="form__req" aria-hidden="true">*</span></label>
+            <input id="cf-profile" name="profile_url" type="url" inputmode="url" placeholder="https://" required>
+            <p class="form__error"></p>
+          </div>
+          <div class="form__field span-6" data-show-for="Creator" hidden>
+            <label for="cf-agency">Agentur</label>
+            <input id="cf-agency" name="agentur" type="text">
+          </div>
+
+          <div class="form__field span-4" data-show-for="none Arbeitgeber Unternehmen Markenpartner">
+            <label for="cf-street">Anschrift Unternehmen</label>
+            <input id="cf-street" name="street" type="text" autocomplete="address-line1">
+          </div>
+          <div class="form__field span-2" data-show-for="none Arbeitgeber Unternehmen Markenpartner">
+            <label for="cf-zip">PLZ</label>
+            <input id="cf-zip" name="postal_code" type="text" inputmode="numeric" autocomplete="postal-code">
+          </div>
+          <div class="form__field span-6">
+            <label for="cf-message">Nachricht</label>
+            <textarea id="cf-message" name="message" rows="4" placeholder="Was Sie uns noch mitteilen möchten …"></textarea>
+          </div>
+        </div>
+
+        <div class="form__footer">
+          <p class="form__legal">Hinweise zum Schutz Ihrer Daten finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+          <button class="btn btn--primary btn--lg form__submit" type="submit">Absenden <svg class="i" aria-hidden="true"><use href="#i-send"/></svg></button>
+          <p class="form__error" data-form-error role="alert"></p>
+        </div>
+
+        <div class="form__success" data-form-success role="status" hidden>
+          <span class="form__success-icon" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+          <strong>Vielen Dank für Ihre Anfrage!</strong>
+          <p data-form-success-text></p>
+          <button type="button" class="btn btn--dark btn--sm" data-form-reset>Neue Anfrage</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
