@@ -4754,27 +4754,40 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
 }
 .ap-plane .i { width: 16px; height: 16px; }
 
-/* 02 / 03 – Umschlag aus Flächen: Rückseite, Brief, Tasche vorn, Lasche offen (hinten) bzw. zu (vorn) */
-.ap-env { position: relative; width: 150px; height: 92px; }
-.ap-env--pack { margin-top: 52px; }
-.ap-env__back { position: absolute; inset: 0; z-index: 1; border-radius: 10px; background: #c9d8ff; }
-.ap-env__front {
-  position: absolute; inset: 0; z-index: 3; border-radius: 10px;
-  background: linear-gradient(165deg, #e8efff, #d3e0ff);
-  clip-path: polygon(0 32%, 50% 70%, 100% 32%, 100% 100%, 0 100%);
+/* 02 / 03 – Umschlag (Rückseite) wie eine weiße Karte mit feiner Linie, gezeichnet als SVG:
+   Lasche offen (hinten, Innenseite hellblau) → Brief und Dateien → Umschlag (deckt sie ganz ab, nichts muss
+   ausgeblendet werden) → Lasche zu (vorn) mit Siegel im Markenverlauf. Die Ecken der Lasche folgen den runden
+   Ecken des Umschlags. */
+.ap-env { position: relative; width: 150px; height: 96px; }
+.ap-env svg:not(.i) { display: block; overflow: visible; }
+.ap-env--pack { margin-top: 48px; }
+/* weicher Schatten unter dem Umschlag (box-shadow statt filter: der Umschlag fliegt, ein Filter würde neu gerechnet) */
+.ap-env::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 10px;
+  box-shadow: 0 14px 22px -14px rgba(0, 30, 90, .45);
 }
+.ap-env__front { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; }
+.ap-env__front rect { fill: #fff; stroke: #d6dff0; stroke-width: 1.5; }
+.ap-env__front path { fill: none; stroke: #e6ecf7; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .ap-env__flap-open {
-  position: absolute; left: 0; right: 0; bottom: 100%; z-index: 0; height: 50px;
-  background: #b7caff; clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  position: absolute; left: 0; bottom: calc(100% - 1px); z-index: 0; width: 100%; height: 58px;
   transform-origin: 50% 100%;
 }
+.ap-env__flap-open path { fill: #e3eaff; stroke: #cfdaf5; stroke-width: 1.5; stroke-linejoin: round; }
 .ap-env__flap {
-  position: absolute; left: 0; right: 0; top: 0; z-index: 4; height: 58px;
-  background: linear-gradient(180deg, #bccfff, #d8e3ff); clip-path: polygon(0 0, 100% 0, 50% 100%);
+  position: absolute; left: 0; top: 0; z-index: 4; width: 100%; height: 62px;
   transform-origin: 50% 0; transform: scaleY(0);
 }
+.ap-env__flap svg { width: 100%; height: 100%; }
+.ap-env__flap path { fill: #fff; stroke: #d6dff0; stroke-width: 1.5; stroke-linejoin: round; }
+.ap-env__flap .ap-env__shade { fill: rgba(0, 40, 120, .07); stroke: none; }
+.ap-env__seal {
+  position: absolute; left: calc(50% - 12px); top: 38px; display: grid; place-items: center; width: 24px; height: 24px;
+  border-radius: 50%; color: #fff; background: var(--grad-btn); box-shadow: 0 6px 12px -6px rgba(26, 90, 255, .9);
+}
+.ap-env__seal .i { width: 12px; height: 12px; }
 .ap-letter {
-  position: absolute; left: 14px; right: 14px; top: -40px; z-index: 2; height: 82px;
+  position: absolute; left: 20px; right: 20px; top: -38px; z-index: 2; height: 82px;
   display: flex; flex-direction: column; gap: 7px; padding: 12px;
   border-radius: 8px; background: #fff; box-shadow: 0 6px 14px -8px rgba(0, 30, 90, .45);
 }
@@ -4802,30 +4815,35 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
 
 /* 03 – Posteingang, Auge liest den Brief, Antwort */
 .apply__item--3 .apply__stage { display: flex; align-items: flex-end; justify-content: center; gap: 14px; padding-bottom: 10px; }
-.ap-env--read .ap-letter { top: -44px; }
+.ap-env--read .ap-letter { top: -40px; }
+/* Endbild (ohne Bewegung): die Antwort steht, der Posteingang-Hinweis ist schon weg – wie am Ende der Animation */
+.ap-inbox { opacity: 0; }
 .ap-inbox { position: absolute; right: 12px; top: 12px; display: inline-flex; align-items: center; gap: 6px; font-size: .74rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 .ap-inbox::after { content: "1"; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: .72rem; letter-spacing: 0; color: #fff; background: #ff5a5f; }
 /* bis die Post kommt: leerer Platz mit hüpfenden Punkten */
 .ap-wait {
-  position: absolute; left: calc(50% - 36px); bottom: 10px; width: 150px; height: 92px;
+  position: absolute; left: calc(50% - 41px); bottom: 10px; width: 150px; height: 96px;
   display: flex; align-items: center; justify-content: center; gap: 6px;
   border: 2px dashed #c3d2f5; border-radius: 12px;
   opacity: 0;
 }
 .ap-wait i { width: 8px; height: 8px; border-radius: 50%; background: #9db5f5; }
-.ap-eye { position: relative; align-self: center; flex: none; width: 64px; height: 38px; margin-top: 18px; }
-.ap-eye__lid {
-  position: absolute; inset: 0;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 38'%3E%3Cpath d='M3 19C12 7 22 3 32 3s20 4 29 16c-9 12-19 16-29 16S12 31 3 19Z' fill='%23fff' stroke='%23000a1e' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+/* Auge als Icon-Kachel wie überall auf der Seite: feine Linie in Royal, Pupille im Markenverlauf.
+   Die Kachel blendet ein, die Linie öffnet sich (scaleY), die Pupille liest Zeile für Zeile, ein Blinzeln */
+.ap-eye {
+  position: relative; align-self: flex-start; flex: none; display: grid; place-items: center;
+  width: 54px; height: 54px; margin-top: 46px;
+  border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--line), var(--shadow-1);
 }
+.ap-eye__lid { position: relative; display: block; width: 34px; height: 34px; }
+.ap-eye__lid svg { display: block; width: 100%; height: 100%; fill: none; stroke: var(--royal); stroke-width: 1.8; stroke-linejoin: round; }
 .ap-eye__iris {
-  position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 36% 34%, #fff 0 2px, transparent 2.6px), radial-gradient(circle, #000a1e 0 4px, transparent 4.6px), var(--grad-btn);
-  transform: translate(5px, -1px);
+  position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px;
+  border-radius: 50%; background: var(--grad-btn);
+  transform: translate(3px, 0);
 }
 .ap-bubble {
-  position: absolute; left: 12px; top: 10px; z-index: 5;
+  position: absolute; left: max(10px, calc(50% - 109px)); top: 8px; z-index: 5;
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px;
   border-radius: 14px 14px 14px 4px; font-size: .82rem; font-weight: 600; color: #fff; background: var(--grad-btn);
   box-shadow: 0 12px 24px -12px rgba(26, 90, 255, .8);
@@ -4853,6 +4871,7 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
   .apply.is-on .ap-env--pack .ap-env__flap-open { animation: ap-flapo2 var(--ap) ease-in infinite both; }
   .apply.is-on .ap-env--pack .ap-env__flap { animation: ap-flapc2 var(--ap) ease-out infinite both; }
   .apply.is-on .ap-sent { animation: ap-sent var(--ap) var(--ease-out) infinite both; }
+  .apply.is-on .ap-inbox { animation: ap-inbox var(--ap) ease-out infinite both; }
   .apply.is-on .ap-inbox::after { animation: ap-badge var(--ap) ease-out infinite both; }
   .apply.is-on .ap-env--read { animation: ap-env3 var(--ap) var(--ease-out) infinite both; }
   .apply.is-on .ap-env--read .ap-env__flap { animation: ap-flapc3 var(--ap) ease-in infinite both; }
@@ -4861,7 +4880,8 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
   .apply.is-on .ap-env--read .ap-letter i:nth-child(1) b { animation: ap-hl1 var(--ap) linear infinite both; }
   .apply.is-on .ap-env--read .ap-letter i:nth-child(2) b { animation: ap-hl2 var(--ap) linear infinite both; }
   .apply.is-on .ap-env--read .ap-letter i:nth-child(3) b { animation: ap-hl3 var(--ap) linear infinite both; }
-  .apply.is-on .ap-eye { animation: ap-eye var(--ap) ease-in-out infinite both; }
+  .apply.is-on .ap-eye { animation: ap-eye var(--ap) var(--ease-out) infinite both; }
+  .apply.is-on .ap-eye__lid { animation: ap-lid var(--ap) ease-in-out infinite both; }
   .apply.is-on .ap-eye__iris { animation: ap-iris var(--ap) ease-in-out infinite both; }
   .apply.is-on .ap-bubble { animation: ap-bubble var(--ap) var(--ease-out) infinite both; }
   .apply.is-on .ap-wait { animation: ap-wait var(--ap) linear infinite both; }
@@ -4903,31 +4923,36 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
   40%, 100% { opacity: 0; transform: translate(-70px, 185px) rotate(80deg) scale(.7); }
 }
 /* 02: Brief fliegt ein, Lebenslauf und Zeugnisse fallen dazu, alles in den Umschlag, Lasche zu, weiterfliegen */
+/* der Umschlag deckt Brief und Dateien ganz ab – sie gleiten hinein und bleiben bis zum Weiterflug darin */
 @keyframes ap-letter2 {
   0%, 36% { opacity: 0; transform: translate(-200px, -40px) rotate(-16deg) scale(.6); }
   42% { opacity: 1; transform: none; }
-  52% { opacity: 1; transform: none; }
-  56% { opacity: 1; transform: translateY(44px); }
-  60%, 100% { opacity: 0; transform: translateY(44px); }
+  52.5% { opacity: 1; transform: none; }
+  56.5%, 69% { opacity: 1; transform: translateY(50px); }
+  69.5%, 100% { opacity: 0; transform: translateY(50px); }
 }
 @keyframes ap-letter2-v {
   0%, 36% { opacity: 0; transform: translate(-20px, -190px) rotate(-12deg) scale(.6); }
   42% { opacity: 1; transform: none; }
-  52% { opacity: 1; transform: none; }
-  56% { opacity: 1; transform: translateY(44px); }
-  60%, 100% { opacity: 0; transform: translateY(44px); }
+  52.5% { opacity: 1; transform: none; }
+  56.5%, 69% { opacity: 1; transform: translateY(50px); }
+  69.5%, 100% { opacity: 0; transform: translateY(50px); }
 }
 @keyframes ap-file1 {
   0%, 42% { opacity: 0; transform: translateY(-30px) rotate(-6deg); }
   45.5% { opacity: 1; transform: rotate(-6deg); }
-  51% { opacity: 1; transform: rotate(-6deg); }
-  55%, 100% { opacity: 0; transform: translate(70px, 50px) scale(.6); }
+  49.5% { opacity: 1; transform: rotate(-6deg); }
+  51.5% { opacity: 1; transform: translate(78px, 10px) rotate(-2deg) scale(.86); }
+  54%, 69% { opacity: 1; transform: translate(78px, 74px) scale(.86); }
+  69.5%, 100% { opacity: 0; transform: translate(78px, 74px) scale(.86); }
 }
 @keyframes ap-file2 {
   0%, 46% { opacity: 0; transform: translateY(-30px) rotate(5deg); }
   49.5% { opacity: 1; transform: rotate(5deg); }
-  52% { opacity: 1; transform: rotate(5deg); }
-  56%, 100% { opacity: 0; transform: translate(-70px, 34px) scale(.6); }
+  50.5% { opacity: 1; transform: rotate(5deg); }
+  52.5% { opacity: 1; transform: translate(-82px, -12px) rotate(2deg) scale(.86); }
+  55%, 69% { opacity: 1; transform: translate(-82px, 52px) scale(.86); }
+  69.5%, 100% { opacity: 0; transform: translate(-82px, 52px) scale(.86); }
 }
 @keyframes ap-flapo2 { 0%, 56% { transform: scaleY(1); } 58%, 87% { transform: scaleY(0); } 87.5%, 100% { transform: scaleY(1); } }
 @keyframes ap-flapc2 { 0%, 58% { transform: scaleY(0); } 60.5%, 87% { transform: scaleY(1); } 87.5%, 100% { transform: scaleY(0); } }
@@ -4952,6 +4977,8 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
 }
 /* 03: Umschlag kommt an (Posteingang „1“), öffnet sich, Brief kommt heraus, Auge öffnet sich, liest Zeile für
    Zeile (Zeilen färben sich), blinzelt – „Passt! Wir melden uns.“ */
+/* die Antwort löst den Posteingang-Hinweis ab (in schmalen Karten stünden beide sonst zu eng) */
+@keyframes ap-inbox { 0%, 88% { opacity: 1; } 89.5%, 98% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes ap-badge { 0%, 68% { transform: scale(0); } 70% { transform: scale(1.3); } 71.5%, 96% { transform: scale(1); } 99%, 100% { transform: scale(0); } }
 @keyframes ap-env3 {
   0%, 63.5% { opacity: 0; transform: translate(-210px, -40px) rotate(-12deg) scale(.75); }
@@ -4967,32 +4994,32 @@ html:not(.js) .pb [data-for]:not([data-for~="start"]) { display: none; }
 }
 @keyframes ap-flapc3 { 0%, 70% { transform: scaleY(1); } 72%, 100% { transform: scaleY(0); } }
 @keyframes ap-flapo3 { 0%, 72% { transform: scaleY(0); } 74%, 100% { transform: scaleY(1); } }
-@keyframes ap-letter3 {
-  0%, 72.5% { opacity: 0; transform: translateY(44px); }
-  73% { opacity: 1; transform: translateY(44px); }
-  77%, 100% { opacity: 1; transform: none; }
-}
+@keyframes ap-letter3 { 0%, 73% { transform: translateY(50px); } 77%, 100% { transform: none; } }
 @keyframes ap-hl1 { 0%, 79% { transform: scaleX(0); } 81.7%, 100% { transform: scaleX(1); } }
 @keyframes ap-hl2 { 0%, 81.9% { transform: scaleX(0); } 84.4%, 100% { transform: scaleX(1); } }
 @keyframes ap-hl3 { 0%, 84.6% { transform: scaleX(0); } 87%, 100% { transform: scaleX(1); } }
 @keyframes ap-eye {
-  0%, 73% { opacity: 0; transform: scaleY(.08); }
-  75% { opacity: 1; transform: scaleY(.08); }
-  77.5% { opacity: 1; transform: scaleY(1); }
-  87.5% { transform: scaleY(1); }
-  88.2% { transform: scaleY(.08); }
-  89%, 97% { opacity: 1; transform: scaleY(1); }
-  100% { opacity: 0; transform: scaleY(1); }
+  0%, 72.5% { opacity: 0; transform: scale(.7); }
+  74.5%, 97% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: none; }
 }
+@keyframes ap-lid {
+  0%, 75% { transform: scaleY(.1); }
+  77.5% { transform: scaleY(1); }
+  87.5% { transform: scaleY(1); }
+  88.2% { transform: scaleY(.1); }
+  89%, 100% { transform: scaleY(1); }
+}
+/* liest mit: je Zeile von links nach rechts (Zeilen färben sich gleichzeitig), danach Blick zum Brief */
 @keyframes ap-iris {
-  0%, 77.5% { transform: translate(5px, -1px); }
-  79% { transform: translate(-3px, -5px); }
-  81.7% { transform: translate(9px, -5px); }
-  81.9% { transform: translate(-3px, -1px); }
-  84.4% { transform: translate(9px, -1px); }
-  84.6% { transform: translate(-3px, 3px); }
-  87% { transform: translate(7px, 3px); }
-  89%, 100% { transform: translate(5px, -1px); }
+  0%, 77.5% { transform: translate(3px, 0); }
+  79% { transform: translate(-3px, -2px); }
+  81.7% { transform: translate(5px, -2px); }
+  81.9% { transform: translate(-3px, 0); }
+  84.4% { transform: translate(5px, 0); }
+  84.6% { transform: translate(-3px, 2px); }
+  87% { transform: translate(4px, 2px); }
+  89%, 100% { transform: translate(3px, 0); }
 }
 @keyframes ap-wait { 0% { opacity: 0; } 2%, 62% { opacity: 1; } 64.5%, 100% { opacity: 0; } }
 @keyframes ap-dot { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-7px); } }
