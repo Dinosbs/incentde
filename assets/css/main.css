@@ -301,6 +301,19 @@ ul, ol { padding: 0; list-style: none; }
 }
 .nav__link:hover,
 .nav__link.is-active { color: var(--ink); background: rgba(43, 75, 255, .07); }
+/* Startseite: Punkt der Zielgruppe, die im Hero gerade leuchtet (Karte oder wechselnder Begriff, main.js: initAudSpot).
+   Der Verlauf liegt in ::before und blendet nur über opacity über (ein Verlauf selbst lässt sich nicht überblenden). */
+.nav__list--start .nav__link { position: relative; isolation: isolate; }
+.nav__list--start .nav__link::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  border-radius: inherit;
+  background: var(--grad-btn);
+  box-shadow: 0 10px 22px -12px rgba(26, 120, 255, .9);
+  opacity: 0;
+  transition: opacity .35s var(--ease-out);
+}
+.nav__list--start .nav__link.is-aud { color: #fff; }
+.nav__list--start .nav__link.is-aud::before { opacity: 1; }
 .nav__mobile-extra { display: none; }
 
 .nav__actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
@@ -4110,6 +4123,9 @@ a.more-link:hover .i { transform: translateX(3px); }
   }
   .nav__link:hover, .nav__link.is-active { background: none; }
   .nav__link[aria-current] { background: none; }
+  /* im ausgeklappten Menü liegt der Hero verdeckt darunter – keine Verknüpfung */
+  .nav__list--start .nav__link::before { display: none; }
+  .nav__list--start .nav__link.is-aud { color: var(--ink); }
   .nav__mobile-extra { display: flex; flex-direction: column; gap: 14px; margin-top: 32px; }
   .nav__mobile-extra a { display: flex; align-items: center; gap: 12px; color: var(--ink-2); }
   .burger { display: grid; }

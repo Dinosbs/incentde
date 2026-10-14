@@ -516,7 +516,10 @@
   /* ---------- Hero: „Wer sind Sie?“ – Hervorhebung wandert mit den Begriffen der Headline ----------
      Jede Karte kennt ihre Begriffe (data-aud-terms, z. B. „Mitarbeiterbindung|Steuerfreie Sachbezüge“). Zeigt die
      Headline einen davon, gleitet der Rahmen auf diese Karte und das Fähnchen nennt den Begriff. Zeiger oder Fokus
-     auf einer Karte halten Rahmen und Begriff dort fest. */
+     auf einer Karte halten Rahmen und Begriff dort fest.
+     Die Navigation ist verknüpft: Der Punkt derselben Zielgruppe (data-nav-world = data-aud-pick) leuchtet mit
+     (Klasse is-aud, solange der Hero im Bild ist), und der Zeiger auf diesem Punkt hält die Karte fest wie ein
+     Zeiger auf der Karte selbst. */
   function initAudSpot() {
     const grid = $("[data-aud-grid]");
     if (!grid) return;
@@ -539,9 +542,22 @@
     const queuePlace = () => {
       if (!placing) placing = requestAnimationFrame(() => ((placing = 0), place()));
     };
+    // Navigationspunkt derselben Zielgruppe
+    const navLinks = $$('.nav__list--start [data-nav-world]');
+    const linkOf = (c) => c && navLinks.find((a) => a.dataset.navWorld === c.dataset.audPick);
+    let heroIn = true;
+    let navLit = null;
+    const markNav = () => {
+      const link = heroIn ? linkOf(hover || lit) : null;
+      if (link === navLit) return;
+      if (navLit) navLit.classList.remove("is-aud");
+      if (link) link.classList.add("is-aud");
+      navLit = link;
+    };
     const light = (card, term) => {
       cards.forEach((c) => c.classList.toggle("is-lit", c === card));
       if (card && term) $(".aud__term", card).textContent = term;
+      markNav();
       queuePlace();
     };
     const byTerm = (term) => cards.find((c) => termsOf(c).includes(term));
@@ -549,22 +565,34 @@
       lit = byTerm(e.detail) || lit;
       if (!hover) light(lit, e.detail);
     });
+    const enter = (c) => {
+      hover = c;
+      light(c, termsOf(c)[0]);
+      document.dispatchEvent(new CustomEvent("incent:aud-hover", { detail: termsOf(c)[0] }));
+    };
+    const leave = (c) => {
+      if (hover !== c) return;
+      hover = null;
+      // zurück zur Karte des aktuellen Begriffs (ohne laufende Headline, z. B. bei reduzierter Bewegung, sonst bliebe sie stehen)
+      const word = $(".rotator__word:not(.is-out)");
+      light(lit, word && word.textContent.trim());
+      document.dispatchEvent(new CustomEvent("incent:aud-hover", { detail: "" }));
+    };
+    // Karte und ihr Navigationspunkt lösen dasselbe aus
     cards.forEach((c) => {
-      const enter = () => {
-        hover = c;
-        light(c, termsOf(c)[0]);
-        document.dispatchEvent(new CustomEvent("incent:aud-hover", { detail: termsOf(c)[0] }));
-      };
-      const leave = () => {
-        if (hover !== c) return;
-        hover = null;
-        document.dispatchEvent(new CustomEvent("incent:aud-hover", { detail: "" }));
-      };
-      c.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && enter());
-      c.addEventListener("pointerleave", (e) => e.pointerType === "mouse" && leave());
-      c.addEventListener("focus", enter);
-      c.addEventListener("blur", leave);
+      [c, linkOf(c)].filter(Boolean).forEach((el) => {
+        el.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && enter(c));
+        el.addEventListener("pointerleave", (e) => e.pointerType === "mouse" && leave(c));
+      });
+      c.addEventListener("focus", () => enter(c));
+      c.addEventListener("blur", () => leave(c));
     });
+    // Navigation leuchtet nur mit, solange die Karten zu sehen sind (sonst wirkte der Punkt wie „aktuelle Seite“)
+    if (hasIO)
+      new IntersectionObserver((ioEntries, ioObs, entry = ioEntries[ioEntries.length - 1]) => {
+        heroIn = entry.isIntersecting;
+        markNav();
+      }).observe(grid);
     // Start: Karte zum ersten Begriff der Headline
     const word = $(".rotator__word");
     lit = word ? byTerm(word.textContent.trim()) : null;
