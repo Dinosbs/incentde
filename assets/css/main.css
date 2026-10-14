@@ -3389,7 +3389,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px 
 .calc__table td.zero { color: #0f9d63; }
 .calc__table tfoot td { border-bottom: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--ink); background: #f6f8fc; }
 .calc__table tfoot td.is-us { color: var(--royal); background: rgba(43, 75, 255, .08); }
-.calc__result { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px 24px; margin-top: 18px; padding: 20px 22px; border-radius: 20px; background: var(--grad-btn); box-shadow: 0 30px 60px -30px rgba(20, 60, 255, .8); }
+.calc__result { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px 24px; margin-top: 18px; padding: 20px 22px; border-radius: 20px; color: #fff; background: var(--grad-btn); box-shadow: 0 30px 60px -30px rgba(20, 60, 255, .8); }
 .calc__save { grid-row: span 2; font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3.2rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
 .calc__result p { font-weight: 600; }
 .calc__result small { color: rgba(255, 255, 255, .85); }
