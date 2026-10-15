@@ -927,8 +927,7 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 }
 .marquee__track { display: flex; gap: 16px; width: max-content; padding-block: 10px; }
 .js .marquee__track.is-ready { animation: marquee var(--marquee-dur, 55s) linear infinite; }
-.marquee:hover .marquee__track,
-.marquee:focus-within .marquee__track { animation-play-state: paused; }
+/* läuft immer weiter, auch unter der Maus (nur „Bewegung reduzieren“ und außerhalb des Bildes halten es an) */
 .marquee li {
   flex: none;
   display: grid; place-items: center;
@@ -1268,7 +1267,6 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .viz-deals { display: flex; align-items: center; }
 .viz-deals__row { --gap-half: 6px; display: flex; gap: 12px; width: max-content; padding-left: 12px; }
 .js .viz-deals__row.is-ready { padding-left: 0; animation: marquee var(--marquee-dur, 28s) linear infinite; }
-.card:hover .viz-deals__row { animation-play-state: paused; }
 .mini-deal {
   flex: none;
   display: flex; flex-direction: column; gap: 2px;
@@ -2240,6 +2238,33 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .kp-chip input:checked + span { color: var(--royal); background: rgba(43, 75, 255, .07); box-shadow: inset 0 0 0 1.5px rgba(43, 75, 255, .55); }
 .kp-chip input:checked + span .i { color: #fff; background: var(--grad-btn); box-shadow: none; }
 .kp-chip input:focus-visible + span { outline: 2px solid var(--azure); outline-offset: 3px; }
+/* „Mein Design mitschicken“: Karte mit Häkchen und Mini-Portal in den eigenen Farben (contact.js setzt --d-*) */
+.kp-design { margin-top: 14px; }
+.kp-design[hidden], .kp-design__note[hidden] { display: none; }
+.kp-design__toggle {
+  position: relative; display: flex; align-items: center; gap: 14px; padding: 14px 14px 14px 16px; border-radius: 18px; cursor: pointer;
+  background: linear-gradient(135deg, rgba(43, 75, 255, .05), rgba(0, 194, 255, .06)); box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition: box-shadow .2s;
+}
+.kp-design__toggle:hover { box-shadow: inset 0 0 0 1px rgba(26, 120, 255, .45); }
+.kp-design__toggle:has(input:checked) { box-shadow: inset 0 0 0 1.5px rgba(43, 75, 255, .55); }
+.kp-design__toggle input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.kp-design__box { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; color: transparent; box-shadow: inset 0 0 0 1.5px var(--line-strong); transition: color .2s, background-color .2s, box-shadow .2s; }
+.kp-design__box .i { width: 15px; height: 15px; stroke-width: 3; }
+.kp-design input:checked ~ .kp-design__box { color: #fff; background: var(--grad-btn); box-shadow: none; }
+.kp-design input:focus-visible ~ .kp-design__box { outline: 2px solid var(--azure); outline-offset: 3px; }
+.kp-design__txt { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.kp-design__txt b { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ink); }
+.kp-design__txt b .i { color: var(--royal); }
+.kp-design__txt small { font-size: .86rem; line-height: 1.35; color: var(--ink-3); }
+.kp-design__peek { flex: none; display: grid; grid-template-rows: 16px 1fr; width: 96px; height: 64px; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 8px 18px -10px rgba(0, 30, 90, .45), 0 0 0 1px var(--line); }
+.kp-design__peek i { display: block; }
+.kp-design__nav { display: flex !important; align-items: center; padding: 0 6px; background: var(--d-nav, #fff); box-shadow: 0 1px 0 rgba(0, 0, 0, .06); }
+.kp-design__nav img { max-width: 52px; max-height: 11px; object-fit: contain; }
+.kp-design__stage { display: grid !important; place-items: center; background: var(--d-stage, url("../img/portal/bg-highlights.webp") center / cover no-repeat); }
+.kp-design__btn { width: 44px; height: 12px; border-radius: 999px; background: var(--d-btn, #1c87b8); box-shadow: 0 3px 8px -3px rgba(0, 0, 0, .35); }
+.kp-design__note { margin-top: 8px; font-size: .86rem; line-height: 1.45; color: var(--ink-3); }
+@media (max-width: 420px) { .kp-design__peek { display: none; } }
 .kp-form .form__footer { padding-top: 22px; border-top: 1px solid var(--line); }
 /* die Karte ist lang: Dank oben statt in der Mitte (der Fokus auf „Neue Anfrage“ holt ihn ins Bild) */
 .kp-form .form__success { justify-content: flex-start; padding-top: clamp(56px, 9vw, 120px); }
@@ -4066,7 +4091,6 @@ a.more-link:hover .i { transform: translateX(3px); }
    Markenplatzierung & Content Creator
    ========================================================================== */
 .spot small { display: block; margin-top: 2px; font-size: .84rem; font-weight: 500; color: var(--ink-3); }
-.reasons--4 { grid-template-columns: repeat(4, 1fr); }
 .reason--compact .reason__body { padding: 18px 20px 22px; }
 .reason--compact h3 { font-size: 1.25rem; }
 .outro--big > div { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; max-width: 70ch; }
@@ -4199,7 +4223,6 @@ a.more-link:hover .i { transform: translateX(3px); }
 .earn__note { margin-top: 32px; font-size: .88rem; color: var(--ink-3); }
 
 @media (max-width: 1120px) {
-  .reasons--4 { grid-template-columns: repeat(2, 1fr); }
   .place { grid-template-columns: 1fr; }
 }
 @media (max-width: 980px) {
@@ -4208,7 +4231,6 @@ a.more-link:hover .i { transform: translateX(3px); }
   .pk.is-on .pk__list { display: flex; }
 }
 @media (max-width: 640px) {
-  .reasons--4 { grid-template-columns: 1fr; }
   .pls__grid, .plk__grid { grid-template-columns: repeat(2, 1fr); }
   .pls__grid .pt:nth-child(n+3) { display: none; }
   .plk__grid i:nth-child(n+3) { display: none; }
@@ -4274,6 +4296,10 @@ a.more-link:hover .i { transform: translateX(3px); }
 @media (max-width: 980px) {
   .reasons { grid-template-columns: 1fr; max-width: 640px; margin-inline: auto; }
 }
+/* vier Karten („Mehr als klassisches E-Mail-Marketing“): eine Reihe, mittelbreit 2 × 2, mobil untereinander – nie 3 + 1 */
+.reasons.reasons--4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1120px) { .reasons.reasons--4 { grid-template-columns: repeat(2, 1fr); max-width: none; } }
+@media (max-width: 640px) { .reasons.reasons--4 { grid-template-columns: 1fr; } }
 
 /* Labels (Großbuchstaben) in Barlow etwas kräftiger */
 .stat dt, .tab__num, .panel__kicker, .feature__num, .quote__since,

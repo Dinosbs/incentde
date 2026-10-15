@@ -11,6 +11,7 @@
    Ausgefüllte Felder werden schon beim Verlassen geprüft (leere Pflichtfelder erst bei „Weiter“ bzw. beim Absenden).
    Absenden: ohne data-endpoint öffnet sich das E-Mail-Programm mit der fertigen Anfrage an info@incent.de; mit
    data-endpoint="https://…" am <form> geht sie per fetch (POST, FormData) an diese Adresse.
+   „Mein Design mitschicken“ (nur wenn in der Live-Demo gestaltet): siehe designShare.
    ========================================================================= */
 (() => {
   "use strict";
@@ -33,9 +34,280 @@
     Creator: "z. B. Ihre Community, Ihre Themen und was Sie Ihren Followern anbieten möchten …",
   };
 
+  /* ---------- „Mein Design mitschicken“ ----------
+     Wer in der Live-Demo gestaltet hat (Marken-Profil „incent-brand“ aus main.js – gespeichert nur mit Einwilligung
+     „Funktional“, ohne sie gilt die Gestaltung nur bis zum Seitenwechsel), sieht unter der Nachricht eine Karte mit Häkchen
+     und Mini-Portal in den eigenen Farben. Angehakt gehen Name, Farben und Hintergrund als Text mit. Logo und eigenes
+     Hintergrundbild: mit data-endpoint als Dateien, sonst (E-Mail-Programm – eine vorbereitete E-Mail kann keine Anhänge
+     haben) speichert der Browser beim Absenden ein Bild „portal-design-….png“ mit Logo, Farben und Hintergrund, das man
+     der E-Mail anhängt. */
+  const BRAND_KEY = "incent-brand";
+  const BRAND_DEFAULTS = { btn: "#1c87b8", nav: "#ffffff", bg: "image", solid: "#e8f3f9", g1: "#1c87b8", g2: "#0a2540", name: "", logo: "", bgImg: "" };
+  const DEFAULT_BG = "assets/img/portal/bg-highlights.webp";
+  const HEX = /^#[0-9a-f]{6}$/i;
+  const DATA_IMG = /^data:image\/(png|jpeg|webp);base64,[a-z0-9+/=]+$/i;
+  const readDesign = () => {
+    if (!(window.incentConsent && window.incentConsent.has("functional"))) return null;
+    let raw = null;
+    try {
+      raw = JSON.parse(localStorage.getItem(BRAND_KEY) || "null");
+    } catch (err) {
+      return null;
+    }
+    if (!raw || typeof raw !== "object") return null;
+    const d = { ...BRAND_DEFAULTS };
+    ["btn", "nav", "solid", "g1", "g2"].forEach((k) => HEX.test(raw[k]) && (d[k] = raw[k].toLowerCase()));
+    if (["image", "solid", "gradient"].includes(raw.bg)) d.bg = raw.bg;
+    if (typeof raw.name === "string") d.name = raw.name.trim().slice(0, 40);
+    ["logo", "bgImg"].forEach((k) => typeof raw[k] === "string" && DATA_IMG.test(raw[k]) && (d[k] = raw[k]));
+    if (d.bg !== "image") d.bgImg = ""; // ein gespeichertes, aber nicht gewähltes Bild gehört nicht zum Design
+    return Object.keys(BRAND_DEFAULTS).some((k) => d[k] !== BRAND_DEFAULTS[k]) ? d : null;
+  };
+  const bgText = (d) => (d.bg === "solid" ? `einfarbig ${d.solid}` : d.bg === "gradient" ? `Verlauf ${d.g1} → ${d.g2}` : d.bgImg ? "eigenes Bild" : "Standardbild");
+  const inkOn = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    const ch = (v) => ((v /= 255) <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+    const l = 0.2126 * ch((n >> 16) & 255) + 0.7152 * ch((n >> 8) & 255) + 0.0722 * ch(n & 255);
+    return 1.05 / (l + 0.05) >= 3 ? "#ffffff" : "#111111";
+  };
+  const slug = (s) =>
+    String(s || "").toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30);
+  const loadImg = (src) =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  const dataUrlBlob = (url) => {
+    const [head, b64] = url.split(",");
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new Blob([bytes], { type: head.slice(5, head.indexOf(";")) });
+  };
+  const extOf = (url) => ({ "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" })[url.slice(5, url.indexOf(";"))] || "png";
+
+  // Bild mit allem auf einen Blick: Mini-Portal (Navigation mit Logo, Hintergrund, Button) und die Werte daneben
+  async function designSheet(d) {
+    const W = 1200;
+    const H = 720;
+    const c = document.createElement("canvas");
+    c.width = W;
+    c.height = H;
+    const ctx = c.getContext("2d");
+    const font = (w, s) => `${w} ${s}px "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif`;
+    const box = (x, y, w, h, r) => {
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+      else ctx.rect(x, y, w, h);
+    };
+    // cover: Fläche füllen (oben bündig); sonst einpassen, left: links bündig statt mittig
+    const fit = (img, x, y, w, h, cover, left) => {
+      const k = (cover ? Math.max : Math.min)(w / img.naturalWidth, h / img.naturalHeight);
+      const iw = img.naturalWidth * k;
+      const ih = img.naturalHeight * k;
+      ctx.drawImage(img, left ? x : x + (w - iw) / 2, cover ? y : y + (h - ih) / 2, iw, ih);
+    };
+    const paintBg = async (x, y, w, h) => {
+      if (d.bg === "solid") ctx.fillStyle = d.solid;
+      else if (d.bg === "gradient") {
+        const g = ctx.createLinearGradient(x, y, x + w, y + h);
+        g.addColorStop(0, d.g1);
+        g.addColorStop(1, d.g2);
+        ctx.fillStyle = g;
+      } else ctx.fillStyle = "#e8f3f9";
+      ctx.fillRect(x, y, w, h);
+      if (d.bg === "image") {
+        const img = await loadImg(d.bgImg || DEFAULT_BG);
+        if (img) fit(img, x, y, w, h, true);
+      }
+    };
+    const [logo] = await Promise.all([d.logo ? loadImg(d.logo) : null, document.fonts && document.fonts.ready]);
+
+    ctx.fillStyle = "#f4f7fd";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#0b1533";
+    ctx.font = font(700, 46);
+    ctx.fillText("Portal-Design aus der Live-Demo", 60, 96);
+    ctx.fillStyle = "#56627e";
+    ctx.font = font(500, 24);
+    ctx.fillText(`${d.name || "Ohne Namen"} · gestaltet auf incent.de · ${new Date().toLocaleDateString("de-DE")}`, 60, 136);
+
+    // Mini-Portal
+    const px = 60, py = 184, pw = 620, ph = 456;
+    ctx.save();
+    ctx.shadowColor = "rgba(0, 30, 90, .18)";
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 16;
+    box(px, py, pw, ph, 26);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+    ctx.restore();
+    ctx.save();
+    box(px, py, pw, ph, 26);
+    ctx.clip();
+    await paintBg(px, py + 78, pw, ph - 78);
+    ctx.fillStyle = d.nav;
+    ctx.fillRect(px, py, pw, 78);
+    ctx.fillStyle = "rgba(0, 0, 0, .06)";
+    ctx.fillRect(px, py + 78, pw, 1);
+    if (logo) fit(logo, px + 28, py + 17, 230, 44, false, true);
+    else {
+      ctx.fillStyle = inkOn(d.nav);
+      ctx.font = font(700, 30);
+      ctx.fillText(d.name || "Ihr Logo", px + 28, py + 50);
+    }
+    box(px + 40, py + ph - 112, 270, 62, 31);
+    ctx.fillStyle = d.btn;
+    ctx.fill();
+    ctx.fillStyle = inkOn(d.btn);
+    ctx.font = font(700, 26);
+    ctx.fillText("Vorteile entdecken", px + 70, py + ph - 72);
+    ctx.restore();
+
+    // Werte
+    const vx = 730;
+    let vy = 184;
+    const label = (t) => {
+      ctx.fillStyle = "#56627e";
+      ctx.font = font(600, 20);
+      ctx.fillText(t.toUpperCase(), vx, vy + 18);
+    };
+    label("Logo");
+    box(vx, vy + 32, 410, 120, 18);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+    if (logo) fit(logo, vx + 24, vy + 52, 362, 80, false);
+    else {
+      ctx.fillStyle = "#8a94ad";
+      ctx.font = font(500, 24);
+      ctx.fillText("kein eigenes Logo", vx + 24, vy + 100);
+    }
+    vy += 186;
+    const swatch = async (name, value, paint) => {
+      label(name);
+      box(vx, vy + 32, 64, 64, 16);
+      ctx.save();
+      ctx.clip();
+      await paint(vx, vy + 32, 64, 64);
+      ctx.restore();
+      ctx.strokeStyle = "rgba(0, 30, 90, .14)";
+      ctx.lineWidth = 2;
+      box(vx, vy + 32, 64, 64, 16);
+      ctx.stroke();
+      ctx.fillStyle = "#0b1533";
+      ctx.font = font(600, 28);
+      ctx.fillText(value, vx + 84, vy + 74);
+      vy += 104;
+    };
+    const solid = (hex) => (x, y, w, h) => {
+      ctx.fillStyle = hex;
+      ctx.fillRect(x, y, w, h);
+    };
+    await swatch("Buttonfarbe", d.btn, solid(d.btn));
+    await swatch("Navigationsfarbe", d.nav, solid(d.nav));
+    await swatch("Hintergrund", bgText(d), paintBg);
+    return new Promise((resolve) => c.toBlob(resolve, "image/png"));
+  }
+
+  function designShare(form) {
+    const root = $("[data-design-share]", form);
+    const box = root && $("[data-design-toggle]", root);
+    const note = root && $("[data-design-note]", root);
+    let d = null;
+    let sheet = null; // Promise<Blob> – vorab erzeugt, sobald angehakt (Absenden bleibt synchron genug für mailto)
+    const fileName = () => `portal-design-${slug(d && d.name) || "incent"}.png`;
+    const withImages = () => !!(d && (d.logo || d.bgImg));
+    const sync = () => {
+      if (!root) return;
+      if (note) {
+        note.hidden = !box.checked;
+        note.textContent = form.dataset.endpoint
+          ? "Logo, Farben und Hintergrund werden mit Ihrer Anfrage übertragen."
+          : withImages()
+            ? `Beim Absenden speichert Ihr Browser Ihr Design als Bild „${fileName()}“ – bitte hängen Sie es in Ihrem E-Mail-Programm an. Name, Farben und Hintergrund stehen zusätzlich im Text.`
+            : "Name, Farben und Hintergrund stehen in Ihrer E-Mail.";
+      }
+      if (box.checked && withImages() && !sheet) sheet = designSheet(d).catch(() => null);
+    };
+    const refresh = () => {
+      if (!root) return;
+      d = readDesign();
+      sheet = null;
+      root.hidden = !d;
+      if (!d) {
+        box.checked = false;
+        return sync();
+      }
+      const peek = $("[data-design-peek]", root);
+      peek.style.setProperty("--d-nav", d.nav);
+      peek.style.setProperty("--d-btn", d.btn);
+      peek.style.setProperty(
+        "--d-stage",
+        d.bg === "solid" ? d.solid : d.bg === "gradient" ? `linear-gradient(150deg, ${d.g1}, ${d.g2})` : `url("${d.bgImg || DEFAULT_BG}") center / cover no-repeat`
+      );
+      const nav = $(".kp-design__nav", peek);
+      nav.replaceChildren();
+      if (d.logo) {
+        const img = new Image();
+        img.alt = "";
+        img.src = d.logo;
+        nav.append(img);
+      }
+      $("[data-design-sum]", root).textContent = [d.logo ? "eigenes Logo" : "", d.name ? `„${d.name}“` : "", `Button ${d.btn}`, bgText(d)].filter(Boolean).join(" · ");
+      sync();
+    };
+    if (box) box.addEventListener("change", sync);
+    document.addEventListener("incent:consent", refresh);
+    refresh();
+
+    return {
+      sync,
+      on: () => !!(d && box.checked),
+      // Text für die E-Mail; file: Name des gespeicherten Bilds (nur ohne Endpunkt)
+      lines: (file) => [
+        "Mein Design (Live-Demo):",
+        `– Name im Portal: ${d.name || "–"}`,
+        `– Logo: ${d.logo ? (file ? `eigenes Logo (im Bild „${file}“)` : "eigenes Logo (Datei anbei)") : "kein eigenes Logo"}`,
+        `– Buttonfarbe: ${d.btn}`,
+        `– Navigationsfarbe: ${d.nav}`,
+        `– Hintergrund: ${bgText(d)}`,
+      ],
+      // mit Endpunkt: Werte als Felder, Logo, Hintergrundbild und Übersichtsbild als Dateien
+      async append(data) {
+        data.append("design_name", d.name);
+        data.append("design_buttonfarbe", d.btn);
+        data.append("design_navigationsfarbe", d.nav);
+        data.append("design_hintergrund", bgText(d));
+        if (d.logo) data.append("design_logo", dataUrlBlob(d.logo), `logo.${extOf(d.logo)}`);
+        if (d.bgImg) data.append("design_hintergrundbild", dataUrlBlob(d.bgImg), `hintergrund.${extOf(d.bgImg)}`);
+        const blob = await (sheet || designSheet(d)).catch(() => null);
+        if (blob) data.append("design_vorschau", blob, fileName());
+      },
+      // ohne Endpunkt: Übersichtsbild speichern (nur wenn es Bilder gibt); liefert den Dateinamen
+      async download() {
+        if (!withImages()) return "";
+        const blob = await (sheet || (sheet = designSheet(d))).catch(() => null);
+        if (!blob) return "";
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName();
+        a.hidden = true;
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        return a.download;
+      },
+    };
+  }
+
   function initContactForm() {
     const form = $("[data-contact-form]");
     if (!form) return;
+    const share = designShare(form);
     const conditional = $$("[data-show-for]", form);
     const typeError = $('[data-error-for="sender_type"]', form);
     const formError = $("[data-form-error]", form);
@@ -220,9 +492,12 @@
       }
 
       const data = new FormData(form);
+      data.delete("design"); // das Häkchen selbst – mit geht das Design (share)
+      const sharing = share.on();
       if (form.dataset.endpoint) {
         submitBtn.disabled = true;
         try {
+          if (sharing) await share.append(data);
           const res = await fetch(form.dataset.endpoint, { method: "POST", body: data, headers: { Accept: "application/json" } });
           if (!res.ok) throw new Error(String(res.status));
           showSuccess("Wir haben Ihre Nachricht erhalten und melden uns bei Ihnen.");
@@ -246,9 +521,16 @@
         const value = data.getAll(key).map((v) => String(v).trim()).filter(Boolean).join(", ");
         if (value) lines.push(`${labels[key] || key}: ${value}`);
       });
+      // Design: Übersichtsbild zuerst speichern (eine vorbereitete E-Mail kann keine Anhänge haben), Werte in den Text
+      const file = sharing ? await share.download() : "";
+      if (sharing) lines.push("", ...share.lines(file));
       const subject = `Kontaktanfrage über incent.de – ${data.get("firstname")} ${data.get("lastname")}`;
       window.location.href = `mailto:info@incent.de?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
-      showSuccess("Ihr E-Mail-Programm öffnet sich mit Ihrer Anfrage – bitte dort noch absenden. Alternativ erreichen Sie uns unter info@incent.de oder 08341 93450.");
+      showSuccess(
+        "Ihr E-Mail-Programm öffnet sich mit Ihrer Anfrage – bitte dort noch absenden." +
+          (file ? ` Ihr Design haben wir als Bild „${file}“ gespeichert – bitte hängen Sie es der E-Mail an.` : "") +
+          " Alternativ erreichen Sie uns unter info@incent.de oder 08341 93450."
+      );
     });
 
     $("[data-form-reset]", form).addEventListener("click", () => {
@@ -260,6 +542,7 @@
       $$(".form__error", form).forEach((out) => (out.textContent = ""));
       open = 1;
       updateFields(false);
+      share.sync();
       form.querySelector('input[name="sender_type"]').focus();
     });
 

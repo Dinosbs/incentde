@@ -176,6 +176,17 @@ scripts: contact
           <label class="sr-only" for="cf-message">Nachricht</label>
           <textarea id="cf-message" name="message" rows="4" placeholder="Was Sie uns noch mitteilen möchten …"></textarea>
         </div>
+        <!-- nur sichtbar, wenn in der Live-Demo gestaltet wurde (Marken-Profil „incent-brand“, contact.js) -->
+        <div class="kp-design" data-design-share hidden>
+          <label class="kp-design__toggle">
+            <input type="checkbox" name="design" value="ja" data-design-toggle>
+            <span class="kp-design__box" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+            <span class="kp-design__txt"><b><svg class="i i--sm" aria-hidden="true"><use href="#i-palette"/></svg>Mein Design mitschicken</b>
+              <small data-design-sum>Ihre Gestaltung aus der Live-Demo</small></span>
+            <span class="kp-design__peek" data-design-peek aria-hidden="true"><i class="kp-design__nav"></i><i class="kp-design__stage"><i class="kp-design__btn"></i></i></span>
+          </label>
+          <p class="kp-design__note" data-design-note hidden></p>
+        </div>
       </fieldset>
 
       <div class="form__footer" data-kp-stage="5">

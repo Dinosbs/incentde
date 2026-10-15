@@ -2216,6 +2216,7 @@
     const meta = $('meta[name="description"]');
     const form = $("[data-contact-mini]");
     const topic = form && $("[data-contact-topic]", form);
+    const ctas = $$("a[data-contact-cta]");
     // Titel/Beschreibung der Übersicht stehen am Hero (auf den Bereichs-Seiten hat der <head> die des Bereichs)
     const heroEl = $("[data-hero]");
     const home = { title: (heroEl && heroEl.dataset.title) || document.title, desc: (heroEl && heroEl.dataset.desc) || (meta ? meta.content : "") };
@@ -2365,6 +2366,10 @@
         topic.value = w && panel ? id : "";
         topic.disabled = !topic.value;
       }
+      // „Demo buchen“, „Beratung vereinbaren“ & Co. führen direkt zur Formularseite – vorbelegt wie das kleine Formular
+      const who = w && (AUDIENCES[w.key] || {}).form;
+      const ask = who ? `kontakt.html?ich=${encodeURIComponent(who)}${panel ? `&thema=${encodeURIComponent(id)}` : ""}` : "kontakt.html";
+      ctas.forEach((a) => a.getAttribute("href") !== ask && a.setAttribute("href", ask));
       layoutBars();
       // z. B. für die Live-Demo: in „Ihr Design“ startet sie mit geöffnetem Builder
       document.dispatchEvent(new CustomEvent("incent:view", { detail: { world: html.dataset.world || "", mb: html.dataset.mb || "", design: isDesign(id) } }));
