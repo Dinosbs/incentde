@@ -1302,28 +1302,66 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 }
 .viz-orbit__core .i { width: 28px; height: 28px; }
 
-/* Visual: Schritte */
-.viz-steps { display: grid; place-items: center; padding: 24px; }
-.viz-steps ol { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; }
-.viz-steps li {
-  display: flex; align-items: center; gap: 14px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  font-size: 1rem; font-weight: 600;
-  background: #fff;
-  box-shadow: 0 10px 24px -14px rgba(0, 30, 90, .3);
-  animation: step 6s var(--ease-out) infinite;
+/* Visual: Full-Service – drei Stationen an einer Linie, die sich füllt; jede Station leuchtet beim Erreichen im Verlauf auf,
+   nach der Weiterentwicklung beginnt der Kreislauf von vorn. Ohne Bewegung: alle Stationen erreicht (Endbild) */
+.viz-service { --svc: 8s; container-type: inline-size; display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: 18px 16px 16px; }
+.viz-service__chip {
+  align-self: center; display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 7px;
+  border-radius: 999px; background: #fff; box-shadow: 0 12px 26px -14px rgba(0, 30, 90, .4);
+  animation: bob 7s ease-in-out -2s infinite;
 }
-.viz-steps li:nth-child(2) { animation-delay: 2s; }
-.viz-steps li:nth-child(3) { animation-delay: 4s; }
-.viz-steps li span {
-  width: 30px; height: 30px; flex: none;
-  display: grid; place-items: center;
-  border-radius: 50%;
-  font-family: var(--font-mono); font-size: .84rem;
-  color: #1a4dff;
-  background: #eaf0ff;
+.viz-service__chip b { display: block; font-size: .86rem; font-weight: 700; line-height: 1.15; }
+.viz-service__chip small { display: block; font-size: .74rem; color: var(--ink-3); line-height: 1.2; }
+.viz-service__av { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: #fff; background: var(--grad-btn); }
+.viz-service__av .i { width: 17px; height: 17px; }
+.viz-service__track { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+/* Linie von der Mitte der ersten bis zur Mitte der letzten Station */
+.viz-service__line { position: absolute; left: 16.67%; right: 16.67%; top: 24px; height: 3px; border-radius: 3px; background: rgba(43, 75, 255, .14); }
+.viz-service__line i { position: absolute; inset: 0; border-radius: inherit; background: var(--grad); transform-origin: 0 50%; }
+.viz-service__st { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.viz-service__ico {
+  position: relative; display: grid; place-items: center; width: 50px; height: 50px; margin-bottom: 6px;
+  border-radius: 15px; color: var(--royal); background: #fff; box-shadow: 0 10px 22px -12px rgba(0, 30, 90, .4);
 }
+.viz-service__ico .i { width: 22px; height: 22px; }
+/* erreicht: Verlauf mit weißem Icon darüber (blendet nur über opacity) */
+.viz-service__ico b { position: absolute; inset: 0; display: grid; place-items: center; border-radius: inherit; color: #fff; background: var(--grad-btn); box-shadow: 0 12px 24px -10px rgba(26, 90, 255, .8); }
+.viz-service__st strong { font-size: .92rem; font-weight: 700; line-height: 1.15; }
+.viz-service__st small { font-size: .74rem; line-height: 1.25; color: var(--ink-3); }
+/* schmale Kachel (Handy): ohne Unterzeilen, etwas kleiner */
+@container (max-width: 400px) {
+  .viz-service__st small { display: none; }
+  .viz-service__st strong { font-size: .84rem; }
+  .viz-service__ico { width: 44px; height: 44px; border-radius: 13px; }
+  .viz-service__line { top: 21px; }
+}
+.viz-service__loop { align-self: center; display: inline-flex; align-items: center; gap: 6px; font-size: .76rem; font-weight: 600; color: var(--royal); }
+.viz-service__loop .i { width: 14px; height: 14px; }
+@media (prefers-reduced-motion: no-preference) {
+  .viz-service__line i { animation: svc-line var(--svc) var(--ease-out) infinite both; }
+  .viz-service__st--1 .viz-service__ico b { animation: svc-on1 var(--svc) ease-out infinite both; }
+  .viz-service__st--2 .viz-service__ico b { animation: svc-on2 var(--svc) ease-out infinite both; }
+  .viz-service__st--3 .viz-service__ico b { animation: svc-on3 var(--svc) ease-out infinite both; }
+  .viz-service__st--1 .viz-service__ico { animation: svc-pop1 var(--svc) var(--ease-out) infinite both; }
+  .viz-service__st--2 .viz-service__ico { animation: svc-pop2 var(--svc) var(--ease-out) infinite both; }
+  .viz-service__st--3 .viz-service__ico { animation: svc-pop3 var(--svc) var(--ease-out) infinite both; }
+  .viz-service__loop .i { animation: svc-turn var(--svc) var(--ease-out) infinite both; }
+}
+/* Linie: zur Mitte (Umsetzung), dann zum Ende (Weiterentwicklung), kurz stehen, ausblenden, von vorn */
+@keyframes svc-line {
+  0%, 8% { transform: scaleX(0); opacity: 1; }
+  38%, 48% { transform: scaleX(.5); opacity: 1; }
+  78%, 90% { transform: scaleX(1); opacity: 1; }
+  98%, 100% { transform: scaleX(1); opacity: 0; }
+}
+@keyframes svc-on1 { 0%, 2% { opacity: 0; } 7%, 90% { opacity: 1; } 98%, 100% { opacity: 0; } }
+@keyframes svc-on2 { 0%, 37% { opacity: 0; } 42%, 90% { opacity: 1; } 98%, 100% { opacity: 0; } }
+@keyframes svc-on3 { 0%, 77% { opacity: 0; } 82%, 90% { opacity: 1; } 98%, 100% { opacity: 0; } }
+@keyframes svc-pop1 { 0%, 2% { transform: none; } 6% { transform: translateY(-5px) scale(1.08); } 12%, 100% { transform: none; } }
+@keyframes svc-pop2 { 0%, 37% { transform: none; } 41% { transform: translateY(-5px) scale(1.08); } 47%, 100% { transform: none; } }
+@keyframes svc-pop3 { 0%, 77% { transform: none; } 81% { transform: translateY(-5px) scale(1.08); } 87%, 100% { transform: none; } }
+/* der Kreislauf-Pfeil dreht sich einmal, wenn es von vorn losgeht */
+@keyframes svc-turn { 0%, 88% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
 
 /* Visual: Analysen */
 .viz-chart { display: flex; flex-direction: column; padding: 22px 24px 18px; }
@@ -4199,7 +4237,7 @@ a.more-link:hover .i { transform: translateX(3px); }
 
 /* Labels (Großbuchstaben) in Barlow etwas kräftiger */
 .stat dt, .tab__num, .panel__kicker, .feature__num, .quote__since,
-.footer__h, .voucher__label, .viz-steps li span, .mini-deal em { font-weight: 600; }
+.footer__h, .voucher__label, .mini-deal em { font-weight: 600; }
 
 /* ==========================================================================
    Einblend-Animationen
@@ -4226,10 +4264,6 @@ a.more-link:hover .i { transform: translateX(3px); }
 @keyframes bob { 50% { translate: 0 -10px; } }
 @keyframes shimmer { 0%, 55% { transform: translateX(-60%); } 100% { transform: translateX(60%); } }
 @keyframes breathe { 50% { transform: scale(1.04); opacity: .7; } }
-@keyframes step {
-  0%, 30% { opacity: 1; transform: none; }
-  38%, 100% { opacity: .45; transform: translateX(-6px); }
-}
 
 /* ==========================================================================
    Responsive

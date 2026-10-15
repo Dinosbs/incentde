@@ -5145,12 +5145,17 @@
           </article>
 
           <article class="card" data-spotlight data-reveal>
-            <div class="card__visual viz-steps" aria-hidden="true">
-              <ol>
-                <li><span>1</span>Strategie</li>
-                <li><span>2</span>Umsetzung</li>
-                <li><span>3</span>Weiterentwicklung</li>
-              </ol>
+            <!-- Full-Service: Strategie → Umsetzung → Weiterentwicklung aus einer Hand; die Linie füllt sich von Station zu Station,
+                 jede leuchtet beim Erreichen auf, danach beginnt der Kreislauf von vorn (nur transform/opacity) -->
+            <div class="card__visual viz-service" aria-hidden="true">
+              <span class="viz-service__chip"><span class="viz-service__av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span><span><b>Ihr Ansprechpartner</b><small>persönlich betreut</small></span></span>
+              <div class="viz-service__track">
+                <span class="viz-service__line"><i></i></span>
+                <div class="viz-service__st viz-service__st--1"><span class="viz-service__ico"><svg class="i" aria-hidden="true"><use href="#i-target"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-target"/></svg></b></span><strong>Strategie</strong><small>Konzept &amp; Beratung</small></div>
+                <div class="viz-service__st viz-service__st--2"><span class="viz-service__ico"><svg class="i" aria-hidden="true"><use href="#i-settings"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-settings"/></svg></b></span><strong>Umsetzung</strong><small>Einrichtung &amp; Go&#8209;live</small></div>
+                <div class="viz-service__st viz-service__st--3"><span class="viz-service__ico"><svg class="i" aria-hidden="true"><use href="#i-trending"/></svg><b><svg class="i" aria-hidden="true"><use href="#i-trending"/></svg></b></span><strong>Weiterentwicklung</strong><small>Analyse &amp; Optimierung</small></div>
+              </div>
+              <span class="viz-service__loop"><svg class="i" aria-hidden="true"><use href="#i-reset"/></svg>Laufend weiterentwickelt</span>
             </div>
             <div class="card__copy">
               <h3>Full-Service-Betreuung</h3>
