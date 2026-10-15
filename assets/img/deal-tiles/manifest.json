@@ -1,4 +1,16 @@
 {
-  "files": [],
-  "versions": {}
+  "files": [
+    "mode.webp",
+    "reisen.webp",
+    "sport.webp",
+    "technik.webp",
+    "wohnen.webp"
+  ],
+  "versions": {
+    "mode.webp": "3f830838",
+    "reisen.webp": "1c307620",
+    "sport.webp": "7363091a",
+    "technik.webp": "8d81e701",
+    "wohnen.webp": "f302d09c"
+  }
 }
