@@ -220,7 +220,7 @@ Vergleich „Klassische Brand Deals / Dein Community-Shop“ (`#einnahmen`, sche
 
 **SELECT-Gutschein** (`.selv` in `main.css`): Nachbau der echten Gutscheine. PDF = Hochformat
 mit Motiv, Tabelle (Wert, Code, Gültigkeit), Grußtext, QR-Code und Einlöse-Schritten; Print = Karte im DIN-lang-Format (210 × 99 mm, Seitenverhältnis fest); CSV = Tabelle.
-Im Seitenkopf liegen PDF und Karte übereinander wie auf den Produktbildern. Die Motive sind gezeichnet (Verlauf, Icons) statt
+Im Seitenkopf liegen PDF und Karte übereinander wie auf den Produktbildern und schweben langsam auf und ab (je eigener Takt, 9 s und 11 s, mit einem Hauch Neigung; nur `translate`/`rotate`, bei „Bewegung reduzieren“ still). Die Motive sind gezeichnet (Verlauf, Icons) statt
 fotografiert; Texte und Icons je Anlass stehen in `MOTIFS` in `main.js`. Das SELECT-Logo ist als SVG nachgebaut – liegt das
 Original als SVG vor, kann es direkt eingesetzt werden (ein SBSCOM-Logo steht nicht mehr auf den Gutscheinen). Ein eigenes Logo
 aus dem Marken-Profil sitzt oben rechts in einem festen Rechteck und wird darin eingepasst. Alle Maße hängen an der Gutscheinbreite

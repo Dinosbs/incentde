@@ -3298,6 +3298,15 @@ main > .partners:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
 .coupon[data-format="duo"] .selv { position: absolute; }
 .coupon[data-format="duo"] .selv--doc { right: 0; top: 0; width: 45%; transform: translateZ(0); }
 .coupon[data-format="duo"] .selv--card { display: flex; left: 0; bottom: 3%; width: 62.5%; transform: translateZ(50px); }
+/* Seitenkopf: beide Gutscheine schweben langsam auf und ab – eigener Takt und Versatz, damit sie nicht im Gleichschritt
+   laufen, dazu ein Hauch Neigung. Nur translate/rotate (die Tiefe per transform und die Neigung zum Cursor bleiben),
+   außerhalb des Bildes pausiert (data-anim-off), bei „Bewegung reduzieren“ still */
+@media (prefers-reduced-motion: no-preference) {
+  .coupon[data-format="duo"] .selv--doc { animation: voucher-float 9s ease-in-out -2s infinite; }
+  .coupon[data-format="duo"] .selv--card { animation: voucher-float-2 11s ease-in-out -7s infinite; }
+}
+@keyframes voucher-float { 0%, 100% { translate: 0 0; rotate: 0deg; } 50% { translate: 0 -11px; rotate: -.6deg; } }
+@keyframes voucher-float-2 { 0%, 100% { translate: 0 -4px; rotate: .5deg; } 50% { translate: 0 8px; rotate: -.2deg; } }
 
 /* CSV */
 .coupon__sheet { display: none; overflow: hidden; border-radius: 14px; background: #fff; box-shadow: 0 40px 80px -30px rgba(0, 10, 40, .55), 0 0 0 1px rgba(0, 10, 30, .08); font-size: .85rem; }
